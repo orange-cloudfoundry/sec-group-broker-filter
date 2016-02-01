@@ -1,6 +1,6 @@
 # sec-group-brokerchain
 
-This Cloud Foundry service broker is designed to be chained in front-of other service brokers and dynamically open security groups to let apps bound to service instance emmit outgoing traffic to IP addresses returned in the chained service instances credentials.
+This Cloud Foundry service broker is designed to be chained in front-of other service brokers and dynamically open [security groups](https://docs.cloudfoundry.org/adminguide/app-sec-groups.html) to let apps bound to service instance emmit outgoing traffic to IP addresses returned in the chained service instances credentials.
 
 ![Overview seq diagram](http://plantuml.com/plantuml/svg/jP712i8m44Jl_OgzgOVYlOYWEOW7GV03IaoNkXYIkaaA_NiR5IornHxqkikysPaLseOY5zPujbeZGxg64wfynpPK-PRj5LbS99aCbDJQjKkkII4yLx0vxc6kf9VQbikARKsEh5aaKdcgfSTXM38uZTw7njtqQpXkcGrw5lZ5DH6_I7icKooIsHUlVnSGhtYRT5KZx5NQOpFwmCOzI6HAK8m56azIkswL4z3jsVrciuXhvSj8T-1G1IRVG1d545mq5296UOVeCxfNVEm-Njdc6tdbnA23wZi0)
 
