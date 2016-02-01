@@ -32,7 +32,8 @@ applications:
     UPSTREAM.ID.SERVER_URL=https://mysql-broker.mydomain.org
     # Where traffic will be received from
     UPSTREAM.ID.INTERMEDIATE_ROUTE=sec-group-chained-mysql-broker.mydomain.org
-    # Range of IP adress returned un credentials to open security groups for
+    # Range of IP adress into which matching IP in returned credentials will triger opening of security groups
+    # Outside this range, the bind request is transparently proxies without triggering any CC API action.
     UPSTREAM.ID.WHITE_LISTED_CIDRs="192.168.3.1/24,192.168.4.1/32"
     
     # CloudFoundry CC api url
