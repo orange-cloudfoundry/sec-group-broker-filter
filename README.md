@@ -1,8 +1,8 @@
-# sec-group-brokerchain
+# sec-group-broker-filter
 
 This Cloud Foundry service broker is designed to be chained in front-of other service brokers and dynamically open [security groups](https://docs.cloudfoundry.org/adminguide/app-sec-groups.html) to let apps bound to service instance emmit outgoing traffic to IP addresses returned in the chained service instances credentials.
 
-![Overview seq diagram](http://plantuml.com/plantuml/svg/jP712i8m44Jl_OgzgOVYlOYWEOW7GV03IaoNkXYIkaaA_NiR5IornHxqkikysPaLseOY5zPujbeZGxg64wfynpPK-PRj5LbS99aCbDJQjKkkII4yLx0vxc6kf9VQbikARKsEh5aaKdcgfSTXM38uZTw7njtqQpXkcGrw5lZ5DH6_I7icKooIsHUlVnSGhtYRT5KZx5NQOpFwmCOzI6HAK8m56azIkswL4z3jsVrciuXhvSj8T-1G1IRVG1d545mq5296UOVeCxfNVEm-Njdc6tdbnA23wZi0)
+![Overview seq diagram](http://plantuml.com/plantuml/svg/lP7DYi8m4CVlVOgvgGVnNfO53IWU164VeCHqA8D3KYT9mRUtMGLBDUX1lCuml__7A7QnhfIpGHmp2in_uGzDjH4NssebxeXIhOa3IWb6C_j-BHqPXEiIblijJ8qEcbspQCLrvCdPMQ5De4u7pE6Ap3mvs9tzYM_Zl6pvLBV6byg5-apg0zbwLanUwdsZYkJbBZIyoj9_vYEwO8XY_J-BR0D6i4ORIBCVrleMlBS-RhbCm1wmI7mF7aqK2cTeqZb4doILId7kGSQCeO-7tSDR-uJPjxuPDdD_0G00)
 
 This is a similar broker chain as proposed into https://github.com/cloudfoundry-community/cf-subway
 
@@ -12,16 +12,16 @@ This is a similar broker chain as proposed into https://github.com/cloudfoundry-
 # 1st deploy an upstream chained broker accessible through its route: mysql-broker.mydomain.org. Don't register it directly into CF
 [...]
 
-# then deploy sec-group-brokerchain and configure it to proxy traffic to the chained broker:
-# you may want to deploy sec-group-brokerchain usingcloudfoundry:
+# then deploy sec-group-broker-filter and configure it to proxy traffic to the filtered broker:
+# you may want to deploy sec-group-broker-filter using cloudfoundry:
 
 $ vi manifest.yml
 ---
 applications:
-- name: sec-group-brokerchain
+- name: sec-group-broker-filter
   memory: 256M
   instances: 1
-  path: sec-group-brokerchain.war 
+  path: sec-group-broker-filter.war 
 
   # URL to register into the marketplace
   host: sec-group-chained-mysql-broker
@@ -103,6 +103,6 @@ In this case, the default security groups don't let apps reach the IP adresses r
 Initially the FQDN are resolved into IP addresses when binding is requested, and they are not updated afterwards.
 A future evolution could be to periodically (at the end of the TTL period) lookup the IP address and update the corresponding security group. 
 
-## Can a single sec-group-brokerchain proxy multiple upstream brokers ?
+## Can a single sec-group-broker-filter proxy multiple upstream brokers ?
 
-Yes, add as many routes to the sec-group-brokerchain as there are up stream brokers, each with its own configuration entries.
+Yes, add as many routes to the sec-group-broker-filter as there are up stream brokers, each with its own configuration entries.
