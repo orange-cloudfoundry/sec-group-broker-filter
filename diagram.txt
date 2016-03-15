@@ -1,0 +1,20 @@
+@startuml
+
+Cloud_Controller -> Sec_Group_Broker_Filter: calls Service Broker API (catalog/provision)
+activate Sec_Group_Broker_Filter
+Sec_Group_Broker_Filter -> Mysql_Broker: calls Service Broker API: (catalog/provision)
+deactivate Sec_Group_Broker_Filter
+
+Cloud_Controller -> Sec_Group_Broker_Filter: calls Service Broker API (bind)
+'activate Sec_Group_Broker_Filter
+activate Sec_Group_Broker_Filter
+Sec_Group_Broker_Filter -> Mysql_Broker: calls Service Broker API: bind
+activate Mysql_Broker
+Sec_Group_Broker_Filter <- Mysql_Broker: returns binding credentials
+deactivate Mysql_Broker
+Sec_Group_Broker_Filter -> Cloud_Controller: create/binds security group using CC API
+activate Cloud_Controller
+deactivate Cloud_Controller
+Cloud_Controller <- Sec_Group_Broker_Filter: returns binding credentials
+deactivate Sec_Group_Broker_Filter
+@enduml
