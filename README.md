@@ -98,10 +98,11 @@ When some legacy services exposed in the marketplace need to be protected at the
 
 In this case, the default security groups don't let apps reach the IP adresses ranges where such legacy services are exposed. This broker dynamically creates and assigns security groups to access services returned in credentials.
 
-## When are credentials FQDN looked up, when are they updated if DNS resolution changes?
+## When are credentials FQDN looked up, when are ASG updated if DNS resolution changes?
 
-Initially the FQDN are resolved into IP addresses when binding is requested, and they are not updated afterwards.
-A future evolution could be to periodically (at the end of the TTL period) lookup the IP address and update the corresponding security group. 
+Initially the FQDN are resolved into IP addresses when binding is requested, which translates into an application security group (ASG) being created for the space. The resulting ASG is currently not updated afterwards.
+
+A future evolution could be to periodically (at the end of the TTL period) lookup the IP address and update the corresponding security group. This would also require a [rolling update](http://v3-apidocs.cloudfoundry.org/version/release-candidate/index.html#terminate-a-process-instance) of the bound application containers, as the [New security rules apply to new containers as they are created, but not to containers that are already running when the rules are created.](http://docs.cloudfoundry.org/adminguide/app-sec-groups.html#binding-groups)
 
 ## Can a single sec-group-broker-filter proxy multiple upstream brokers ?
 
