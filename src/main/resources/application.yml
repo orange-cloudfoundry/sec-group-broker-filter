@@ -1,0 +1,15 @@
+logging:
+  level:
+    ROOT: DEBUG
+
+security:
+  user:
+    password: ${filtered.broker.user.password}
+    name: ${filtered.broker.user.password}
+
+zuul:
+ routes:
+  filtered-broker:
+      path: /**
+      url: ${filtered.broker.url}/
+      sensitiveHeaders: Cookie,Set-Cookie #excludes Authorization
