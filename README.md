@@ -29,17 +29,21 @@ applications:
 
   env:
     # Where to send received traffic
-    UPSTREAM.ID.SERVER_URL=https://mysql-broker.mydomain.org
-    # Where traffic will be received from
+    FILTERED_BROKER_URL=https://mysql-broker.mydomain.org
+    # basic auth credentials to use while sending traffic
+    FILTERED_BROKER_CREDENTIALS_USER=https://mysql-broker.mydomain.org
+    FILTERED_BROKER_CREDENTIALS_PASSWORD=https://mysql-broker.mydomain.org
+
+    # WARNING : not yet implemented. Where traffic will be received from
     UPSTREAM.ID.INTERMEDIATE_ROUTE=sec-group-chained-mysql-broker.mydomain.org
-    # Range of IP adress into which matching IP in returned credentials will triger opening of security groups
+    # WARNING : not yet implemented. Range of IP adress into which matching IP in returned credentials will triger opening of security groups
     # Outside this range, the bind request is transparently proxies without triggering any CC API action.
     UPSTREAM.ID.WHITE_LISTED_CIDRs="192.168.3.1/24,192.168.4.1/32"
     
     # CloudFoundry CC api url
     CLOUDFOUNDRY_API_URL: https://api.yourdomain.com
     # CloudFoudry user with Org admin privileges on orgs where services will be bound
-    CLOUDFOUNDRY_CREDENTIALS_USER_ID: admin
+    CLOUDFOUNDRY_CREDENTIALS_USER: admin
     # CloudFoudry user password
     CLOUDFOUNDRY_CREDENTIALS_PASSWORD: password
     
