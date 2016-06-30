@@ -1,11 +1,12 @@
 logging:
   level:
-    ROOT: DEBUG
+    ROOT: INFO
+    #org.apache.http: DEBUG
 
 security:
   user:
-    password: ${filtered.broker.user.password}
-    name: ${filtered.broker.user.password}
+    name: ${filtered.broker.credentials.name}
+    password: ${filtered.broker.credentials.password}
 
 zuul:
  routes:

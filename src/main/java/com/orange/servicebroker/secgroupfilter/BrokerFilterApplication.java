@@ -17,14 +17,19 @@
 
 package com.orange.servicebroker.secgroupfilter;
 
+import com.orange.servicebroker.secgroupfilter.filter.binding.CreateSecurityGroup;
+import com.orange.servicebroker.secgroupfilter.filter.binding.CreateServiceInstanceBindingFilterActivationSpecification;
+import com.orange.servicebroker.secgroupfilter.filter.binding.CreateServiceInstanceBindingPostFilter;
+import org.cloudfoundry.client.CloudFoundryClient;
+import org.cloudfoundry.client.v2.applications.ApplicationsV2;
+import org.cloudfoundry.client.v2.securitygroups.SecurityGroups;
+import org.cloudfoundry.spring.client.SpringCloudFoundryClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-
-/**
- * @author Sebastien Bortolussi
- */
 
 @SpringBootApplication
 @EnableZuulProxy
@@ -32,6 +37,36 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 public class BrokerFilterApplication {
 
     public static void main(String[] args) {
+        if ("true".equals(System.getenv("SKIP_SSL_VALIDATION"))) {
+            SSLValidationDisabler.disableSSLValidation();
+        }
         SpringApplication.run(BrokerFilterApplication.class, args);
+    }
+
+    @Bean
+    CloudFoundryClient cloudFoundryClient(@Value("${cloudfoundry.api.url}") String host,
+                                          @Value("${cloudfoundry.credentials.user}") String username,
+                                          @Value("${cloudfoundry.credentials.password}") String password) {
+        return SpringCloudFoundryClient.builder()
+                .host(host)
+                .username(username)
+                .password(password)
+                .skipSslValidation(true)
+                .build();
+    }
+
+    @Bean
+    SecurityGroups securityGroups(CloudFoundryClient cloudFoundryClient) {
+        return cloudFoundryClient.securityGroups();
+    }
+
+    @Bean
+    ApplicationsV2 applicationsV2(CloudFoundryClient cloudFoundryClient) {
+        return cloudFoundryClient.applicationsV2();
+    }
+
+    @Bean
+    CreateServiceInstanceBindingPostFilter createServiceInstanceBindingPostFilter(SecurityGroups securityGroups, ApplicationsV2 applicationsV2) {
+        return new CreateServiceInstanceBindingPostFilter(new CreateServiceInstanceBindingFilterActivationSpecification(), new CreateSecurityGroup(securityGroups, applicationsV2));
     }
 }
