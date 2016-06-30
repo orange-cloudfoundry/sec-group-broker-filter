@@ -20,6 +20,9 @@ package com.orange.servicebroker.secgroupfilter;
 import com.orange.servicebroker.secgroupfilter.filter.binding.CreateSecurityGroup;
 import com.orange.servicebroker.secgroupfilter.filter.binding.CreateServiceInstanceBindingFilterActivationSpecification;
 import com.orange.servicebroker.secgroupfilter.filter.binding.CreateServiceInstanceBindingPostFilter;
+import com.orange.servicebroker.secgroupfilter.filter.unbinding.DeleteSecurityGroup;
+import com.orange.servicebroker.secgroupfilter.filter.unbinding.DeleteServiceInstanceBindingFilterActivationSpecification;
+import com.orange.servicebroker.secgroupfilter.filter.unbinding.DeleteServiceInstanceBindingPostFilter;
 import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.applications.ApplicationsV2;
 import org.cloudfoundry.client.v2.securitygroups.SecurityGroups;
@@ -68,5 +71,10 @@ public class BrokerFilterApplication {
     @Bean
     CreateServiceInstanceBindingPostFilter createServiceInstanceBindingPostFilter(SecurityGroups securityGroups, ApplicationsV2 applicationsV2) {
         return new CreateServiceInstanceBindingPostFilter(new CreateServiceInstanceBindingFilterActivationSpecification(), new CreateSecurityGroup(securityGroups, applicationsV2));
+    }
+
+    @Bean
+    DeleteServiceInstanceBindingPostFilter deleteServiceInstanceBindingPostFilter(SecurityGroups securityGroups) {
+        return new DeleteServiceInstanceBindingPostFilter(new DeleteServiceInstanceBindingFilterActivationSpecification(), new DeleteSecurityGroup(securityGroups));
     }
 }
