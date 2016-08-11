@@ -29,10 +29,13 @@ applications:
 
   env:
     # Where to send received traffic
-    FILTERED_BROKER_URL=https://mysql-broker.mydomain.org
+    BROKER_FILTER_URL=https://mysql-broker.mydomain.org
     # basic auth credentials to use while sending traffic
-    FILTERED_BROKER_CREDENTIALS_USER=https://mysql-broker.mydomain.org
-    FILTERED_BROKER_CREDENTIALS_PASSWORD=https://mysql-broker.mydomain.org
+    BROKER_FILTER_CREDENTIALS_USER=https://mysql-broker.mydomain.org
+    BROKER_FILTER_CREDENTIALS_PASSWORD=https://mysql-broker.mydomain.org
+    #avoid service offering conflict.
+    #add suffix to exiting service offering so that filter broker offering and target broker offering can exit at the same time
+    BROKER_FILTER_SERVICEOFFERING_SUFFIX=-sec-filter
 
     # WARNING : not yet implemented. Where traffic will be received from
     UPSTREAM.ID.INTERMEDIATE_ROUTE=sec-group-chained-mysql-broker.mydomain.org
@@ -40,7 +43,7 @@ applications:
     # Outside this range, the bind request is transparently proxies without triggering any CC API action.
     UPSTREAM.ID.WHITE_LISTED_CIDRs="192.168.3.1/24,192.168.4.1/32"
     
-    # CloudFoundry CC api url
+    # CloudFoundry CC api host
     CLOUDFOUNDRY_API_URL: https://api.yourdomain.com
     # CloudFoudry user with Org admin privileges on orgs where services will be bound
     CLOUDFOUNDRY_CREDENTIALS_USER: admin
@@ -93,6 +96,33 @@ The resulting security group opened would be:
   {"protocol":"tcp","destination":"141.8.225.68/31","ports":"3306"},
 ]
 ```
+
+# Development
+The project depends on Java 8.  To build from source and install to your local Maven cache, run the following:
+
+```shell
+$ ./mvnw clean install
+```
+
+To run the integration tests, run the following:
+
+```
+$ ./mvnw -Pintegration-test clean test
+```
+
+**IMPORTANT**
+Integration tests should be run against an empty Cloud Foundry instance. The integration tests are destructive, affecting nearly everything on an instance given the chance.
+
+The integration tests require a running instance of Cloud Foundry to test against.  To configure the integration tests with the appropriate connection information use the following environment variables:
+
+Name | Description
+---- | -----------
+`TEST_APIHOST` | The host of Cloud Foundry instance.  Typically something like `api.local.pcfdev.io`.
+`TEST_PASSWORD` | The test user's password
+`TEST_SKIPSSLVALIDATION` | Whether to skip SSL validation when connecting to the Cloud Foundry instance.  Typically `true` when connecting to a PCF Dev instance.
+`TEST_UAA_CLIENTID` | The client id to use for testing the UAA APIs
+`TEST_UAA_CLIENTSECRET` | The client secret to use for testing the UAA APIs
+`TEST_USERNAME` | The test user's username
 
 # FAQ
 
