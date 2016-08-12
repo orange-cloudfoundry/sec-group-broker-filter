@@ -1,0 +1,4 @@
+security:
+  user:
+    name: ${broker.filter.user}
+    password: ${broker.filter.password}
