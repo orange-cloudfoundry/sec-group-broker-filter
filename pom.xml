@@ -7,7 +7,7 @@
     <groupId>com.orange.cloud.servicebroker</groupId>
     <artifactId>service-broker-filter</artifactId>
     <packaging>pom</packaging>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0.M1</version>
 
     <modules>
         <module>service-broker-filter-core</module>
@@ -20,6 +20,22 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>1.4.0.RC1</version>
     </parent>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.orange.cloud.servicebroker</groupId>
+                <artifactId>servicebroker-filter-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.orange.cloud.servicebroker</groupId>
+                <artifactId>service-broker-filter-securitygroups</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+
+    </dependencyManagement>
 
     <repositories>
         <repository>
