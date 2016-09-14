@@ -26,6 +26,7 @@ import org.cloudfoundry.client.v2.applications.GetApplicationRequest;
 import org.cloudfoundry.client.v2.applications.GetApplicationResponse;
 import org.cloudfoundry.client.v2.securitygroups.CreateSecurityGroupRequest;
 import org.cloudfoundry.client.v2.securitygroups.RuleEntity;
+import org.cloudfoundry.client.v2.securitygroups.SecurityGroupEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
@@ -35,7 +36,6 @@ import org.springframework.util.ReflectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,7 +45,7 @@ import java.util.stream.Stream;
 @Component
 public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilter, ServiceBrokerPostFilter<CreateServiceInstanceBindingRequest, CreateServiceInstanceAppBindingResponse> {
 
-    public static final String DEFAULT_PROTOCOL = "tcp";
+    static final String DEFAULT_PROTOCOL = "tcp";
     private CloudFoundryClient cloudFoundryClient;
 
     @Autowired
@@ -77,8 +77,7 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
 
             log.debug("creating Security Group rules : {}.", rules);
 
-
-            spaceId(request)
+            final SecurityGroupEntity securityGroup = spaceId(request)
                     .then(spaceId -> cloudFoundryClient.securityGroups()
                             .create(CreateSecurityGroupRequest.builder()
                                     .name(getSecurityGroupName(request))
@@ -86,11 +85,10 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
                                     .spaceId(spaceId)
                                     .build()))
                     .doOnError(t -> log.error("Fail to create security group. Error details {}", t))
-                    .timeout(Duration.ofSeconds(60))
-                    .subscribe(resp -> log.debug("Security Group {} created", resp.getEntity().getName()));
-
-
-        } catch (UnknownHostException e) {
+                    .block(Duration.ofSeconds(60))
+                    .getEntity();
+            log.debug("Security Group {} created", securityGroup.getName());
+        } catch (Exception e) {
             log.error("Fail to create Security Group. Error details {}", e);
             ReflectionUtils.rethrowRuntimeException(e);
         }
