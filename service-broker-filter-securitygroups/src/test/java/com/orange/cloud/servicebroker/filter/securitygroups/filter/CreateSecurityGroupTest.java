@@ -18,21 +18,25 @@
 package com.orange.cloud.servicebroker.filter.securitygroups.filter;
 
 import org.cloudfoundry.client.CloudFoundryClient;
+import org.cloudfoundry.client.v2.CloudFoundryException;
 import org.cloudfoundry.client.v2.applications.ApplicationEntity;
 import org.cloudfoundry.client.v2.applications.ApplicationsV2;
 import org.cloudfoundry.client.v2.applications.GetApplicationRequest;
 import org.cloudfoundry.client.v2.applications.GetApplicationResponse;
 import org.cloudfoundry.client.v2.securitygroups.*;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,13 +45,13 @@ import static org.mockito.BDDMockito.given;
 @RunWith(MockitoJUnitRunner.class)
 public class CreateSecurityGroupTest {
 
-    public static final String VALID_JDBC_URL = "jdbc:mysql://127.0.0.1:3306/mydb?user=2106password=Uq3YCioVsO3Dbcp4";
-    public static final String INVALID_JDBC_URL_NO_HOST = "jdbc:mysql:///mydb?user=2106password=Uq3YCioVsO3Dbcp4";
-    public static final String INVALID_JDBC_URL_NO_PORT = "jdbc:mysql://127.0.0.1/mydb?user=2106password=Uq3YCioVsO3Dbcp4";
-
+    static final String VALID_JDBC_URL = "jdbc:mysql://127.0.0.1:3306/mydb?user=2106password=Uq3YCioVsO3Dbcp4";
+    static final String INVALID_JDBC_URL_NO_HOST = "jdbc:mysql:///mydb?user=2106password=Uq3YCioVsO3Dbcp4";
+    static final String INVALID_JDBC_URL_NO_PORT = "jdbc:mysql://127.0.0.1/mydb?user=2106password=Uq3YCioVsO3Dbcp4";
+    @Rule
+    public OutputCapture capture = new OutputCapture();
     @Mock
     CloudFoundryClient cloudFoundryClient;
-
     private CreateSecurityGroup createSecurityGroup;
 
     @Before
@@ -79,6 +83,71 @@ public class CreateSecurityGroupTest {
                                 .destination("127.0.0.1")
                                 .build())
                         .build());
+    }
+
+
+    @Test(expected = CloudFoundryException.class)
+    public void fail_to_create_create_security_group() throws Exception {
+        givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
+        givenCreateSecurityGroupsFails(this.cloudFoundryClient, "test-securitygroup-name");
+
+        Map<String, Object> credentials = new HashMap<>();
+        credentials.put("jdbcUrl", VALID_JDBC_URL);
+        createSecurityGroup.run(new CreateServiceInstanceBindingRequest(null, null, "app_guid", null, null).withBindingId("test-securitygroup-name"),
+                new CreateServiceInstanceAppBindingResponse().withCredentials(credentials));
+
+    }
+
+    @Test(expected = CloudFoundryException.class)
+    public void should_block_until_create_security_group_returns() throws Exception {
+        givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
+        givenCreateSecurityGroupsFailsWithDelay(this.cloudFoundryClient, "test-securitygroup-name");
+
+        Map<String, Object> credentials = new HashMap<>();
+        credentials.put("jdbcUrl", VALID_JDBC_URL);
+        createSecurityGroup.run(new CreateServiceInstanceBindingRequest(null, null, "app_guid", null, null).withBindingId("test-securitygroup-name"),
+                new CreateServiceInstanceAppBindingResponse().withCredentials(credentials));
+
+        Mockito.verify(cloudFoundryClient.securityGroups())
+                .create(CreateSecurityGroupRequest.builder()
+                        .name("test-securitygroup-name")
+                        .spaceId("space_id")
+                        .rule(RuleEntity.builder()
+                                .protocol("tcp")
+                                .ports("3306")
+                                .destination("127.0.0.1")
+                                .build())
+                        .build());
+    }
+
+    private void givenCreateSecurityGroupsFails(CloudFoundryClient cloudFoundryClient, String securityGroupName) {
+        given(cloudFoundryClient.securityGroups()
+                .create(CreateSecurityGroupRequest.builder()
+                        .name(securityGroupName)
+                        .spaceId("space_id")
+                        .rule(RuleEntity.builder()
+                                .protocol("tcp")
+                                .ports("3306")
+                                .destination("127.0.0.1")
+                                .build())
+                        .build()))
+                .willReturn(Mono.error(new CloudFoundryException(999, "test-exception-description", "test-exception-errorCode")));
+    }
+
+    private void givenCreateSecurityGroupsFailsWithDelay(CloudFoundryClient cloudFoundryClient, String securityGroupName) {
+        given(cloudFoundryClient.securityGroups()
+                .create(CreateSecurityGroupRequest.builder()
+                        .name(securityGroupName)
+                        .spaceId("space_id")
+                        .rule(RuleEntity.builder()
+                                .protocol("tcp")
+                                .ports("3306")
+                                .destination("127.0.0.1")
+                                .build())
+                        .build()))
+                .willReturn(Mono
+                        .delay(Duration.ofSeconds(2))
+                        .then(Mono.error(new CloudFoundryException(999, "test-exception-description", "test-exception-errorCode"))));
     }
 
     private void givenBoundedAppExists(CloudFoundryClient cloudFoundryClient, String appId) {
