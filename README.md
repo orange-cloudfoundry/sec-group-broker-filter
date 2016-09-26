@@ -77,13 +77,13 @@ For example, in the following credentials hash,
 
 ```json
 {
-  name: "ad_c6f4446532610ab",
-  hostname: "us-cdbr-east-03.cleardb.com",
-  port: "3306",
-  username: "b5d435f40dd2b2",
-  password: "ebfc00ac",
-  uri: "mysql://b5d435f40dd2b2:ebfc00ac@us-cdbr-east-03.cleardb.com:3306/ad_c6f4446532610ab",
-  jdbcUrl: "jdbc:mysql://b5d435f40dd2b2:ebfc00ac@us-cdbr-east-03.cleardb.com:3306/ad_c6f4446532610ab"
+  "name": "ad_c6f4446532610ab",
+  "hostname": "us-cdbr-east-03.cleardb.com",
+  "port": "3306",
+  "username": "b5d435f40dd2b2",
+  "password": "ebfc00ac",
+  "uri": "mysql://b5d435f40dd2b2:ebfc00ac@us-cdbr-east-03.cleardb.com:3306/ad_c6f4446532610ab",
+  "jdbcUrl": "jdbc:mysql://b5d435f40dd2b2:ebfc00ac@us-cdbr-east-03.cleardb.com:3306/ad_c6f4446532610ab"
 }
 ```
 
