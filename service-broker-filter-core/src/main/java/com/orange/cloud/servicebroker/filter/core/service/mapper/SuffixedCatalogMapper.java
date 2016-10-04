@@ -17,7 +17,6 @@
 
 package com.orange.cloud.servicebroker.filter.core.service.mapper;
 
-import com.orange.cloud.servicebroker.filter.core.service.mapper.CatalogMapper;
 import org.springframework.cloud.servicebroker.model.Catalog;
 import org.springframework.cloud.servicebroker.model.Plan;
 import org.springframework.cloud.servicebroker.model.ServiceDefinition;
@@ -25,9 +24,11 @@ import org.springframework.cloud.servicebroker.model.ServiceDefinition;
 import java.util.stream.Collectors;
 
 /**
+ * Adds a suffix to service ids and names, plan ids and names to avoid conflicts
+ * when "target broker" is already registered in marketplace.
+ *
  * @author Sebastien Bortolussi
  */
-
 public class SuffixedCatalogMapper implements CatalogMapper {
 
     private String serviceOfferingSuffix;

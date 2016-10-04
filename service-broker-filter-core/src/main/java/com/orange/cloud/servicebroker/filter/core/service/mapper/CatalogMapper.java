@@ -20,8 +20,14 @@ package com.orange.cloud.servicebroker.filter.core.service.mapper;
 import org.springframework.cloud.servicebroker.model.Catalog;
 
 /**
+ * This interface is implemented by mappers to avoid id and name conflicts between "target broker" catalog and "filter broker" catalog.
+ *
  * @author Sebastien Bortolussi
  */
 public interface CatalogMapper {
+    /**
+     * @param catalog the target broker catalog
+     * @return the filter broker catalog
+     */
     Catalog toCatalog(Catalog catalog);
 }

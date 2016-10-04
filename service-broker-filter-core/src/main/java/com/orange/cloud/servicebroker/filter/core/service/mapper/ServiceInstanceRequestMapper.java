@@ -23,6 +23,10 @@ import org.springframework.cloud.servicebroker.model.GetLastServiceOperationRequ
 import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceRequest;
 
 /**
+ * Because filter broker" catalog and "target broker" catalog may be different,
+ * we need to map incomming request (to "filter broker") to target broker request.
+ * This may be required for field such as plandId or ServiceDefinitionId.
+ *
  * @author Sebastien Bortolussi
  */
 public interface ServiceInstanceRequestMapper {

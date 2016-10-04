@@ -17,13 +17,14 @@
 
 package com.orange.cloud.servicebroker.filter.core.service.mapper;
 
-import com.orange.cloud.servicebroker.filter.core.service.mapper.CatalogMapper;
 import org.springframework.cloud.servicebroker.model.Catalog;
 
 /**
+ * A very basic implementation that just map directly "target broker" catalog to "filter broker" catalog.
+ * Warning: this may cause id and name conflicts when "target broker" is already registered in marketplace.
+ *
  * @author Sebastien Bortolussi
  */
-
 public class DefaultCatalogMapper implements CatalogMapper {
 
     @Override

@@ -21,7 +21,7 @@ applications:
 - name: sec-group-broker-filter
   memory: 256M
   instances: 1
-  path: sec-group-broker-filter.war 
+  path: sec-group-broker-filter-<version>.jar
 
   # URL to register into the marketplace
   host: sec-group-chained-mysql-broker
