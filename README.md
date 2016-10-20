@@ -31,11 +31,11 @@ applications:
     # Where to send received traffic
     BROKER_FILTER_URL=https://mysql-broker.mydomain.org
     # basic auth credentials to use while sending traffic
-    BROKER_FILTER_CREDENTIALS_USER=https://mysql-broker.mydomain.org
-    BROKER_FILTER_CREDENTIALS_PASSWORD=https://mysql-broker.mydomain.org
+    BROKER_FILTER_USER=https://mysql-broker.mydomain.org
+    BROKER_FILTER_PASSWORD=https://mysql-broker.mydomain.org
     #avoid service offering conflict.
     #add suffix to exiting service offering so that filter broker offering and target broker offering can exit at the same time
-    BROKER_FILTER_SERVICEOFFERING_SUFFIX=-sec-filter
+    BROKER_FILTER_SERVICEOFFERING_SUFFIX=-sec
 
     # WARNING : not yet implemented. Where traffic will be received from
     UPSTREAM.ID.INTERMEDIATE_ROUTE=sec-group-chained-mysql-broker.mydomain.org
@@ -44,11 +44,11 @@ applications:
     UPSTREAM.ID.WHITE_LISTED_CIDRs="192.168.3.1/24,192.168.4.1/32"
     
     # CloudFoundry CC api host
-    CLOUDFOUNDRY_API_URL: https://api.yourdomain.com
+    CLOUDFOUNDRY_HOST: api.yourdomain.com
     # CloudFoudry user with Org admin privileges on orgs where services will be bound
-    CLOUDFOUNDRY_CREDENTIALS_USER: admin
+    CLOUDFOUNDRY_USER: admin
     # CloudFoudry user password
-    CLOUDFOUNDRY_CREDENTIALS_PASSWORD: password
+    CLOUDFOUNDRY_PASSWORD: password
     
 # deploy the broker    
 $ cf push 
