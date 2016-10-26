@@ -17,11 +17,9 @@
 
 package com.orange.cloud.servicebroker.filter.core.config;
 
-import com.orange.cloud.servicebroker.filter.core.service.mapper.CatalogMapper;
 import com.orange.cloud.servicebroker.filter.core.service.CatalogServiceClient;
-import com.orange.cloud.servicebroker.filter.core.service.mapper.DefaultCatalogMapper;
+import com.orange.cloud.servicebroker.filter.core.service.mapper.CatalogMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.servicebroker.model.Catalog;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,11 +35,8 @@ public class CatalogConfig {
     @Autowired
     CatalogServiceClient client;
 
-    @Bean
-    @ConditionalOnMissingBean
-    CatalogMapper defaultCatalogMapper() {
-        return new DefaultCatalogMapper();
-    }
+    @Autowired
+    CatalogMapper catalogMapper;
 
     @Bean
     public Catalog catalog(CatalogMapper catalogMapper) {

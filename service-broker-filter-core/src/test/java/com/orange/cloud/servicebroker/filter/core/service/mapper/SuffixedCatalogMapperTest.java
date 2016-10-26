@@ -17,7 +17,6 @@
 
 package com.orange.cloud.servicebroker.filter.core.service.mapper;
 
-import com.orange.cloud.servicebroker.filter.core.service.mapper.SuffixedCatalogMapper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.cloud.servicebroker.model.Catalog;
