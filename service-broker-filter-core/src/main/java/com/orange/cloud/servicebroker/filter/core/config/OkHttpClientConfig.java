@@ -125,7 +125,7 @@ public class OkHttpClientConfig {
 
         @Override
         public X509Certificate[] getAcceptedIssuers() {
-            return new X509Certificate[]{} ; //see http://stackoverflow.com/questions/25509296/trusting-all-certificates-with-okhttp
+            return new X509Certificate[]{}; //see http://stackoverflow.com/questions/25509296/trusting-all-certificates-with-okhttp
         }
 
         @Override

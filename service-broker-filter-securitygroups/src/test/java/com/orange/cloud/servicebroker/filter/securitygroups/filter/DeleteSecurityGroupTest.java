@@ -29,7 +29,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceBindingRequest;
 import reactor.core.publisher.Mono;
 
-import java.util.Collection;
 import java.util.Collections;
 
 import static org.mockito.BDDMockito.given;
@@ -73,7 +72,7 @@ public class DeleteSecurityGroupTest {
         DeleteServiceInstanceBindingRequest request = new DeleteServiceInstanceBindingRequest("serviceInstanceId", "test-securitygroup-name", "serviceDefinitionId", "planId", null);
         deleteSecurityGroup.run(request, null);
 
-        Mockito.verify(cloudFoundryClient.securityGroups(),Mockito.never())
+        Mockito.verify(cloudFoundryClient.securityGroups(), Mockito.never())
                 .delete(any());
     }
 

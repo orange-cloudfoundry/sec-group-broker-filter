@@ -41,7 +41,7 @@ import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFOR
  */
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes = {IntegrationTestConfiguration.class},properties = {"logging.level.com.orange.cloud=debug"})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes = {IntegrationTestConfiguration.class}, properties = {"logging.level.com.orange.cloud=debug"})
 public class AbstractIntegrationTest {
 
     public static final Logger logger = LoggerFactory.getLogger("cloudfoundry-client.test");

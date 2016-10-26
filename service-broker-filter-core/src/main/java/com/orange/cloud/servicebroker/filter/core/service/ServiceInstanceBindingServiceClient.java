@@ -35,7 +35,7 @@ import javax.validation.Valid;
 @FeignClient(name = "bindings", url = "${broker.filter.url}", configuration = FilteredBrokerFeignConfig.class)
 public interface ServiceInstanceBindingServiceClient {
 
-    @RequestMapping(value = "/v2/service_instances/{instanceId}/service_bindings/{bindingId}", method = RequestMethod.PUT,produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/v2/service_instances/{instanceId}/service_bindings/{bindingId}", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
     ResponseEntity<CreateServiceInstanceAppBindingResponse> createServiceInstanceBinding(@PathVariable("instanceId") String serviceInstanceId,
                                                                                          @PathVariable("bindingId") String bindingId,
                                                                                          @Valid @RequestBody CreateServiceInstanceBindingRequest request);

@@ -19,7 +19,6 @@ package com.orange.cloud.servicebroker.filter.core.service;
 
 import com.orange.cloud.servicebroker.filter.core.filters.ServiceInstanceBindingFilterRunner;
 import com.orange.cloud.servicebroker.filter.core.service.mapper.DefaultServiceInstanceBindingRequestMapper;
-import com.orange.cloud.servicebroker.filter.core.service.mapper.ServiceInstanceBindingRequestMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -39,15 +38,12 @@ import org.springframework.http.ResponseEntity;
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceInstanceBindingServiceProxyTest {
 
-    @Mock
-    private ServiceInstanceBindingServiceClient client;
-
-    @Mock
-    private ServiceInstanceBindingFilterRunner filterRunner;
-
     @Spy
     DefaultServiceInstanceBindingRequestMapper mapper;
-
+    @Mock
+    private ServiceInstanceBindingServiceClient client;
+    @Mock
+    private ServiceInstanceBindingFilterRunner filterRunner;
     @InjectMocks
     private ServiceInstanceBindingServiceProxy serviceInstanceBindingServiceProxy;
 
