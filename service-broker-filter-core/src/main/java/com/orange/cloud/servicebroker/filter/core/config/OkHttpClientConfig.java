@@ -17,8 +17,8 @@
 
 package com.orange.cloud.servicebroker.filter.core.config;
 
-import com.squareup.okhttp.*;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
@@ -84,22 +84,19 @@ public class OkHttpClientConfig {
         }
 
         log.info("===> configuring OkHttp");
-        OkHttpClient ohc = new OkHttpClient();
-        ohc.setProtocols(Arrays.asList(Protocol.HTTP_1_1));
-
-        //Okhttp will follow http redirects (ie: for redirect with task)
-        ohc.setFollowRedirects(true);
-        ohc.setFollowSslRedirects(true);
-
-        ohc.setHostnameVerifier(hostnameVerifier);
-        ohc.setSslSocketFactory(sslSocketFactory);
-        ohc.interceptors().add(LOGGING_INTERCEPTOR);
+        OkHttpClient.Builder ohc = new OkHttpClient.Builder()
+                .protocols(Arrays.asList(Protocol.HTTP_1_1))
+                .followRedirects(true)
+                .followSslRedirects(true)
+                .hostnameVerifier(hostnameVerifier)
+                .sslSocketFactory(sslSocketFactory)
+                .addInterceptor(LOGGING_INTERCEPTOR);
 
         if ((this.proxyHost != null) && (this.proxyHost.length() > 0)) {
             log.info("Activating proxy on host {} port {}", this.proxyHost, this.proxyPort);
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(this.proxyHost, this.proxyPort));
-            ohc.setProxy(proxy);
-            ohc.setProxySelector(new ProxySelector() {
+            ohc.proxy(proxy);
+            ohc.proxySelector(new ProxySelector() {
                 @Override
                 public List<Proxy> select(URI uri) {
                     return Arrays.asList(proxy);
@@ -112,7 +109,7 @@ public class OkHttpClientConfig {
             });
         }
 
-        return ohc;
+        return ohc.build();
     }
 
     public static class TrustAllCerts extends X509ExtendedTrustManager {
@@ -128,7 +125,7 @@ public class OkHttpClientConfig {
 
         @Override
         public X509Certificate[] getAcceptedIssuers() {
-            return null;
+            return new X509Certificate[]{} ; //see http://stackoverflow.com/questions/25509296/trusting-all-certificates-with-okhttp
         }
 
         @Override

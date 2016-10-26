@@ -39,7 +39,7 @@ public class FilteredBrokerFeignConfig {
     BrokerFilterSettings brokerFilterSettings;
 
     @Autowired
-    com.squareup.okhttp.OkHttpClient customOkHttpClient;
+    okhttp3.OkHttpClient customOkHttpClient;
 
     @Bean
     public BasicAuthRequestInterceptor basicAuthRequestInterceptor() {

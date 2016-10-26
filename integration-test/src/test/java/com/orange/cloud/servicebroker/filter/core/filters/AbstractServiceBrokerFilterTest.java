@@ -23,7 +23,6 @@ import org.cloudfoundry.operations.applications.*;
 import org.cloudfoundry.operations.serviceadmin.CreateServiceBrokerRequest;
 import org.cloudfoundry.operations.serviceadmin.ServiceBroker;
 import org.cloudfoundry.operations.services.*;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +30,8 @@ import org.springframework.core.io.ClassPathResource;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -62,11 +62,11 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
     @Autowired
     private CloudFoundryOperations cloudFoundryOperations;
 
-    private static Mono<Void> pushApp(CloudFoundryOperations cloudFoundryOperations, InputStream applicationBits, String applicationName, String domain, Boolean noStart) {
+    private static Mono<Void> pushApp(CloudFoundryOperations cloudFoundryOperations, Path applicationPath, String applicationName, String domain, Boolean noStart) {
         logger.debug("pushing app {} ...", applicationName);
         return cloudFoundryOperations.applications()
                 .push(PushApplicationRequest.builder()
-                        .application(applicationBits)
+                        .application(applicationPath)
                         .diskQuota(512)
                         .memory(512)
                         .name(applicationName)
@@ -141,9 +141,9 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
         return brokerFilterPassword;
     }
 
-    private InputStream getApplicationBits() {
+    private Path getApplicationPath() {
         try {
-            return new ClassPathResource(serviceBrokerAppBitsPath()).getInputStream();
+            return Paths.get(new ClassPathResource(serviceBrokerAppPath()).getURI());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -151,7 +151,7 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
         return null;
     }
 
-    protected abstract String serviceBrokerAppBitsPath();
+    protected abstract String serviceBrokerAppPath();
 
     protected abstract String getFilteredServiceBrokerOffering();
 
@@ -163,16 +163,15 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
     public void push_service_broker_app() {
         final String applicationName = getApplicationName();
         final Map<String, String> environmentVariables = serviceBrokerAppEnvironmentVariables();
-
         givenSpace()
-                .then(pushThenStartServiceBrokerApp(this.cloudFoundryOperations, applicationName, getApplicationBits(), domainTest, environmentVariables))
+                .then(pushThenStartServiceBrokerApp(this.cloudFoundryOperations, applicationName, getApplicationPath(), domainTest, environmentVariables))
                 .then(this.cloudFoundryOperations.applications()
                         .get(GetApplicationRequest.builder()
                                 .name(applicationName)
                                 .build()))
                 .map(ApplicationDetail::getName)
                 .subscribe(testSubscriber()
-                        .assertEquals(applicationName));
+                        .expectEquals(applicationName));
     }
 
     private Mono<String> givenSpace() {
@@ -188,13 +187,13 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
         final Map<String, String> environmentVariables = serviceBrokerAppEnvironmentVariables();
 
         givenSpace()
-                .then(pushThenStartServiceBrokerApp(this.cloudFoundryOperations, applicationName, getApplicationBits(), domainTest, environmentVariables))
+                .then(pushThenStartServiceBrokerApp(this.cloudFoundryOperations, applicationName, getApplicationPath(), domainTest, environmentVariables))
                 .then(createPrivateServiceBroker(this.cloudFoundryOperations, brokerName, brokerFilterUser, brokerFilterPassword, applicationUrl))
                 .thenMany(this.cloudFoundryOperations.serviceAdmin()
                         .list())
                 .filter(hasServiceBroker(brokerName))
                 .subscribe(testSubscriber()
-                        .assertCount(1));
+                        .expectCount(1));
     }
 
     @Test
@@ -207,7 +206,7 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
 
 
         givenSpace()
-                .then(pushThenStartServiceBrokerApp(this.cloudFoundryOperations, applicationName, getApplicationBits(), domainTest, environmentVariables))
+                .then(pushThenStartServiceBrokerApp(this.cloudFoundryOperations, applicationName, getApplicationPath(), domainTest, environmentVariables))
                 .then(createPrivateServiceBroker(this.cloudFoundryOperations, brokerName, brokerFilterUser, brokerFilterPassword, applicationUrl))
                 .thenMany(this.cloudFoundryOperations.services()
                         .listServiceOfferings(ListServiceOfferingsRequest.builder()
@@ -215,7 +214,7 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
                                 .build()))
                 .filter(hasService(getFilteredServiceBrokerOffering()))
                 .subscribe(testSubscriber()
-                        .assertCount(1));
+                        .expectCount(1));
     }
 
     @Test
@@ -230,16 +229,16 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
         final String planName = getFilteredServiceBrokerPlan();
 
         givenSpace()
-                .then(pushThenStartServiceBrokerApp(this.cloudFoundryOperations, applicationName, getApplicationBits(), domainTest, environmentVariables))
+                .then(pushThenStartServiceBrokerApp(this.cloudFoundryOperations, applicationName, getApplicationPath(), domainTest, environmentVariables))
                 .then(createPrivateServiceBroker(this.cloudFoundryOperations, brokerName, brokerFilterUser, brokerFilterPassword, applicationUrl))
-                .then(createServiceInstance(this.cloudFoundryOperations, serviceName, planName,serviceInstanceName))
+                .then(createServiceInstance(this.cloudFoundryOperations, serviceName, planName, serviceInstanceName))
                 .then(this.cloudFoundryOperations.services()
                         .getInstance(GetServiceInstanceRequest.builder()
                                 .name(serviceInstanceName)
                                 .build()))
                 .map(ServiceInstance::getName)
                 .subscribe(testSubscriber()
-                        .assertEquals(serviceInstanceName));;
+                        .expectEquals(serviceInstanceName));
     }
 
     private Predicate<? super ServiceOffering> hasService(String serviceName) {
@@ -250,8 +249,8 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
         return serviceBroker -> brokerName.equals(serviceBroker.getName());
     }
 
-    private Mono<Void> pushThenStartServiceBrokerApp(CloudFoundryOperations cloudFoundryOperations, String applicationName, InputStream applicationBits, String domain, Map<String, String> envs) {
-        return pushApp(cloudFoundryOperations, applicationBits, applicationName, domain, true)
+    private Mono<Void> pushThenStartServiceBrokerApp(CloudFoundryOperations cloudFoundryOperations, String applicationName, Path applicationPath, String domain, Map<String, String> envs) {
+        return pushApp(cloudFoundryOperations, applicationPath, applicationName, domain, true)
                 .then(setEnvs(cloudFoundryOperations, applicationName, envs))
                 .then(startApplication(cloudFoundryOperations, applicationName));
     }

@@ -35,8 +35,8 @@ public class SecurityGroupsServiceBrokerFilterTest extends AbstractServiceBroker
     @Value("${test.password}")
     private String cloudfoundryPassword;
 
-    protected String serviceBrokerAppBitsPath() {
-        return "service-broker-filter-securitygroups-2.0.M2.jar";
+    protected String serviceBrokerAppPath() {
+        return "service-broker-filter-securitygroups-2.0.BUILD-SNAPSHOT.jar";
     }
 
     protected String getFilteredServiceBrokerOffering() {
