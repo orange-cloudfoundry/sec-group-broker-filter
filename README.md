@@ -31,11 +31,11 @@ applications:
     # Where to send received traffic
     BROKER_FILTER_URL=https://mysql-broker.mydomain.org
     # basic auth credentials to use while sending traffic
-    BROKER_FILTER_USER=https://mysql-broker.mydomain.org
-    BROKER_FILTER_PASSWORD=https://mysql-broker.mydomain.org
+    BROKER_FILTER_USER=user
+    BROKER_FILTER_PASSWORD=password
     #avoid service offering conflict.
     #add suffix to exiting service offering so that filter broker offering and target broker offering can exit at the same time
-    BROKER_FILTER_SERVICEOFFERING_SUFFIX=-sec
+    #BROKER_FILTER_SERVICEOFFERING_SUFFIX=-sec
 
     # WARNING : not yet implemented. Where traffic will be received from
     UPSTREAM.ID.INTERMEDIATE_ROUTE=sec-group-chained-mysql-broker.mydomain.org
