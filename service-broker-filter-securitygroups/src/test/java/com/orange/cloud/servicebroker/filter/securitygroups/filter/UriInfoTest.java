@@ -44,6 +44,24 @@ public class UriInfoTest {
     }
 
     @Test
+    public void port_from_http_url() throws Exception {
+
+        String jdbcUrl = "http://mysite.org/path";
+        UriInfo uriInfo = new UriInfo(jdbcUrl);
+
+        Assert.assertEquals("80", uriInfo.getPort());
+    }
+
+    @Test
+    public void port_from_https_url() throws Exception {
+
+        String jdbcUrl = "http://mysite.org/path";
+        UriInfo uriInfo = new UriInfo(jdbcUrl);
+
+        Assert.assertEquals("443", uriInfo.getPort());
+    }
+
+    @Test
     public void host_from_uri() throws Exception {
 
         String uri = "mysql://2106:Uq3YCioVsO3Dbcp4@127.0.0.1:3306/mydb?reconnect=true";
