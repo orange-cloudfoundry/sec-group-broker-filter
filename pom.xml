@@ -23,9 +23,9 @@
 
     <properties>
         <lombok>1.16.8</lombok>
-        <cf-java-client.version>2.0.0.RELEASE</cf-java-client.version>
-        <reactor-core.version>3.0.0.RELEASE</reactor-core.version>
-        <reactor-netty.version>0.5.0.RELEASE</reactor-netty.version>
+        <cf-java-client.version>2.0.1.RELEASE</cf-java-client.version>
+        <reactor-core.version>3.0.3.RELEASE</reactor-core.version>
+        <reactor-netty.version>0.5.1.RELEASE</reactor-netty.version>
     </properties>
 
     <dependencyManagement>
