@@ -45,9 +45,9 @@ import static org.mockito.BDDMockito.given;
 @RunWith(MockitoJUnitRunner.class)
 public class CreateSecurityGroupTest {
 
-    static final String VALID_JDBC_URL = "jdbc:mysql://127.0.0.1:3306/mydb?user=2106password=Uq3YCioVsO3Dbcp4";
-    static final String INVALID_JDBC_URL_NO_HOST = "jdbc:mysql:///mydb?user=2106password=Uq3YCioVsO3Dbcp4";
-    static final String INVALID_JDBC_URL_NO_PORT = "jdbc:mysql://127.0.0.1/mydb?user=2106password=Uq3YCioVsO3Dbcp4";
+    static final String TEST_URI = "mysql://127.0.0.1:3306/mydb?user=2106password=Uq3YCioVsO3Dbcp4";
+    static final String NO_HOST_URI = "mysql:///mydb?user=2106password=Uq3YCioVsO3Dbcp4";
+    static final String NO_PORT_URI = "mysql://127.0.0.1/mydb?user=2106password=Uq3YCioVsO3Dbcp4";
     @Rule
     public OutputCapture capture = new OutputCapture();
     @Mock
@@ -69,7 +69,7 @@ public class CreateSecurityGroupTest {
         givenCreateSecurityGroupsSucceeds(this.cloudFoundryClient, "test-securitygroup-name");
 
         Map<String, Object> credentials = new HashMap<>();
-        credentials.put("jdbcUrl", VALID_JDBC_URL);
+        credentials.put("uri", TEST_URI);
         createSecurityGroup.run(new CreateServiceInstanceBindingRequest(null, null, "app_guid", null, null).withBindingId("test-securitygroup-name"),
                 new CreateServiceInstanceAppBindingResponse().withCredentials(credentials));
 
@@ -92,7 +92,7 @@ public class CreateSecurityGroupTest {
         givenCreateSecurityGroupsFails(this.cloudFoundryClient, "test-securitygroup-name");
 
         Map<String, Object> credentials = new HashMap<>();
-        credentials.put("jdbcUrl", VALID_JDBC_URL);
+        credentials.put("uri", TEST_URI);
         createSecurityGroup.run(new CreateServiceInstanceBindingRequest(null, null, "app_guid", null, null).withBindingId("test-securitygroup-name"),
                 new CreateServiceInstanceAppBindingResponse().withCredentials(credentials));
 
@@ -104,7 +104,7 @@ public class CreateSecurityGroupTest {
         givenCreateSecurityGroupsFailsWithDelay(this.cloudFoundryClient, "test-securitygroup-name");
 
         Map<String, Object> credentials = new HashMap<>();
-        credentials.put("jdbcUrl", VALID_JDBC_URL);
+        credentials.put("uri", TEST_URI);
         createSecurityGroup.run(new CreateServiceInstanceBindingRequest(null, null, "app_guid", null, null).withBindingId("test-securitygroup-name"),
                 new CreateServiceInstanceAppBindingResponse().withCredentials(credentials));
 
@@ -189,7 +189,7 @@ public class CreateSecurityGroupTest {
     public void noHostname() throws Exception {
         CreateServiceInstanceBindingRequest request = new CreateServiceInstanceBindingRequest(null, null, "app_guid", null, null);
         Map<String, Object> credentials = new HashMap<>();
-        credentials.put("jdbcUrl", INVALID_JDBC_URL_NO_HOST);
+        credentials.put("uri", NO_HOST_URI);
         CreateServiceInstanceAppBindingResponse response = new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
 
         createSecurityGroup.run(request, response);
@@ -199,7 +199,7 @@ public class CreateSecurityGroupTest {
     public void noPort() throws Exception {
         CreateServiceInstanceBindingRequest request = new CreateServiceInstanceBindingRequest(null, null, "app_guid", null, null);
         Map<String, Object> credentials = new HashMap<>();
-        credentials.put("jdbcUrl", INVALID_JDBC_URL_NO_PORT);
+        credentials.put("uri", NO_PORT_URI);
         CreateServiceInstanceAppBindingResponse response = new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
 
         createSecurityGroup.run(request, response);
