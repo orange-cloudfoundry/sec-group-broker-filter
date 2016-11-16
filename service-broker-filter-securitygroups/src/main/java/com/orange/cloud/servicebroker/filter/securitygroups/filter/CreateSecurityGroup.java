@@ -58,20 +58,17 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
         Assert.notNull(response);
         Assert.notNull(response.getCredentials());
 
-        UriInfo uriInfo = new UriInfo(CloudFoundryCredentialsUtils.getUriFromCredentials(response.getCredentials()));
-
-        Assert.hasText(uriInfo.getHost(), "cannot find hostname credential in unbinding response : " + response.getCredentials());
-        Assert.hasText(uriInfo.getPort(), "cannot find port credential in unbinding response" + response.getCredentials());
+        final ConnectionInfo connectionInfo = ConnectionInfoFactory.fromCredentials(response.getCredentials());
 
         log.debug("creating security group for credentials {}.", response.getCredentials());
 
         try {
-            final List<RuleEntity> rules = Stream.of(InetAddress.getAllByName(uriInfo.getHost()))
+            final List<RuleEntity> rules = Stream.of(InetAddress.getAllByName(connectionInfo.getHost()))
                     .map(InetAddress::getHostAddress)
                     .map(ip -> RuleEntity.builder()
                             .protocol(DEFAULT_PROTOCOL)
                             .destination(ip)
-                            .ports(uriInfo.getPort())
+                            .ports(String.valueOf(connectionInfo.getPort()))
                             .build())
                     .collect(Collectors.toList());
 
