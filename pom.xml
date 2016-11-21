@@ -23,23 +23,31 @@
 
     <properties>
         <lombok>1.16.8</lombok>
-        <cf-java-client.version>2.0.1.RELEASE</cf-java-client.version>
+        <cf-java-client.version>fix_131326071_invalid_auth_token_error</cf-java-client.version>
         <reactor-core.version>3.0.3.RELEASE</reactor-core.version>
         <reactor-netty.version>0.5.1.RELEASE</reactor-netty.version>
+        <reactor-addons.version>3.0.3.RELEASE</reactor-addons.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+
             <dependency>
-                <groupId>org.cloudfoundry</groupId>
+                <groupId>com.github.orange-cloudfoundry.cf-java-client</groupId>
                 <artifactId>cloudfoundry-client-reactor</artifactId>
                 <version>${cf-java-client.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.cloudfoundry</groupId>
+                <groupId>com.github.orange-cloudfoundry.cf-java-client</groupId>
                 <artifactId>cloudfoundry-operations</artifactId>
                 <version>${cf-java-client.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.projectreactor.addons</groupId>
+                <artifactId>reactor-test</artifactId>
+                <version>${reactor-addons.version}</version>
             </dependency>
 
             <dependency>
@@ -66,6 +74,10 @@
     </dependencyManagement>
 
     <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
         <repository>
             <id>spring-snapshots</id>
             <name>Spring Snapshots</name>

@@ -19,7 +19,6 @@ package com.orange.cloud.servicebroker.filter.core.filters;
 
 import com.orange.cloud.servicebroker.filter.core.IntegrationTestConfiguration;
 import com.orange.cloud.servicebroker.filter.core.NameFactory;
-import org.cloudfoundry.util.test.TestSubscriber;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,8 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.time.Duration;
 
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
 
@@ -49,9 +46,6 @@ public class AbstractIntegrationTest {
     @Rule
     public final TestName testName = new TestName();
 
-    private final TestSubscriber<?> testSubscriber = new TestSubscriber<>()
-            .setPerformanceLoggerName(this::getTestName);
-
     @Autowired
     private NameFactory nameFactory;
 
@@ -62,7 +56,6 @@ public class AbstractIntegrationTest {
 
     @After
     public final void verify() throws InterruptedException {
-        this.testSubscriber.verify(Duration.ofMinutes(5));
         this.logger.debug("<< {} >>", getTestName());
     }
 
@@ -83,7 +76,4 @@ public class AbstractIntegrationTest {
         return String.format("%s.%s", this.getClass().getSimpleName(), this.testName.getMethodName());
     }
 
-    protected final <T> TestSubscriber<T> testSubscriber() {
-        return (TestSubscriber<T>) this.testSubscriber;
-    }
 }

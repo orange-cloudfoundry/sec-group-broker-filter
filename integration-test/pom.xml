@@ -48,13 +48,19 @@
         </dependency>
 
         <dependency>
-            <groupId>org.cloudfoundry</groupId>
+            <groupId>com.github.orange-cloudfoundry.cf-java-client</groupId>
             <artifactId>cloudfoundry-client-reactor</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.cloudfoundry</groupId>
+            <groupId>com.github.orange-cloudfoundry.cf-java-client</groupId>
             <artifactId>cloudfoundry-operations</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor.addons</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
