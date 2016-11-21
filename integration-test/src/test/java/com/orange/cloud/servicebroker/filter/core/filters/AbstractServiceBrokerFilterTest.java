@@ -28,10 +28,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -170,8 +172,10 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
                                 .name(applicationName)
                                 .build()))
                 .map(ApplicationDetail::getName)
-                .subscribe(testSubscriber()
-                        .expectEquals(applicationName));
+                .as(StepVerifier::create)
+                .expectNext(applicationName)
+                .expectComplete()
+                .verify(Duration.ofMinutes(5));
     }
 
     private Mono<String> givenSpace() {
@@ -192,8 +196,10 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
                 .thenMany(this.cloudFoundryOperations.serviceAdmin()
                         .list())
                 .filter(hasServiceBroker(brokerName))
-                .subscribe(testSubscriber()
-                        .expectCount(1));
+                .as(StepVerifier::create)
+                .expectNextCount(1)
+                .expectComplete()
+                .verify(Duration.ofMinutes(5));
     }
 
     @Test
@@ -213,8 +219,10 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
                                 .serviceName(getFilteredServiceBrokerOffering())
                                 .build()))
                 .filter(hasService(getFilteredServiceBrokerOffering()))
-                .subscribe(testSubscriber()
-                        .expectCount(1));
+                .as(StepVerifier::create)
+                .expectNextCount(1)
+                .expectComplete()
+                .verify(Duration.ofMinutes(5));
     }
 
     @Test
@@ -237,8 +245,10 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
                                 .name(serviceInstanceName)
                                 .build()))
                 .map(ServiceInstance::getName)
-                .subscribe(testSubscriber()
-                        .expectEquals(serviceInstanceName));
+                .as(StepVerifier::create)
+                .expectNext(serviceInstanceName)
+                .expectComplete()
+                .verify(Duration.ofMinutes(5));
     }
 
     private Predicate<? super ServiceOffering> hasService(String serviceName) {

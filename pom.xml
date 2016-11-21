@@ -23,8 +23,9 @@
 
     <properties>
         <lombok>1.16.8</lombok>
-        <cf-java-client.version>2.0.1.RELEASE</cf-java-client.version>
+        <cf-java-client.version>2.0.2.RELEASE</cf-java-client.version>
         <reactor-core.version>3.0.3.RELEASE</reactor-core.version>
+        <reactor-addons.version>3.0.3.RELEASE</reactor-addons.version>
         <reactor-netty.version>0.5.1.RELEASE</reactor-netty.version>
     </properties>
 
@@ -46,6 +47,12 @@
                 <groupId>io.projectreactor</groupId>
                 <artifactId>reactor-core</artifactId>
                 <version>${reactor-core.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.projectreactor.addons</groupId>
+                <artifactId>reactor-test</artifactId>
+                <version>${reactor-addons.version}</version>
             </dependency>
 
             <dependency>

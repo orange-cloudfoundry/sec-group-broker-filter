@@ -66,6 +66,12 @@
             <groupId>io.projectreactor.ipc</groupId>
             <artifactId>reactor-netty</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor.addons</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 
