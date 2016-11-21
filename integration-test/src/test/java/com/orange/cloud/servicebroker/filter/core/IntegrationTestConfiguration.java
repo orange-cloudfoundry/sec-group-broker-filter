@@ -17,6 +17,7 @@
 
 package com.orange.cloud.servicebroker.filter.core;
 
+import com.tngtech.jgiven.integration.spring.EnableJGiven;
 import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.organizations.ListOrganizationsRequest;
 import org.cloudfoundry.client.v2.spaces.AssociateSpaceDeveloperByUsernameRequest;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import reactor.core.publisher.Mono;
@@ -47,7 +49,9 @@ import static org.cloudfoundry.util.OperationUtils.thenKeep;
  * credits to <a href="https://github.com/cloudfoundry/cf-java-client/tree/master/integration-test">cf-java-client IT</a>
  */
 @Configuration
-@EnableAutoConfiguration
+//@EnableAutoConfiguration
+@EnableJGiven
+@ComponentScan
 public class IntegrationTestConfiguration {
 
     private final Logger logger = LoggerFactory.getLogger("cloudfoundry-client.test");

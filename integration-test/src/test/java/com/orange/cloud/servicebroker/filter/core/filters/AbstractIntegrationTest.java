@@ -19,6 +19,7 @@ package com.orange.cloud.servicebroker.filter.core.filters;
 
 import com.orange.cloud.servicebroker.filter.core.IntegrationTestConfiguration;
 import com.orange.cloud.servicebroker.filter.core.NameFactory;
+import com.tngtech.jgiven.annotation.JGivenConfiguration;
 import org.cloudfoundry.util.test.TestSubscriber;
 import org.junit.After;
 import org.junit.Before;
@@ -40,8 +41,9 @@ import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFOR
  * credits to <a href="https://github.com/cloudfoundry/cf-java-client/tree/master/integration-test">cf-java-client IT</a>
  */
 @RunWith(SpringRunner.class)
-@DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
+//@DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes = {IntegrationTestConfiguration.class}, properties = {"logging.level.com.orange.cloud=debug"})
+@JGivenConfiguration( HelloJGivenConfiguration.class )
 public class AbstractIntegrationTest {
 
     public static final Logger logger = LoggerFactory.getLogger("cloudfoundry-client.test");
@@ -60,12 +62,12 @@ public class AbstractIntegrationTest {
         this.logger.debug(">> {} <<", getTestName());
     }
 
-    @After
+ /*   @After
     public final void verify() throws InterruptedException {
         this.testSubscriber.verify(Duration.ofMinutes(5));
         this.logger.debug("<< {} >>", getTestName());
     }
-
+*/
 
     protected final String getApplicationName() {
         return this.nameFactory.getName("test-application-");
