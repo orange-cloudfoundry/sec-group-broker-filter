@@ -127,7 +127,7 @@ Name | Description
 # Credits
 
 This work has been inspired by the [cf-subway](https://github.com/cloudfoundry-community/cf-subway) great idea contributed by Dr Nic.
-This repo tries to extend this idea into flexible framework for reusable filters/facade, see service-broker-filter-core subproject?
+This repo tries to extend this idea into flexible framework for reusable filters/facade, see service-broker-filter-core subproject.
 
 # FAQ
 
