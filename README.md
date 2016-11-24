@@ -1,6 +1,6 @@
 # sec-group-broker-filter [![Build Status](https://travis-ci.org/orange-cloudfoundry/sec-group-broker-filter.svg?branch=master)](https://travis-ci.org/orange-cloudfoundry/sec-group-broker-filter)
 
-This Cloud Foundry service broker is designed to be chained in front-of other service brokers and dynamically open [security groups](https://docs.cloudfoundry.org/adminguide/app-sec-groups.html) to let apps bound to service instance emmit outgoing traffic to IP addresses returned in the chained service instances credentials.
+This Cloud Foundry service broker is designed to be chained in front-of other service brokers and dynamically open [security groups](https://docs.cloudfoundry.org/adminguide/app-sec-groups.html) to let apps bound to service instance emmit outgoing traffic to IP addresses returned in the chained service instances credentials. 
 
 ![Overview seq diagram](http://plantuml.com/plantuml/svg/lP7DYi8m4CVlVOgvgGVnNfO53IWU164VeCHqA8D3KYT9mRUtMGLBDUX1lCuml__7A7QnhfIpGHmp2in_uGzDjH4NssebxeXIhOa3IWb6C_j-BHqPXEiIblijJ8qEcbspQCLrvCdPMQ5De4u7pE6Ap3mvs9tzYM_Zl6pvLBV6byg5-apg0zbwLanUwdsZYkJbBZIyoj9_vYEwO8XY_J-BR0D6i4ORIBCVrleMlBS-RhbCm1wmI7mF7aqK2cTeqZb4doILId7kGSQCeO-7tSDR-uJPjxuPDdD_0G00)
 
@@ -124,7 +124,10 @@ Name | Description
 `TEST_ORG` | The Org used for test suite
 `TEST_DOMAIN` | The Domain used for test suite
 
+# Credits
 
+This work has been inspired by the [cf-subway](https://github.com/cloudfoundry-community/cf-subway) great idea contributed by Dr Nic.
+This repo tries to extend this idea into flexible framework for reusable filters/facade, see service-broker-filter-core subproject?
 
 # FAQ
 
