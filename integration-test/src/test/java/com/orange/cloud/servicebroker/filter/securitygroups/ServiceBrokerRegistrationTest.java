@@ -15,19 +15,23 @@
  * -->
  */
 
-package com.orange.cloud.servicebroker.filter.core;
+package com.orange.cloud.servicebroker.filter.securitygroups;
+
+import com.orange.cloud.servicebroker.filter.securitygroups.tags.ServiceBrokerRegistration;
+import org.junit.Test;
 
 /**
- * A factory for creating names
+ * @author Sebastien Bortolussi
  */
-public interface NameFactory {
+public class ServiceBrokerRegistrationTest extends AbstractIntegrationTest {
 
-    /**
-     * Creates a name
-     *
-     * @param prefix the prefix to the name
-     * @return the name
-     */
-    String getName(String prefix);
+    @Test
+    @ServiceBrokerRegistration
+    public void should_register_service_broker() throws Exception {
+        given().a_sec_group_filter_service_broker_app();
+        when().paas_ops_registers_app_as_a_service_broker();
+        then().service_broker_should_be_registered();
+    }
+
 
 }

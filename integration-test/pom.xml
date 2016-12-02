@@ -31,60 +31,57 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
+        <jgiven.version>0.13.0-RC1</jgiven.version>
+        <service-broker-filter-security-groups-artifact-id>service-broker-filter-securitygroups
+        </service-broker-filter-security-groups-artifact-id>
+        <service-broker-filter-security-groups-artifact-binaries>
+            ${service-broker-filter-security-groups-artifact-id}-${project.version}.jar
+        </service-broker-filter-security-groups-artifact-binaries>
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.cloudfoundry</groupId>
             <artifactId>cloudfoundry-client-reactor</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.cloudfoundry</groupId>
             <artifactId>cloudfoundry-operations</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.projectreactor.ipc</groupId>
             <artifactId>reactor-netty</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.tngtech.jgiven</groupId>
             <artifactId>jgiven-junit</artifactId>
-            <version>0.12.1</version>
+            <version>${jgiven.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.tngtech.jgiven</groupId>
             <artifactId>jgiven-spring</artifactId>
-            <version>0.12.1</version>
+            <version>${jgiven.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.tngtech.jgiven</groupId>
             <artifactId>jgiven-html5-report</artifactId>
-            <version>0.12.1</version>
+            <version>${jgiven.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -92,14 +89,22 @@
             <artifactId>httpclient</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
-
     <build>
         <testResources>
             <testResource>
-                <directory>${project.build.directory}/service-broker-filter-securitygroups-app</directory>
+                <directory>${project.build.directory}/${service-broker-filter-security-groups-artifact-id}-app
+                </directory>
+            </testResource>
+            <testResource>
+                <directory>${project.basedir}/src/test/resources</directory>
+                <includes><include>application.properties</include></includes>
+                <filtering>true</filtering>
+            </testResource>
+            <testResource>
+                <directory>${project.basedir}/src/test/resources</directory>
+                <filtering>false</filtering>
+                <includes><include>*.zip</include></includes>
             </testResource>
         </testResources>
         <plugins>
@@ -123,19 +128,34 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <artifactId>service-broker-filter-securitygroups</artifactId>
+                                    <artifactId>${service-broker-filter-security-groups-artifact-id}</artifactId>
                                     <groupId>com.orange.cloud.servicebroker</groupId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>
-                                        ${project.build.directory}/service-broker-filter-securitygroups-app
+                                        ${project.build.directory}/${service-broker-filter-security-groups-artifact-id}-app
                                     </outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.tngtech.jgiven</groupId>
+                <artifactId>jgiven-maven-plugin</artifactId>
+                <version>${jgiven.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <format>html</format>
+                </configuration>
             </plugin>
         </plugins>
     </build>

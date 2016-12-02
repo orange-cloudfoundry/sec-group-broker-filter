@@ -15,12 +15,10 @@
  * -->
  */
 
-package com.orange.cloud.servicebroker.filter.core.filters;
+package com.orange.cloud.servicebroker.filter.securitygroups;
 
-import com.orange.cloud.servicebroker.filter.core.IntegrationTestConfiguration;
-import com.orange.cloud.servicebroker.filter.core.NameFactory;
 import com.tngtech.jgiven.annotation.JGivenConfiguration;
-import org.cloudfoundry.util.test.TestSubscriber;
+import com.tngtech.jgiven.integration.spring.SpringScenarioTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,59 +31,34 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.Duration;
-
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 
 /**
  * credits to <a href="https://github.com/cloudfoundry/cf-java-client/tree/master/integration-test">cf-java-client IT</a>
  */
 @RunWith(SpringRunner.class)
-//@DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = AFTER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes = {IntegrationTestConfiguration.class}, properties = {"logging.level.com.orange.cloud=debug"})
-@JGivenConfiguration( HelloJGivenConfiguration.class )
-public class AbstractIntegrationTest {
+@JGivenConfiguration(HelloJGivenConfiguration.class)
+public abstract class AbstractIntegrationTest extends SpringScenarioTest<GivenServiceBroker, WhenActionOnServiceBroker, ThenServiceBroker>{
 
     public static final Logger logger = LoggerFactory.getLogger("cloudfoundry-client.test");
 
     @Rule
     public final TestName testName = new TestName();
 
-    private final TestSubscriber<?> testSubscriber = new TestSubscriber<>()
-            .setPerformanceLoggerName(this::getTestName);
-
-    @Autowired
-    private NameFactory nameFactory;
-
     @Before
     public void testEntry() {
         this.logger.debug(">> {} <<", getTestName());
     }
 
- /*   @After
+    @After
     public final void verify() throws InterruptedException {
-        this.testSubscriber.verify(Duration.ofMinutes(5));
         this.logger.debug("<< {} >>", getTestName());
-    }
-*/
-
-    protected final String getApplicationName() {
-        return this.nameFactory.getName("test-application-");
-    }
-
-    protected final String getServiceInstanceName() {
-        return this.nameFactory.getName("test-service-instance-");
-    }
-
-    protected final String getBrokerName() {
-        return this.nameFactory.getName("test-broker-");
     }
 
     private String getTestName() {
         return String.format("%s.%s", this.getClass().getSimpleName(), this.testName.getMethodName());
     }
 
-    protected final <T> TestSubscriber<T> testSubscriber() {
-        return (TestSubscriber<T>) this.testSubscriber;
-    }
 }

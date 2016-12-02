@@ -15,7 +15,7 @@
  * -->
  */
 
-package com.orange.cloud.servicebroker.filter.core;
+package com.orange.cloud.servicebroker.filter.securitygroups;
 
 import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.applications.DeleteApplicationRequest;
@@ -72,6 +72,17 @@ final class CloudFoundryCleaner {
                         .delete(DeleteApplicationRequest.builder()
                                 .applicationId(applicationId)
                                 .build()));
+    }
+
+    private static Flux<Void> cleanServiceBindings(CloudFoundryClient cloudFoundryClient) {
+        return PaginationUtils.
+                requestClientV2Resources(page -> cloudFoundryClient.applicationsV2()
+                        .list(ListApplicationsRequest.builder()
+                                .page(page)
+                                .build()))
+                .filter(application -> ResourceUtils.getEntity(application).getName().startsWith("test-application-"))
+                .map(ResourceUtils::getId)
+                .flatMap(applicationId -> removeServiceBindings(cloudFoundryClient, applicationId));
     }
 
     private static Flux<Void> cleanRoutes(CloudFoundryClient cloudFoundryClient) {
@@ -162,12 +173,15 @@ final class CloudFoundryCleaner {
 
     void clean() {
         Flux.empty()
+                .thenMany(cleanServiceBindings(this.cloudFoundryClient))
                 .thenMany(cleanServiceInstances(this.cloudFoundryClient))
                 .thenMany(cleanServiceBrokers(this.cloudFoundryClient))
                 .thenMany(cleanApplicationsV2(this.cloudFoundryClient))
                 .thenMany(cleanRoutes(this.cloudFoundryClient))
                 .thenMany(cleanSpaces(this.cloudFoundryClient))
-                .retry(5, t -> t instanceof SSLException)
+                .retry(5,
+                        t -> t instanceof SSLException
+                )
                 .doOnSubscribe(s -> this.logger.debug(">> CLEANUP <<"))
                 .doOnError(Throwable::printStackTrace)
                 .doOnComplete(() -> this.logger.debug("<< CLEANUP >>"))

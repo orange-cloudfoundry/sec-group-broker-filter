@@ -15,7 +15,7 @@
  * -->
  */
 
-package com.orange.cloud.servicebroker.filter.core;
+package com.orange.cloud.servicebroker.filter.securitygroups;
 
 import com.tngtech.jgiven.integration.spring.EnableJGiven;
 import org.cloudfoundry.client.CloudFoundryClient;
@@ -33,7 +33,6 @@ import org.cloudfoundry.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -49,7 +48,6 @@ import static org.cloudfoundry.util.OperationUtils.thenKeep;
  * credits to <a href="https://github.com/cloudfoundry/cf-java-client/tree/master/integration-test">cf-java-client IT</a>
  */
 @Configuration
-//@EnableAutoConfiguration
 @EnableJGiven
 @ComponentScan
 public class IntegrationTestConfiguration {
@@ -81,9 +79,9 @@ public class IntegrationTestConfiguration {
     @Bean
     DefaultConnectionContext connectionContext(@Value("${test.apiHost}") String apiHost,
                                                @Value("${test.proxy.host:}") String proxyHost,
-                                               @Value("${test.proxy.password:}") String proxyPassword,
+                                               @Value("${test.proxy.app_password:}") String proxyPassword,
                                                @Value("${test.proxy.port:8080}") Integer proxyPort,
-                                               @Value("${test.proxy.username:}") String proxyUsername,
+                                               @Value("${test.proxy.app_username:}") String proxyUsername,
                                                @Value("${test.skipSslValidation:false}") Boolean skipSslValidation) {
 
         return DefaultConnectionContext.builder()

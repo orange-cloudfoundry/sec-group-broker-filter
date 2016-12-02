@@ -15,7 +15,7 @@
  * -->
  */
 
-package com.orange.cloud.servicebroker.filter.core;
+package com.orange.cloud.servicebroker.filter.securitygroups;
 
 import java.math.BigInteger;
 import java.util.Random;

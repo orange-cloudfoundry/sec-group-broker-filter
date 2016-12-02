@@ -1,4 +1,4 @@
-package com.orange.cloud.servicebroker.filter.core.filters;
+package com.orange.cloud.servicebroker.filter.securitygroups;
 
 import com.tngtech.jgiven.config.AbstractJGivenConfiguration;
 
