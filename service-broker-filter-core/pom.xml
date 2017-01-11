@@ -31,7 +31,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <springCloudServiceBrokerVersion>1.0.0.RELEASE</springCloudServiceBrokerVersion>
+        <springCloudServiceBrokerVersion>25_service_plan_should_be_free_by_default</springCloudServiceBrokerVersion>
     </properties>
 
     <dependencyManagement>
@@ -49,13 +49,13 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
+            <groupId>com.github.orange-cloudfoundry</groupId>
             <artifactId>spring-cloud-cloudfoundry-service-broker</artifactId>
             <version>${springCloudServiceBrokerVersion}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
+            <groupId>com.github.orange-cloudfoundry</groupId>
             <artifactId>spring-cloud-cloudfoundry-service-broker</artifactId>
             <version>${springCloudServiceBrokerVersion}</version>
             <classifier>tests</classifier>
