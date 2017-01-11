@@ -7,7 +7,7 @@
     <groupId>com.orange.cloud.servicebroker</groupId>
     <artifactId>service-broker-filter</artifactId>
     <packaging>pom</packaging>
-    <version>2.1.2.BUILD-SNAPSHOT</version>
+    <version>2.1.2.RELEASE</version>
 
     <modules>
         <module>service-broker-filter-core</module>
