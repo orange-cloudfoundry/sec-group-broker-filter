@@ -15,13 +15,7 @@ applications:
     #avoid service offering conflict.
     #add suffix to exiting service offering so that filter broker offering and target broker offering can exit at the same time
     #BROKER_FILTER_SERVICEOFFERING_SUFFIX=-sec
-
-    # WARNING : not yet implemented. Where traffic will be received from
-    #UPSTREAM.ID.INTERMEDIATE_ROUTE=sec-group-chained-mysql-broker.mydomain.org
-    # WARNING : not yet implemented. Range of IP adress into which matching IP in returned credentials will triger opening of security groups
-    # Outside this range, the bind request is transparently proxies without triggering any CC API action.
-    #UPSTREAM.ID.WHITE_LISTED_CIDRs="192.168.3.1/24,192.168.4.1/32"
-
+   
     # CloudFoundry CC api host
     CLOUDFOUNDRY_HOST: <cc_api_host>
     # CloudFoudry user with Org admin privileges on orgs where services will be bound
