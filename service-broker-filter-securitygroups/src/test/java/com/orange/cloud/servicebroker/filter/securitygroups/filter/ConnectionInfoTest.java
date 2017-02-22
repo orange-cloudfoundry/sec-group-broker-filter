@@ -65,6 +65,14 @@ public class ConnectionInfoTest {
         Assert.assertEquals(443, connectionInfo.getPort());
     }
 
+    @Test
+    public void connection_info_with_custom_scheme_and_query_params() throws Exception {
+        ConnectionInfo connectionInfo = new ConnectionInfo("redis://password@192.168.1.1:4040/database?timeout=10");
+
+        Assert.assertEquals(4040, connectionInfo.getPort());
+        Assert.assertEquals("192.168.1.1", connectionInfo.getHost());
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void fail_to_create_connection_info_from_uri_with_no_port_and_no_default_port_defined() throws Exception {
         new ConnectionInfo("scheme://mysite.org/path");
