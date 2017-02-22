@@ -92,6 +92,10 @@ The resulting security group opened would be:
 ]
 ```
 
+# Roadmap
+
+The bugs and features enhancements are managed through github issues, possibly through [huboard](https://huboard.com/orange-cloudfoundry/sec-group-broker-filter) to have overview of milestones.
+
 # Development
 The project depends on Java 8.  To build from source and install to your local Maven cache, run the following:
 
