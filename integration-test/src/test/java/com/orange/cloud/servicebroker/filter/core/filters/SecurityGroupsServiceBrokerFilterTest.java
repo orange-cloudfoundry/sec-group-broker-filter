@@ -40,7 +40,7 @@ public class SecurityGroupsServiceBrokerFilterTest extends AbstractServiceBroker
     }
 
     protected String getFilteredServiceBrokerOffering() {
-        return String.format("mysql-mocked-broker%s", getServiceBrokerOfferingSuffix());
+        return String.format("test-service%s", getServiceBrokerOfferingSuffix());
     }
 
     protected String getFilteredServiceBrokerPlan() {
