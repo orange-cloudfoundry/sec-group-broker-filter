@@ -18,7 +18,7 @@
 package com.orange.cloud.servicebroker.filter.securitygroups.filter;
 
 import org.cloudfoundry.client.CloudFoundryClient;
-import org.cloudfoundry.client.v2.CloudFoundryException;
+import org.cloudfoundry.client.v2.ClientV2Exception;
 import org.cloudfoundry.client.v2.applications.ApplicationEntity;
 import org.cloudfoundry.client.v2.applications.ApplicationsV2;
 import org.cloudfoundry.client.v2.applications.GetApplicationRequest;
@@ -78,7 +78,7 @@ public class CreateSecurityGroupTest {
                         .name("test-securitygroup-name")
                         .spaceId("space_id")
                         .rule(RuleEntity.builder()
-                                .protocol("tcp")
+                                .protocol(Protocol.TCP)
                                 .ports("3306")
                                 .destination("127.0.0.1")
                                 .build())
@@ -86,7 +86,7 @@ public class CreateSecurityGroupTest {
     }
 
 
-    @Test(expected = CloudFoundryException.class)
+    @Test(expected = ClientV2Exception.class)
     public void fail_to_create_create_security_group() throws Exception {
         givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
         givenCreateSecurityGroupsFails(this.cloudFoundryClient, "test-securitygroup-name");
@@ -98,7 +98,7 @@ public class CreateSecurityGroupTest {
 
     }
 
-    @Test(expected = CloudFoundryException.class)
+    @Test(expected = ClientV2Exception.class)
     public void should_block_until_create_security_group_returns() throws Exception {
         givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
         givenCreateSecurityGroupsFailsWithDelay(this.cloudFoundryClient, "test-securitygroup-name");
@@ -113,7 +113,7 @@ public class CreateSecurityGroupTest {
                         .name("test-securitygroup-name")
                         .spaceId("space_id")
                         .rule(RuleEntity.builder()
-                                .protocol("tcp")
+                                .protocol(Protocol.TCP)
                                 .ports("3306")
                                 .destination("127.0.0.1")
                                 .build())
@@ -126,12 +126,12 @@ public class CreateSecurityGroupTest {
                         .name(securityGroupName)
                         .spaceId("space_id")
                         .rule(RuleEntity.builder()
-                                .protocol("tcp")
+                                .protocol(Protocol.TCP)
                                 .ports("3306")
                                 .destination("127.0.0.1")
                                 .build())
                         .build()))
-                .willReturn(Mono.error(new CloudFoundryException(999, "test-exception-description", "test-exception-errorCode")));
+                .willReturn(Mono.error(new ClientV2Exception(null, 999, "test-exception-description", "test-exception-errorCode")));
     }
 
     private void givenCreateSecurityGroupsFailsWithDelay(CloudFoundryClient cloudFoundryClient, String securityGroupName) {
@@ -140,14 +140,14 @@ public class CreateSecurityGroupTest {
                         .name(securityGroupName)
                         .spaceId("space_id")
                         .rule(RuleEntity.builder()
-                                .protocol("tcp")
+                                .protocol(Protocol.TCP)
                                 .ports("3306")
                                 .destination("127.0.0.1")
                                 .build())
                         .build()))
                 .willReturn(Mono
                         .delay(Duration.ofSeconds(2))
-                        .then(Mono.error(new CloudFoundryException(999, "test-exception-description", "test-exception-errorCode"))));
+                        .then(Mono.error(new ClientV2Exception(null, 999, "test-exception-description", "test-exception-errorCode"))));
     }
 
     private void givenBoundedAppExists(CloudFoundryClient cloudFoundryClient, String appId) {
@@ -168,7 +168,7 @@ public class CreateSecurityGroupTest {
                         .name(securityGroupName)
                         .spaceId("space_id")
                         .rule(RuleEntity.builder()
-                                .protocol("tcp")
+                                .protocol(Protocol.TCP)
                                 .ports("3306")
                                 .destination("127.0.0.1")
                                 .build())
@@ -177,7 +177,7 @@ public class CreateSecurityGroupTest {
                         .entity(SecurityGroupEntity.builder()
                                 .name(securityGroupName)
                                 .rule(RuleEntity.builder()
-                                        .protocol("tcp")
+                                        .protocol(Protocol.TCP)
                                         .ports("3306")
                                         .destination("127.0.0.1")
                                         .build())

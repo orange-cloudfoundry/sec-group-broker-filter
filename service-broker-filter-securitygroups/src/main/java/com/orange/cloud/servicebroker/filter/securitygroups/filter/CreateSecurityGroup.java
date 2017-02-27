@@ -25,6 +25,7 @@ import org.cloudfoundry.client.v2.applications.ApplicationEntity;
 import org.cloudfoundry.client.v2.applications.GetApplicationRequest;
 import org.cloudfoundry.client.v2.applications.GetApplicationResponse;
 import org.cloudfoundry.client.v2.securitygroups.CreateSecurityGroupRequest;
+import org.cloudfoundry.client.v2.securitygroups.Protocol;
 import org.cloudfoundry.client.v2.securitygroups.RuleEntity;
 import org.cloudfoundry.client.v2.securitygroups.SecurityGroupEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ import java.util.stream.Stream;
 @Component
 public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilter, ServiceBrokerPostFilter<CreateServiceInstanceBindingRequest, CreateServiceInstanceAppBindingResponse> {
 
-    static final String DEFAULT_PROTOCOL = "tcp";
+    static final Protocol DEFAULT_PROTOCOL = Protocol.TCP;
     private CloudFoundryClient cloudFoundryClient;
 
     @Autowired
