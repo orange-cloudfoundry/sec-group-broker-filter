@@ -17,8 +17,11 @@
 
 package com.orange.cloud.servicebroker.filter.securitygroups.filter;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Bortolussi
@@ -39,6 +42,13 @@ public class ConnectionInfoTest {
 
         Assert.assertEquals("127.0.0.1", connectionInfo.getHost());
         Assert.assertEquals(3306, connectionInfo.getPort());
+    }
+
+    @Test
+    public void get_ips_from_uri() throws Exception {
+        ConnectionInfo connectionInfo = new ConnectionInfo("mysql://2106:Uq3YCioVsO3Dbcp4@localhost:3306/mydb?reconnect=true");
+
+        Assertions.assertThat(connectionInfo.getIPs().collect(Collectors.toList())).containsOnly("127.0.0.1", "0:0:0:0:0:0:0:1");
     }
 
     @Test(expected = IllegalArgumentException.class)

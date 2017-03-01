@@ -19,8 +19,11 @@ package com.orange.cloud.servicebroker.filter.securitygroups.filter;
 
 import org.springframework.util.Assert;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
+import java.util.stream.Stream;
 
 /**
  * allows expressing connection info (host and port) to remote host from alternative forms: individual fields or a URI string
@@ -69,6 +72,15 @@ public class ConnectionInfo {
     private void setHost(String host) {
         Assert.hasText(host, String.format("Cannot create connection info. Invalid host : <%s>", host));
         this.host = host;
+    }
+
+    public Stream<String> getIPs() {
+        try {
+            return Stream.of(InetAddress.getAllByName(host))
+                    .map(InetAddress::getHostAddress);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public int getPort() {
