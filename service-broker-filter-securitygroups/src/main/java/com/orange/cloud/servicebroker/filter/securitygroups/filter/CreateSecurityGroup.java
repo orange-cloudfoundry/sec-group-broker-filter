@@ -19,6 +19,8 @@ package com.orange.cloud.servicebroker.filter.securitygroups.filter;
 
 import com.orange.cloud.servicebroker.filter.core.filters.CreateServiceInstanceBindingPostFilter;
 import com.orange.cloud.servicebroker.filter.core.filters.ServiceBrokerPostFilter;
+import com.orange.cloud.servicebroker.filter.securitygroups.domain.Destination;
+import com.orange.cloud.servicebroker.filter.securitygroups.domain.TrustedDestinationSpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.applications.ApplicationEntity;
@@ -57,10 +59,12 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
 
     static final Protocol DEFAULT_PROTOCOL = Protocol.TCP;
     private CloudFoundryClient cloudFoundryClient;
+    private TrustedDestinationSpecification trustedDestinationSpecification;
 
     @Autowired
-    public CreateSecurityGroup(CloudFoundryClient cloudFoundryClient) {
+    public CreateSecurityGroup(CloudFoundryClient cloudFoundryClient, TrustedDestinationSpecification trustedDestinationSpecification) {
         this.cloudFoundryClient = cloudFoundryClient;
+        this.trustedDestinationSpecification = trustedDestinationSpecification;
     }
 
     private static Mono<ServiceEntity> getService(CloudFoundryClient cloudFoundryClient, String serviceId) {
@@ -125,16 +129,21 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
         Assert.notNull(response);
         Assert.notNull(response.getCredentials());
 
-        final ConnectionInfo connectionInfo = ConnectionInfoFactory.fromCredentials(response.getCredentials());
+        final Destination destination = ConnectionInfoFactory.fromCredentials(response.getCredentials());
+
+        if (!trustedDestinationSpecification.isSatisfiedBy(destination))
+            throw new NotAllowedDestination(destination);
+
 
         log.debug("creating security group for credentials {}.", response.getCredentials());
+
 
         try {
 
             final SecurityGroupEntity securityGroup = Mono.when(
                     getRuleDescription(cloudFoundryClient, request.getBindingId(), request.getServiceInstanceId()),
                     getSpaceId(cloudFoundryClient, request.getBoundAppGuid())
-            ).then(function((description, spaceId) -> create(getSecurityGroupName(request), connectionInfo, description, spaceId)))
+            ).then(function((description, spaceId) -> create(getSecurityGroupName(request), destination, description, spaceId)))
                     .doOnError(t -> log.error("Fail to create security group. Error details {}", t))
                     .block();
 
@@ -146,8 +155,8 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
 
     }
 
-    private Mono<SecurityGroupEntity> create(String securityGroupName, ConnectionInfo connectionInfo, String description, String spaceId) {
-        return getRules(connectionInfo, description)
+    private Mono<SecurityGroupEntity> create(String securityGroupName, Destination destination, String description, String spaceId) {
+        return getRules(destination, description)
                 .then(rules ->
                         cloudFoundryClient.securityGroups()
                                 .create(CreateSecurityGroupRequest.builder()
@@ -159,13 +168,13 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
                 .checkpoint();
     }
 
-    private Mono<List<RuleEntity>> getRules(ConnectionInfo connectionInfo, String description) {
-        return Mono.justOrEmpty(connectionInfo.getIPs()
+    private Mono<List<RuleEntity>> getRules(Destination destination, String description) {
+        return Mono.justOrEmpty(destination.getIPs()
                 .map(ip -> RuleEntity.builder()
                         .protocol(DEFAULT_PROTOCOL)
                         .destination(ip)
                         .description(description)
-                        .ports(String.valueOf(connectionInfo.getPort()))
+                        .ports(String.valueOf(destination.getPort().value()))
                         .build())
                 .collect(Collectors.toList()))
                 .checkpoint();
@@ -182,5 +191,12 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
                 .map(GetApplicationResponse::getEntity)
                 .map(ApplicationEntity::getSpaceId)
                 .checkpoint();
+    }
+
+    public class NotAllowedDestination extends RuntimeException {
+
+        public NotAllowedDestination(Destination destination) {
+            super(String.format("Cannot open security group for destination %s. Destination is out of allowed range.", destination));
+        }
     }
 }

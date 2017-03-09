@@ -17,6 +17,9 @@
 
 package com.orange.cloud.servicebroker.filter.securitygroups.filter;
 
+import com.orange.cloud.servicebroker.filter.securitygroups.domain.Destination;
+import com.orange.cloud.servicebroker.filter.securitygroups.domain.ImmutablePort;
+import com.orange.cloud.servicebroker.filter.securitygroups.domain.Port;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,7 +29,7 @@ import java.util.Map;
 /**
  * @author Sebastien Bortolussi
  */
-public class ConnectionInfoFactoryTest {
+public class DestinationFactoryTest {
 
     @Test
     public void uri_from_credentials() throws Exception {
@@ -34,18 +37,18 @@ public class ConnectionInfoFactoryTest {
         Map<String, Object> credentials = new HashMap<>();
         credentials.put("uri", uri);
 
-        Assert.assertEquals(new ConnectionInfo(uri), ConnectionInfoFactory.fromCredentials(credentials));
+        Assert.assertEquals(new Destination(uri), ConnectionInfoFactory.fromCredentials(credentials));
     }
 
     @Test
     public void hostname_and_port_from_credentials() throws Exception {
         String hostname = "127.0.0.1";
-        int port = 6379;
+        Port port = ImmutablePort.of(6379);
         Map<String, Object> credentials = new HashMap<>();
         credentials.put("hostname", hostname);
-        credentials.put("port", port);
+        credentials.put("port", port.value());
 
-        Assert.assertEquals(new ConnectionInfo(hostname, port), ConnectionInfoFactory.fromCredentials(credentials));
+        Assert.assertEquals(new Destination(hostname, port), ConnectionInfoFactory.fromCredentials(credentials));
     }
 
     @Test(expected = Exception.class)
