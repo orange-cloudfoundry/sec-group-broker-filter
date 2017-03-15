@@ -32,6 +32,10 @@ import org.cloudfoundry.client.v2.serviceinstances.GetServiceInstanceRequest;
 import org.cloudfoundry.client.v2.serviceinstances.GetServiceInstanceResponse;
 import org.cloudfoundry.client.v2.serviceinstances.ServiceInstanceEntity;
 import org.cloudfoundry.client.v2.serviceinstances.ServiceInstances;
+import org.cloudfoundry.client.v2.serviceplans.GetServicePlanRequest;
+import org.cloudfoundry.client.v2.serviceplans.GetServicePlanResponse;
+import org.cloudfoundry.client.v2.serviceplans.ServicePlanEntity;
+import org.cloudfoundry.client.v2.serviceplans.ServicePlans;
 import org.cloudfoundry.client.v2.services.GetServiceRequest;
 import org.cloudfoundry.client.v2.services.GetServiceResponse;
 import org.cloudfoundry.client.v2.services.ServiceEntity;
@@ -80,7 +84,7 @@ public class CreateSecurityGroupTest {
                                 .build()));
     }
 
-    private static void givenServiceInstance(CloudFoundryClient cloudFoundryClient, String serviceInstanceId, String serviceInstanceName) {
+    private static void givenServiceInstance(CloudFoundryClient cloudFoundryClient, String serviceInstanceId, String serviceInstanceName, String servicePlanId) {
         given(cloudFoundryClient.serviceInstances()
                 .get(GetServiceInstanceRequest.builder()
                         .serviceInstanceId(serviceInstanceId)
@@ -89,8 +93,22 @@ public class CreateSecurityGroupTest {
                         .just(GetServiceInstanceResponse.builder()
                                 .entity(ServiceInstanceEntity.builder()
                                         .name(serviceInstanceName)
+                                        .servicePlanId(servicePlanId)
                                         .build())
                                 .build()));
+    }
+
+    private static void givenServicePlan(CloudFoundryClient cloudFoundryClient, String servicePlanId, String serviceId) {
+        given(cloudFoundryClient.servicePlans()
+                .get(GetServicePlanRequest.builder()
+                        .servicePlanId(servicePlanId)
+                        .build()))
+                .willReturn((Mono
+                        .just(GetServicePlanResponse.builder()
+                                .entity(ServicePlanEntity.builder()
+                                        .serviceId(serviceId)
+                                        .build())
+                                .build())));
     }
 
     private static void givenService(CloudFoundryClient cloudFoundryClient, String serviceId, String serviceBrokerId) {
@@ -118,15 +136,18 @@ public class CreateSecurityGroupTest {
                 .willReturn(Mockito.mock(ServiceInstances.class));
         given(cloudFoundryClient.services())
                 .willReturn(Mockito.mock(Services.class));
+        given(cloudFoundryClient.servicePlans())
+                .willReturn(Mockito.mock(ServicePlans.class));
         createSecurityGroup = new CreateSecurityGroup(cloudFoundryClient);
     }
 
     @Test
     public void should_create_security_group() throws Exception {
         givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
+        givenServicePlan(this.cloudFoundryClient, "plan-id", "service-id");
         givenService(this.cloudFoundryClient, "service-id", "service-broker-id");
         givenServiceBroker(this.cloudFoundryClient, "service-broker-id", "service-broker-name");
-        givenServiceInstance(this.cloudFoundryClient, "service-instance-id", "service-instance-name");
+        givenServiceInstance(this.cloudFoundryClient, "service-instance-id", "service-instance-name", "plan-id");
         givenCreateSecurityGroupsSucceeds(this.cloudFoundryClient, "test-securitygroup-name");
 
 
@@ -138,7 +159,7 @@ public class CreateSecurityGroupTest {
 
         createSecurityGroup
                 .run(
-                        new CreateServiceInstanceBindingRequest("service-id", "app_guid", null, bindResources, null)
+                        new CreateServiceInstanceBindingRequest("service-id", "plan-id", null, bindResources, null)
                                 .withBindingId("test-securitygroup-name")
                                 .withServiceInstanceId("service-instance-id"),
                         new CreateServiceInstanceAppBindingResponse().withCredentials(credentials)
@@ -160,9 +181,10 @@ public class CreateSecurityGroupTest {
     @Test(expected = ClientV2Exception.class)
     public void fail_to_create_create_security_group() throws Exception {
         givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
+        givenServicePlan(this.cloudFoundryClient, "plan-id", "service-id");
         givenService(this.cloudFoundryClient, "service-id", "service-broker-id");
         givenServiceBroker(this.cloudFoundryClient, "service-broker-id", "service-broker-name");
-        givenServiceInstance(this.cloudFoundryClient, "service-instance-id", "service-instance-name");
+        givenServiceInstance(this.cloudFoundryClient, "service-instance-id", "service-instance-name", "plan-id");
         givenCreateSecurityGroupsFails(this.cloudFoundryClient, "test-securitygroup-name");
 
         Map<String, Object> credentials = new HashMap<>();
@@ -172,7 +194,7 @@ public class CreateSecurityGroupTest {
 
         createSecurityGroup
                 .run(
-                        new CreateServiceInstanceBindingRequest("service-id", "app_guid", null, bindResources, null)
+                        new CreateServiceInstanceBindingRequest("service-id", "plan-id", null, bindResources, null)
                                 .withBindingId("test-securitygroup-name")
                                 .withServiceInstanceId("service-instance-id"),
                         new CreateServiceInstanceAppBindingResponse().withCredentials(credentials)
@@ -183,9 +205,10 @@ public class CreateSecurityGroupTest {
     @Test(expected = ClientV2Exception.class)
     public void should_block_until_create_security_group_returns() throws Exception {
         givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
+        givenServicePlan(this.cloudFoundryClient, "plan-id", "service-id");
         givenService(this.cloudFoundryClient, "service-id", "service-broker-id");
         givenServiceBroker(this.cloudFoundryClient, "service-broker-id", "service-broker-name");
-        givenServiceInstance(this.cloudFoundryClient, "service-instance-id", "service-instance-name");
+        givenServiceInstance(this.cloudFoundryClient, "service-instance-id", "service-instance-name", "plan-id");
         givenCreateSecurityGroupsFailsWithDelay(this.cloudFoundryClient, "test-securitygroup-name");
 
         Map<String, Object> credentials = new HashMap<>();
@@ -195,7 +218,7 @@ public class CreateSecurityGroupTest {
 
         createSecurityGroup
                 .run(
-                        new CreateServiceInstanceBindingRequest("service-id", "app_guid", null, bindResources, null)
+                        new CreateServiceInstanceBindingRequest("service-id", "plan-id", null, bindResources, null)
                                 .withBindingId("test-securitygroup-name")
                                 .withServiceInstanceId("service-instance-id"),
                         new CreateServiceInstanceAppBindingResponse().withCredentials(credentials)
