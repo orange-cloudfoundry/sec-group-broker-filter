@@ -32,6 +32,8 @@ import org.cloudfoundry.client.v2.servicebrokers.GetServiceBrokerRequest;
 import org.cloudfoundry.client.v2.servicebrokers.ServiceBrokerEntity;
 import org.cloudfoundry.client.v2.serviceinstances.GetServiceInstanceRequest;
 import org.cloudfoundry.client.v2.serviceinstances.ServiceInstanceEntity;
+import org.cloudfoundry.client.v2.serviceplans.GetServicePlanRequest;
+import org.cloudfoundry.client.v2.serviceplans.ServicePlanEntity;
 import org.cloudfoundry.client.v2.services.GetServiceRequest;
 import org.cloudfoundry.client.v2.services.ServiceEntity;
 import org.cloudfoundry.util.ResourceUtils;
@@ -42,6 +44,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuples;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,28 +87,37 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
                 .map(ResourceUtils::getEntity);
     }
 
-    private static Mono<String> getRuleDescription(CloudFoundryClient cloudFoundryClient, String bindingId, String serviceInstanceId, String serviceId) {
-        return getService(cloudFoundryClient, serviceId).map(ServiceEntity::getServiceBrokerId)
-                .then(serviceBrokerId -> Mono.when(
+    private static Mono<String> getRuleDescription(CloudFoundryClient cloudFoundryClient, String bindingId, String serviceInstanceId) {
+        return getServiceInstance(cloudFoundryClient, serviceInstanceId)
+                .then(serviceInstance -> Mono.when(
                         Mono.just(bindingId),
-                        getServiceInstanceName(cloudFoundryClient, serviceInstanceId),
-                        getServiceBrokerName(cloudFoundryClient, serviceBrokerId)
+                        Mono.just(serviceInstance),
+                        getPlan(cloudFoundryClient, serviceInstance.getServicePlanId()).map(ServicePlanEntity::getServiceId)
                 ))
-                .map(function((servicebindingId, serviceInstanceName, serviceBrokerName) -> ImmutableRuleDescription.builder()
+                .then(function((serviceBindingId, serviceInstance, serviceId) -> getService(cloudFoundryClient, serviceId)
+                        .map(ServiceEntity::getServiceBrokerId)
+                        .map(serviceBrokerId -> Tuples.of(serviceBindingId, serviceInstance, serviceBrokerId))))
+                .then(function((serviceBindingId, serviceInstance, serviceBrokerId) -> getServiceBrokerName(cloudFoundryClient, serviceBrokerId)
+                        .map(serviceBrokerName -> Tuples.of(serviceBindingId, serviceInstance, serviceBrokerName))))
+                .map(function((servicebindingId, serviceInstance, serviceBrokerName) -> ImmutableRuleDescription.builder()
                         .servicebindingId(servicebindingId)
-                        .serviceInstanceName(serviceInstanceName)
+                        .serviceInstanceName(serviceInstance.getName())
                         .serviceBrokerName(serviceBrokerName).build()
                         .value()));
+    }
+
+    private static Mono<ServicePlanEntity> getPlan(CloudFoundryClient cloudFoundryClient, String planId) {
+        return cloudFoundryClient.servicePlans()
+                .get(GetServicePlanRequest.builder()
+                        .servicePlanId(planId)
+                        .build()
+                )
+                .map(ResourceUtils::getEntity);
     }
 
     private static Mono<String> getServiceBrokerName(CloudFoundryClient cloudFoundryClient, String serviceBrokerId) {
         return getServiceBroker(cloudFoundryClient, serviceBrokerId)
                 .map(ServiceBrokerEntity::getName);
-    }
-
-    private static Mono<String> getServiceInstanceName(CloudFoundryClient cloudFoundryClient, String serviceInstanceId) {
-        return getServiceInstance(cloudFoundryClient, serviceInstanceId)
-                .map(ServiceInstanceEntity::getName);
     }
 
     @Override
@@ -120,7 +132,7 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
         try {
 
             final SecurityGroupEntity securityGroup = Mono.when(
-                    getRuleDescription(cloudFoundryClient, request.getBindingId(), request.getServiceInstanceId(), request.getServiceDefinitionId()),
+                    getRuleDescription(cloudFoundryClient, request.getBindingId(), request.getServiceInstanceId()),
                     getSpaceId(cloudFoundryClient, request.getBoundAppGuid())
             ).then(function((description, spaceId) -> create(getSecurityGroupName(request), connectionInfo, description, spaceId)))
                     .doOnError(t -> log.error("Fail to create security group. Error details {}", t))
