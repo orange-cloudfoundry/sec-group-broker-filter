@@ -17,6 +17,7 @@
 
 package com.orange.cloud.servicebroker.filter.securitygroups.filter;
 
+import com.orange.cloud.servicebroker.filter.securitygroups.domain.*;
 import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.ClientV2Exception;
 import org.cloudfoundry.client.v2.applications.ApplicationEntity;
@@ -138,7 +139,15 @@ public class CreateSecurityGroupTest {
                 .willReturn(Mockito.mock(Services.class));
         given(cloudFoundryClient.servicePlans())
                 .willReturn(Mockito.mock(ServicePlans.class));
-        createSecurityGroup = new CreateSecurityGroup(cloudFoundryClient);
+
+        final TrustedDestinationSpecification trustedDestinationSpecification = new TrustedDestinationSpecification(
+                ImmutableTrustedDestination.builder()
+                        .hosts(ImmutableCIDR.of("127.0.0.1/29"))
+                        .ports(ImmutablePorts.builder()
+                                .addValue(ImmutablePort.of(3306))
+                                .build())
+                        .build());
+        createSecurityGroup = new CreateSecurityGroup(cloudFoundryClient, trustedDestinationSpecification);
     }
 
     @Test
@@ -323,6 +332,50 @@ public class CreateSecurityGroupTest {
         CreateServiceInstanceAppBindingResponse response = new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
 
         createSecurityGroup.run(request, response);
+    }
+
+    @Test(expected = CreateSecurityGroup.NotAllowedDestination.class)
+    public void should_reject_security_group_with_destination_out_of_range() throws Exception {
+        givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
+        givenService(this.cloudFoundryClient, "service-id", "service-broker-id");
+        givenServiceBroker(this.cloudFoundryClient, "service-broker-id", "service-broker-name");
+        givenServiceInstance(this.cloudFoundryClient, "service-instance-id", "service-instance-name", "plan-id");
+        givenCreateSecurityGroupsSucceeds(this.cloudFoundryClient, "test-securitygroup-name");
+
+        Map<String, Object> credentials = new HashMap<>();
+        credentials.put("uri", TEST_URI);
+
+        Map<String, Object> bindResources = new HashMap<>();
+        bindResources.put(ServiceBindingResource.BIND_RESOURCE_KEY_APP.toString(), "app_guid");
+        final TrustedDestinationSpecification trustedDestinationSpecification = new TrustedDestinationSpecification(
+                ImmutableTrustedDestination.builder()
+                        .hosts(ImmutableCIDR.of("192.168.0.1/29"))
+                        .ports(ImmutablePorts.builder()
+                                .addValue(ImmutablePort.of(3306))
+                                .build())
+                        .build());
+
+        CreateSecurityGroup createSecurityGroupWithRestrictiveDestinationRange = new CreateSecurityGroup(cloudFoundryClient, trustedDestinationSpecification);
+
+        createSecurityGroupWithRestrictiveDestinationRange
+                .run(
+                        new CreateServiceInstanceBindingRequest("service-id", "plan-id", null, bindResources, null)
+                                .withBindingId("test-securitygroup-name")
+                                .withServiceInstanceId("service-instance-id"),
+                        new CreateServiceInstanceAppBindingResponse().withCredentials(credentials)
+                );
+
+        Mockito.verify(cloudFoundryClient.securityGroups())
+                .create(CreateSecurityGroupRequest.builder()
+                        .name("test-securitygroup-name")
+                        .spaceId("space_id")
+                        .rule(RuleEntity.builder()
+                                .description(RULE_DESCRIPTION)
+                                .protocol(Protocol.TCP)
+                                .ports("3306")
+                                .destination("127.0.0.1")
+                                .build())
+                        .build());
     }
 
 }

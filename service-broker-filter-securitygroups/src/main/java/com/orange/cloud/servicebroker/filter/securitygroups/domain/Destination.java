@@ -15,7 +15,7 @@
  * -->
  */
 
-package com.orange.cloud.servicebroker.filter.securitygroups.filter;
+package com.orange.cloud.servicebroker.filter.securitygroups.domain;
 
 import org.springframework.util.Assert;
 
@@ -28,24 +28,24 @@ import java.util.stream.Stream;
 /**
  * allows expressing connection info (host and port) to remote host from alternative forms: individual fields or a URI string
  */
-public class ConnectionInfo {
+public class Destination {
 
     private String host;
-    private int port;
+    private Port port;
 
-    public ConnectionInfo(String host, int port) {
+    public Destination(String host, Port port) {
         setHost(host);
         setPort(port);
     }
 
-    public ConnectionInfo(String uriString) {
+    public Destination(String uriString) {
         try {
             URI uri = new URI(uriString);
             setHost(uri.getHost());
             if (noPort(uri)) {
                 setDefaultPort(uri.getScheme());
             } else {
-                setPort(uri.getPort());
+                setPort(ImmutablePort.of(uri.getPort()));
             }
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Cannot create connection info. Invalid URI " + uriString, e);
@@ -63,6 +63,10 @@ public class ConnectionInfo {
 
     private boolean noPort(URI uri) {
         return uri.getPort() == -1;
+    }
+
+    public boolean noPort() {
+        return getPort().empty();
     }
 
     public String getHost() {
@@ -83,12 +87,11 @@ public class ConnectionInfo {
         }
     }
 
-    public int getPort() {
+    public Port getPort() {
         return port;
     }
 
-    private void setPort(int port) {
-        Assert.isTrue(port > -1, String.format("Cannot create connection info. Invalid port : <%d>", port));
+    private void setPort(Port port) {
         this.port = port;
     }
 
@@ -97,17 +100,16 @@ public class ConnectionInfo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ConnectionInfo that = (ConnectionInfo) o;
+        Destination that = (Destination) o;
 
-        if (port != that.port) return false;
-        return host.equals(that.host);
-
+        if (host != null ? !host.equals(that.host) : that.host != null) return false;
+        return port != null ? port.equals(that.port) : that.port == null;
     }
 
     @Override
     public int hashCode() {
-        int result = host.hashCode();
-        result = 31 * result + port;
+        int result = host != null ? host.hashCode() : 0;
+        result = 31 * result + (port != null ? port.hashCode() : 0);
         return result;
     }
 
@@ -115,13 +117,13 @@ public class ConnectionInfo {
         http(80),
         https(443);
 
-        private int defaultPort;
+        private Port defaultPort;
 
         Scheme(int defaultPort) {
-            this.defaultPort = defaultPort;
+            this.defaultPort = ImmutablePort.of(defaultPort);
         }
 
-        public int defaultPort() {
+        public Port defaultPort() {
             return defaultPort;
         }
     }

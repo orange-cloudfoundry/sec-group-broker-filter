@@ -15,7 +15,7 @@
  * -->
  */
 
-package com.orange.cloud.servicebroker.filter.securitygroups.filter;
+package com.orange.cloud.servicebroker.filter.securitygroups.domain;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
@@ -26,58 +26,58 @@ import java.util.stream.Collectors;
 /**
  * @author Sebastien Bortolussi
  */
-public class ConnectionInfoTest {
+public class DestinationTest {
 
     @Test
     public void connection_info_from_uri() throws Exception {
-        ConnectionInfo connectionInfo = new ConnectionInfo("mysql://2106:Uq3YCioVsO3Dbcp4@127.0.0.1:3306/mydb?reconnect=true");
+        Destination destination = new Destination("mysql://2106:Uq3YCioVsO3Dbcp4@127.0.0.1:3306/mydb?reconnect=true");
 
-        Assert.assertEquals("127.0.0.1", connectionInfo.getHost());
-        Assert.assertEquals(3306, connectionInfo.getPort());
+        Assert.assertEquals("127.0.0.1", destination.getHost());
+        Assert.assertEquals(ImmutablePort.of(3306), destination.getPort());
     }
 
     @Test
     public void connection_info_from_host_and_port() throws Exception {
-        ConnectionInfo connectionInfo = new ConnectionInfo("127.0.0.1", 3306);
+        Destination destination = new Destination("127.0.0.1", ImmutablePort.of(3306));
 
-        Assert.assertEquals("127.0.0.1", connectionInfo.getHost());
-        Assert.assertEquals(3306, connectionInfo.getPort());
+        Assert.assertEquals("127.0.0.1", destination.getHost());
+        Assert.assertEquals(ImmutablePort.of(3306), destination.getPort());
     }
 
     @Test
     public void get_ips_from_uri() throws Exception {
-        ConnectionInfo connectionInfo = new ConnectionInfo("mysql://2106:Uq3YCioVsO3Dbcp4@localhost:3306/mydb?reconnect=true");
+        Destination destination = new Destination("mysql://2106:Uq3YCioVsO3Dbcp4@localhost:3306/mydb?reconnect=true");
 
-        Assertions.assertThat(connectionInfo.getIPs().collect(Collectors.toList())).containsOnly("127.0.0.1", "0:0:0:0:0:0:0:1");
+        Assertions.assertThat(destination.getIPs().collect(Collectors.toList())).containsOnly("127.0.0.1", "0:0:0:0:0:0:0:1");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void fail_to_create_connection_info_from_uri_with_no_port() throws Exception {
-        new ConnectionInfo("mysql://2106:Uq3YCioVsO3Dbcp4@127.0.0.1/mydb?reconnect=true");
+        new Destination("mysql://2106:Uq3YCioVsO3Dbcp4@127.0.0.1/mydb?reconnect=true");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void fail_to_create_connection_info_from_host_no_port() throws Exception {
-        new ConnectionInfo("127.0.0.1", -1);
+    public void fail_to_create_connection_info_invalid_port() throws Exception {
+        new Destination("127.0.0.1", ImmutablePort.of(-2));
     }
 
     @Test
     public void connection_info_with_default_http_port_if_http_uri_with_no_port() throws Exception {
-        ConnectionInfo connectionInfo = new ConnectionInfo("http://mysite.org/path");
+        Destination destination = new Destination("http://mysite.org/path");
 
-        Assert.assertEquals(80, connectionInfo.getPort());
+        Assert.assertEquals(ImmutablePort.of(80), destination.getPort());
     }
 
     @Test
     public void connection_info_with_default_https_port_if_https_uri_with_no_port() throws Exception {
-        ConnectionInfo connectionInfo = new ConnectionInfo("https://mysite.org/path");
+        Destination destination = new Destination("https://mysite.org/path");
 
-        Assert.assertEquals(443, connectionInfo.getPort());
+        Assert.assertEquals(ImmutablePort.of(443), destination.getPort());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void fail_to_create_connection_info_from_uri_with_no_port_and_no_default_port_defined() throws Exception {
-        new ConnectionInfo("scheme://mysite.org/path");
+        new Destination("scheme://mysite.org/path");
     }
 
 }

@@ -36,7 +36,10 @@ applications:
     #avoid service offering conflict.
     #add suffix to exiting service offering so that filter broker offering and target broker offering can exit at the same time
     #BROKER_FILTER_SERVICEOFFERING_SUFFIX=-sec
-
+    # An optional trusted IPs: single IP address, IP address range (e.g. 192.0.1.0-192.0.2.0), or a CIDR block to allow security groups to. If empty or unspecified, any IP adress returned from the binding response will be granted access in created security groups
+    BROKER_FILTER_TRUSTED_DESTINATION_HOSTS=192.0.1.0-192.0.2.0
+    # An optional trusted port range. If empty or unspecified, any port returned from the binding response will be granted access in created security groups
+    BROKER_FILTER_TRUSTED_DESTINATION_PORTS=
      
     # CloudFoundry CC api host
     CLOUDFOUNDRY_HOST: api.yourdomain.com
@@ -90,6 +93,17 @@ The resulting security group opened would be:
 [
   {"protocol":"tcp","destination":"141.8.225.68/31","ports":"3306"},
 ]
+```
+# IP/Port restriction
+
+ In order to be protected against a compromise filtered service broker (e.g. p-mysql) (that would return unowned, unrelated IPs in the binding response), 
+ IP/port range can be restricted.
+ Set following env properties to restrict IP/port range.
+```
+    # An optional trusted IPs: single IP address, IP address range (e.g. 192.0.1.0-192.0.2.0), or a CIDR block to allow security groups to. If empty or unspecified, any IP adress returned from the binding response will be granted access in created security groups
+    BROKER_FILTER_TRUSTED_DESTINATION_HOSTS=192.0.1.0-192.0.2.0
+    # An optional trusted port range. If empty or unspecified, any port returned from the binding response will be granted access in created security groups
+    BROKER_FILTER_TRUSTED_DESTINATION_PORTS=
 ```
 
 # Roadmap

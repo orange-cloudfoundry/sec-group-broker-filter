@@ -17,6 +17,9 @@
 
 package com.orange.cloud.servicebroker.filter.securitygroups.filter;
 
+import com.orange.cloud.servicebroker.filter.securitygroups.domain.Destination;
+import com.orange.cloud.servicebroker.filter.securitygroups.domain.ImmutablePort;
+
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,15 +35,15 @@ public class ConnectionInfoFactory {
     public static final String URI_KEYS = "uri";
 
 
-    public static ConnectionInfo fromCredentials(Map<String, Object> credentials) {
+    public static Destination fromCredentials(Map<String, Object> credentials) {
         final Optional<String> uri = ConnectionInfoFactory.getUriFromCredentials(credentials);
         final Optional<String> host = getHostFromCredentials(credentials);
         final Optional<Integer> port = getPortFromCredentials(credentials);
 
         if (uri.isPresent())
-            return new ConnectionInfo(uri.get());
+            return new Destination(uri.get());
         if (host.isPresent() && port.isPresent())
-            return new ConnectionInfo(host.get(), port.get());
+            return new Destination(host.get(), ImmutablePort.of(port.get()));
 
         throw new IllegalStateException(String.format("Cannot extract host and port from credentials %s", credentials));
     }
