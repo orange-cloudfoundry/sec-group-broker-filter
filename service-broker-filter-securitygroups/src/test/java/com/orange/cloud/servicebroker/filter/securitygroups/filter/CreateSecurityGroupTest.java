@@ -188,7 +188,7 @@ public class CreateSecurityGroupTest {
     }
 
     @Test(expected = ClientV2Exception.class)
-    public void fail_to_create_create_security_group() throws Exception {
+    public void fail_to_create_create_security_group_should_raise_exception_so_that_CC_requests_unbinding_action_to_clean_up_target_broker_related_resources() throws Exception {
         givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
         givenServicePlan(this.cloudFoundryClient, "plan-id", "service-id");
         givenService(this.cloudFoundryClient, "service-id", "service-broker-id");
