@@ -43,9 +43,11 @@ applications:
     # If empty or unspecified, any IP adress returned from the binding response will be granted access in 
     # created security groups
     BROKER_FILTER_TRUSTED_DESTINATION_HOSTS=192.0.1.0-192.0.2.0
-    # An optional trusted destination port range. If empty or unspecified, any port returned from the binding response will be granted 
-    # access in created security groups
-    BROKER_FILTER_TRUSTED_DESTINATION_PORTS=
+    # An optional trusted destination ports. Can be a single port, multiple comma-separated ports, or a single range of ports. 
+    # Examples: 3306 3306,3307 3300-3400
+    # If empty or unspecified, any port returned from the binding response 
+    # will be granted access in created security groups
+    BROKER_FILTER_TRUSTED_DESTINATION_PORTS=3306
      
     # CloudFoundry CC api host 
     CLOUDFOUNDRY_HOST: api.yourdomain.com
