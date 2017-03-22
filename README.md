@@ -38,8 +38,8 @@ applications:
     # Optionally restrict the IPs/ports in created security groups to a set of trusted destinations. 
     # In case the target broker gets compromised and returns unrelated IPs in credentials, the binding response 
     # will error, preventing unathorized accesses to unrelated destinations.
-    # Trusted destinations is expressed as either a single IP address, an IP address range (e.g. 192.0.1.0-192.0.2.0), 
-    # or a CIDR block to allow security groups to. 
+    # Trusted destinations is expressed as either a single IP address (10.0.11.0), an IP address range (e.g. 10.0.11.1-10.0.11.2), 
+    # or a CIDR block (e.g. 10.0.11.0/24). 
     # If empty or unspecified, any IP adress returned from the binding response will be granted access in 
     # created security groups
     BROKER_FILTER_TRUSTED_DESTINATION_HOSTS=192.0.1.0-192.0.2.0
