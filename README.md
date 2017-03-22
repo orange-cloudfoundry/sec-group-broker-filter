@@ -9,10 +9,11 @@ This is a similar broker chain as proposed into https://github.com/cloudfoundry-
 # Sample usage
 
 ```sh
-# 1st deploy an upstream chained broker accessible through its route: mysql-broker.mydomain.org. Don't register it directly into CF
+# 1st deploy an upstream target broker accessible through its route: mysql-broker.mydomain.org. 
+# Don't register the target broker in CF (the filter broker offering will be registered instead)
 [...]
 
-# then deploy sec-group-broker-filter and configure it to proxy traffic to the filtered broker:
+# then deploy sec-group-broker-filter and configure it to proxy traffic to the target broker:
 # you may want to deploy sec-group-broker-filter using cloudfoundry:
 
 $ vi manifest.yml
@@ -28,25 +29,35 @@ applications:
   domain: mydomain.org
 
   env:
-    # Where to send received traffic
+    # Where to send received traffic: URL to the target broker.
     BROKER_FILTER_URL=https://mysql-broker.mydomain.org
-    # basic auth credentials to use while sending traffic
+    # basic auth credentials to use while sending traffic to the target broker 
     BROKER_FILTER_USER=user
     BROKER_FILTER_PASSWORD=password
-    #avoid service offering conflict.
-    #add suffix to exiting service offering so that filter broker offering and target broker offering can exit at the same time
-    #BROKER_FILTER_SERVICEOFFERING_SUFFIX=-sec
-    # An optional trusted IPs: single IP address, IP address range (e.g. 192.0.1.0-192.0.2.0), or a CIDR block to allow security groups to. If empty or unspecified, any IP adress returned from the binding response will be granted access in created security groups
+
+    # Optionally restrict the IPs/ports in created security groups to a set of trusted destinations. 
+    # In case the target broker gets compromised and returns unrelated IPs in credentials, the binding response 
+    # will error, preventing unathorized accesses to unrelated destinations.
+    # Trusted destinations is expressed as either a single IP address, an IP address range (e.g. 192.0.1.0-192.0.2.0), 
+    # or a CIDR block to allow security groups to. 
+    # If empty or unspecified, any IP adress returned from the binding response will be granted access in 
+    # created security groups
     BROKER_FILTER_TRUSTED_DESTINATION_HOSTS=192.0.1.0-192.0.2.0
-    # An optional trusted port range. If empty or unspecified, any port returned from the binding response will be granted access in created security groups
+    # An optional trusted destination port range. If empty or unspecified, any port returned from the binding response will be granted 
+    # access in created security groups
     BROKER_FILTER_TRUSTED_DESTINATION_PORTS=
      
-    # CloudFoundry CC api host
+    # CloudFoundry CC api host 
     CLOUDFOUNDRY_HOST: api.yourdomain.com
     # CloudFoudry user with Org admin privileges on orgs where services will be bound
     CLOUDFOUNDRY_USER: admin
     # CloudFoudry user password
     CLOUDFOUNDRY_PASSWORD: password
+    
+    # Optionally enable that both the filter broker offering and target broker offering coexist in the marketplace
+    # To avoid conflicts in service offering id from both, the filter broker offering will have the specified suffix added
+    #BROKER_FILTER_SERVICEOFFERING_SUFFIX=-sec
+
     
 # deploy the broker    
 $ cf push 
