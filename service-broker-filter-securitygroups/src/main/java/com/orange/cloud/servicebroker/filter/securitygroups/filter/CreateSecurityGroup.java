@@ -131,15 +131,12 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
 
         final Destination destination = ConnectionInfoFactory.fromCredentials(response.getCredentials());
 
-        if (!trustedDestinationSpecification.isSatisfiedBy(destination))
+        if (!trustedDestinationSpecification.isSatisfiedBy(destination)) {
+            log.warn("Cannot open security group for destination {}. Destination is out of allowed range [{}].", destination, trustedDestinationSpecification);
             throw new NotAllowedDestination(destination);
-
-
+        }
         log.debug("creating security group for credentials {}.", response.getCredentials());
-
-
         try {
-
             final SecurityGroupEntity securityGroup = Mono.when(
                     getRuleDescription(cloudFoundryClient, request.getBindingId(), request.getServiceInstanceId()),
                     getSpaceId(cloudFoundryClient, request.getBoundAppGuid())

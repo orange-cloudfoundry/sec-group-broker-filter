@@ -17,4 +17,7 @@ public class TrustedDestinationSpecification implements Specification<Destinatio
                 && trustedDestination.isATrustedPort(candidate.getPort());
     }
 
+    public String toString() {
+        return trustedDestination.toString();
+    }
 }

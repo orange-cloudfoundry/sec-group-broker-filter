@@ -49,7 +49,10 @@ public class DeleteSecurityGroup implements DeleteServiceInstanceBindingPostFilt
     private Mono<SecurityGroupResource> getSecurityGroupId(String securityGroup) {
         return requestSecurityGroups(securityGroup)
                 .single()
-                .otherwise(NoSuchElementException.class, t -> Mono.empty());
+                .otherwise(NoSuchElementException.class, t -> {
+                    log.warn("Cannot find any security group with name {} to delete.", securityGroup);
+                    return Mono.empty();
+                });
     }
 
     private Flux<SecurityGroupResource> requestSecurityGroups(String securityGroup) {

@@ -113,6 +113,14 @@ public class Destination {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "Destination{" +
+                "host='" + host + '\'' +
+                ", port=" + port +
+                '}';
+    }
+
     private static enum Scheme {
         http(80),
         https(443);
