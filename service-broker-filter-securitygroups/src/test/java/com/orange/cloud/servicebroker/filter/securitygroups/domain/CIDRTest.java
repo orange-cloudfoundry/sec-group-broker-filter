@@ -31,11 +31,11 @@ public class CIDRTest {
 
     @Test
     public void in_range() throws Exception {
-        final Range<IPAddress> range = ImmutableCIDR.builder().value("192.168.0.1/29").build();
-        Assertions.assertThat(range.isInRange(ImmutableIPAddress.of("192.168.0.1"))).isTrue();
-        Assertions.assertThat(range.isInRange(ImmutableIPAddress.of("192.168.0.6"))).isTrue();
-        Assertions.assertThat(range.isInRange(ImmutableIPAddress.of("192.168.1.0"))).isFalse();
-        Assertions.assertThat(range.isInRange(ImmutableIPAddress.of("127.0.0.3"))).isFalse();
+        final Range<IPV4Address> range = ImmutableCIDR.builder().value("192.168.0.1/29").build();
+        Assertions.assertThat(range.isInRange(ImmutableIPV4Address.of("192.168.0.1"))).isTrue();
+        Assertions.assertThat(range.isInRange(ImmutableIPV4Address.of("192.168.0.6"))).isTrue();
+        Assertions.assertThat(range.isInRange(ImmutableIPV4Address.of("192.168.1.0"))).isFalse();
+        Assertions.assertThat(range.isInRange(ImmutableIPV4Address.of("127.0.0.3"))).isFalse();
     }
 
 }

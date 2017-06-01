@@ -74,14 +74,14 @@ $ cf enable-service-access mysql -o myorg
 
 # Supported credentials format
 
-The protocol, FQDN or IP addresses, and TCP ports are extracted from the credentials returned by the chained broker from the [standard fields](https://docs.cloudfoundry.org/services/binding-credentials.html):
+The protocol, FQDN or IPV4 addresses, and TCP ports are extracted from the credentials returned by the chained broker from the [standard fields](https://docs.cloudfoundry.org/services/binding-credentials.html):
 * URI
 * host
 * port
 
 Support for additional fields would be added later (e.g [memcache-release](https://github.com/cloudfoundry-community/memcache-release#example-vcap_services-credentials)'s  ``vip`` or ``servers`` list)
 
-The FQDN is looked up and resolved into a set of IP addresses.
+The FQDN is looked up and resolved into a set of IP V4 addresses.
 The prococol is currently always mapped to ``tcp``. In the future, some well known protocol could be mapped to ``udp`` instead
 
 For example, in the following credentials hash, 
@@ -113,7 +113,7 @@ The resulting security group opened would be:
  IP/port range can be restricted.
  Set following env properties to restrict IP/port range.
 ```
-    # An optional trusted IPs: single IP address, IP address range (e.g. 192.0.1.0-192.0.2.0), or a CIDR block to allow security groups to. If empty or unspecified, any IP adress returned from the binding response will be granted access in created security groups
+    # An optional trusted IPV4s: single IP address, IP address range (e.g. 192.0.1.0-192.0.2.0), or a CIDR block to allow security groups to. If empty or unspecified, any IP adress returned from the binding response will be granted access in created security groups
     BROKER_FILTER_TRUSTED_DESTINATION_HOSTS=192.0.1.0-192.0.2.0
     # An optional trusted port range. If empty or unspecified, any port returned from the binding response will be granted access in created security groups
     BROKER_FILTER_TRUSTED_DESTINATION_PORTS=

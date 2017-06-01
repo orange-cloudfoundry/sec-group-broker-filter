@@ -63,7 +63,7 @@ public class SpecificationConfigTest {
         final TrustedDestination trustedDestination = this.context.getBean(TrustedDestination.class);
 
         Assertions.assertThat(trustedDestination).isEqualTo(ImmutableTrustedDestination.builder()
-                .hosts(ImmutableIPAddress.of("192.168.0.1"))
+                .hosts(ImmutableIPV4Address.of("192.168.0.1"))
                 .build());
     }
 
@@ -78,7 +78,7 @@ public class SpecificationConfigTest {
         final TrustedDestination trustedDestination = this.context.getBean(TrustedDestination.class);
 
         Assertions.assertThat(trustedDestination).isEqualTo(ImmutableTrustedDestination.builder()
-                .hosts(ImmutableIPRange.builder().from(ImmutableIPAddress.of("192.168.0.1")).to(ImmutableIPAddress.of("192.168.0.9")).build())
+                .hosts(ImmutableIPRange.builder().from(ImmutableIPV4Address.of("192.168.0.1")).to(ImmutableIPV4Address.of("192.168.0.9")).build())
                 .build());
     }
 

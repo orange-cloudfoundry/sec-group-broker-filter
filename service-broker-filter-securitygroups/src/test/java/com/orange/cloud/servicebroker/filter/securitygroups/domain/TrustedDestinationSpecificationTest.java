@@ -9,6 +9,16 @@ import org.junit.Test;
 public class TrustedDestinationSpecificationTest {
 
     @Test
+    public void destination_in_plain_host_format_should_satisfy_specification() throws Exception {
+        final TrustedDestinationSpecification trustedDestinationSpecification = new TrustedDestinationSpecification(
+                ImmutableTrustedDestination.builder()
+                        .hosts(ImmutableIPV4Address.of("127.0.0.1"))
+                        .build());
+        final boolean satisfiedBy = trustedDestinationSpecification.isSatisfiedBy(new Destination("http://localhost:3128"));
+        Assertions.assertThat(satisfiedBy).isTrue();
+    }
+
+    @Test
     public void in_cidr_destination_host_should_satisfy_specification() throws Exception {
         final TrustedDestinationSpecification trustedDestinationSpecification = new TrustedDestinationSpecification(
                 ImmutableTrustedDestination.builder()
@@ -22,7 +32,7 @@ public class TrustedDestinationSpecificationTest {
     public void in_range_destination_host_should_satisfy_specification() throws Exception {
         final TrustedDestinationSpecification trustedDestinationSpecification = new TrustedDestinationSpecification(
                 ImmutableTrustedDestination.builder()
-                        .hosts(ImmutableIPRange.builder().from(ImmutableIPAddress.of("192.168.0.1")).to(ImmutableIPAddress.of("192.168.0.2")).build())
+                        .hosts(ImmutableIPRange.builder().from(ImmutableIPV4Address.of("192.168.0.1")).to(ImmutableIPV4Address.of("192.168.0.2")).build())
                         .build());
         final boolean satisfiedBy = trustedDestinationSpecification.isSatisfiedBy(new Destination("192.168.0.1", ImmutablePort.of(8000)));
         Assertions.assertThat(satisfiedBy).isTrue();
@@ -41,7 +51,7 @@ public class TrustedDestinationSpecificationTest {
     public void out_of_range_destination_host_should_not_satisfy_specification() throws Exception {
         final TrustedDestinationSpecification trustedDestinationSpecification = new TrustedDestinationSpecification(
                 ImmutableTrustedDestination.builder()
-                        .hosts(ImmutableIPRange.builder().from(ImmutableIPAddress.of("192.168.0.1")).to(ImmutableIPAddress.of("192.168.0.2")).build())
+                        .hosts(ImmutableIPRange.builder().from(ImmutableIPV4Address.of("192.168.0.1")).to(ImmutableIPV4Address.of("192.168.0.2")).build())
                         .build());
         final boolean satisfiedBy = trustedDestinationSpecification.isSatisfiedBy(new Destination("192.168.0.10", ImmutablePort.of(8000)));
         Assertions.assertThat(satisfiedBy).isFalse();

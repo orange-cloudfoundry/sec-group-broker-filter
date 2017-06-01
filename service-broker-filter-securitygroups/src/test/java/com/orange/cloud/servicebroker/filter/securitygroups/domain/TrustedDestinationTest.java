@@ -28,21 +28,21 @@ public class TrustedDestinationTest {
 
     @Test
     public void with_single_ip_for_host() throws Exception {
-        final ImmutableTrustedDestination destination = ImmutableTrustedDestination.builder().hosts(ImmutableIPAddress.of("192.168.0.1")).build();
-        Assertions.assertThat(destination.hosts()).isEqualTo(ImmutableIPAddress.of("192.168.0.1"));
+        final ImmutableTrustedDestination destination = ImmutableTrustedDestination.builder().hosts(ImmutableIPV4Address.of("192.168.0.1")).build();
+        Assertions.assertThat(destination.hosts()).isEqualTo(ImmutableIPV4Address.of("192.168.0.1"));
     }
 
     @Test
     public void with_ip_range_for_host() throws Exception {
         final ImmutableTrustedDestination destination = ImmutableTrustedDestination.builder()
                 .hosts(ImmutableIPRange.builder()
-                        .from(ImmutableIPAddress.of("192.168.0.1"))
-                        .to(ImmutableIPAddress.of("192.168.0.7"))
+                        .from(ImmutableIPV4Address.of("192.168.0.1"))
+                        .to(ImmutableIPV4Address.of("192.168.0.7"))
                         .build())
                 .build();
         Assertions.assertThat(destination.hosts()).isEqualTo(ImmutableIPRange.builder()
-                .from(ImmutableIPAddress.of("192.168.0.1"))
-                .to(ImmutableIPAddress.of("192.168.0.7"))
+                .from(ImmutableIPV4Address.of("192.168.0.1"))
+                .to(ImmutableIPV4Address.of("192.168.0.7"))
                 .build());
     }
 

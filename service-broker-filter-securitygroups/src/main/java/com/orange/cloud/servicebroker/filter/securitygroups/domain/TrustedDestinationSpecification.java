@@ -13,7 +13,12 @@ public class TrustedDestinationSpecification implements Specification<Destinatio
 
     @Override
     public boolean isSatisfiedBy(Destination candidate) {
-        return trustedDestination.isATrustedHost(ImmutableIPAddress.of(candidate.getHost()))
+        return !candidate.getIPV4s()
+                .map(ImmutableIPV4Address::of)
+                .map(trustedDestination::isATrustedHost)
+                .filter(Boolean.FALSE::equals)
+                .findFirst()
+                .isPresent()
                 && trustedDestination.isATrustedPort(candidate.getPort());
     }
 

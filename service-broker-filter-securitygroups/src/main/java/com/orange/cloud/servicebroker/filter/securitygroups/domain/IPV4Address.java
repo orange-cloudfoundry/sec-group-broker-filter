@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  * Some code has been copied from @link org.apache.commons.net.util.SubnetUtils
  */
 @Value.Immutable
-public abstract class IPAddress implements Range<IPAddress> {
+public abstract class IPV4Address implements Range<IPV4Address> {
 
     private static final Pattern addressPattern = Pattern.compile("(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})");
 
@@ -18,9 +18,9 @@ public abstract class IPAddress implements Range<IPAddress> {
     public abstract String value();
 
     @Override
-    public boolean isInRange(IPAddress candidate) {
+    public boolean isInRange(IPV4Address candidate) {
         return Optional.ofNullable(candidate)
-                .map(IPAddress::value)
+                .map(IPV4Address::value)
                 .map(value()::equals)
                 .orElse(Boolean.FALSE);
     }
@@ -33,9 +33,9 @@ public abstract class IPAddress implements Range<IPAddress> {
     }
 
     @Value.Lazy
-    public boolean greaterOrEqualsTo(IPAddress candidate) {
+    public boolean greaterOrEqualsTo(IPV4Address candidate) {
         return Optional.ofNullable(candidate)
-                .map(IPAddress::value)
+                .map(IPV4Address::value)
                 .map(ip -> {
                     long ipLong = (long) this.toInteger(ip) & 4294967295L;
                     long valueLong = (long) this.toInteger(value()) & 4294967295L;
@@ -45,9 +45,9 @@ public abstract class IPAddress implements Range<IPAddress> {
     }
 
     @Value.Lazy
-    public boolean lessOrEqualsTo(IPAddress candidate) {
+    public boolean lessOrEqualsTo(IPV4Address candidate) {
         return Optional.ofNullable(candidate)
-                .map(IPAddress::value)
+                .map(IPV4Address::value)
                 .map(ip -> {
                     long ipLong = (long) this.toInteger(ip) & 4294967295L;
                     long valueLong = (long) this.toInteger(value()) & 4294967295L;

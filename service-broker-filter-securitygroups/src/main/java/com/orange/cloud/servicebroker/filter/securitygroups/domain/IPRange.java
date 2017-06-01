@@ -9,11 +9,11 @@ import java.util.Optional;
  * @author Sebastien Bortolussi
  */
 @Value.Immutable
-public abstract class IPRange implements Range<IPAddress> {
+public abstract class IPRange implements Range<IPV4Address> {
 
-    abstract IPAddress from();
+    abstract IPV4Address from();
 
-    abstract IPAddress to();
+    abstract IPV4Address to();
 
     @Value.Check
     protected void validate() {
@@ -21,7 +21,7 @@ public abstract class IPRange implements Range<IPAddress> {
     }
 
     @Override
-    public boolean isInRange(IPAddress candidate) {
+    public boolean isInRange(IPV4Address candidate) {
         return Optional.ofNullable(candidate)
                 .map(ip -> from().lessOrEqualsTo(candidate) && to().greaterOrEqualsTo(candidate))
                 .orElse(Boolean.FALSE);

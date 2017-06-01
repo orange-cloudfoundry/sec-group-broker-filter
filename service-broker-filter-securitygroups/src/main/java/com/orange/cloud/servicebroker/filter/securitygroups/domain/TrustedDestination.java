@@ -14,7 +14,7 @@ public abstract class TrustedDestination {
     /*
     A single IP address, an IP address range like 192.0.2.0-192.0.2.50, or a CIDR block to allow network access to.
     */
-    public abstract Range<IPAddress> hosts();
+    public abstract Range<IPV4Address> hosts();
 
     /*
     A single port, multiple comma-separated ports, or a single range of ports that can receive traffic.
@@ -22,7 +22,7 @@ public abstract class TrustedDestination {
    */
     public abstract Optional<Range<Port>> ports();
 
-    public boolean isATrustedHost(IPAddress candidate) {
+    public boolean isATrustedHost(IPV4Address candidate) {
         return hosts().isInRange(candidate);
     }
 

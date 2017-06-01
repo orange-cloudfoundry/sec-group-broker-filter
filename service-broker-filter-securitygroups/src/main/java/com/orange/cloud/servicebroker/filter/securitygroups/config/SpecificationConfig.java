@@ -54,12 +54,12 @@ public class SpecificationConfig {
                     if (range[0].contains("/")) { // a cidr
                         builder.hosts(ImmutableCIDR.builder().value(range[0]).build());
                     } else { // a single ip address
-                        builder.hosts(ImmutableIPAddress.builder().value(range[0]).build());
+                        builder.hosts(ImmutableIPV4Address.builder().value(range[0]).build());
                     }
                 } else { // a range of ports
                     builder.hosts(ImmutableIPRange.builder()
-                            .from(ImmutableIPAddress.of(range[0]))
-                            .to(ImmutableIPAddress.of(range[1]))
+                            .from(ImmutableIPV4Address.of(range[0]))
+                            .to(ImmutableIPV4Address.of(range[1]))
                             .build());
                 }
 
