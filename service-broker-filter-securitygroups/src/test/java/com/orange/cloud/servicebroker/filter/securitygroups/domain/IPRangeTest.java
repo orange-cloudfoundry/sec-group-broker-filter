@@ -15,25 +15,25 @@ public class IPRangeTest {
     public void invalid_range() throws Exception {
         Throwable thrown = catchThrowable(() -> {
                     ImmutableIPRange.builder()
-                            .from(ImmutableIPAddress.of("127.0.0.10"))
-                            .to(ImmutableIPAddress.of("127.0.0.0"))
+                            .from(ImmutableIPV4Address.of("127.0.0.10"))
+                            .to(ImmutableIPV4Address.of("127.0.0.0"))
                             .build();
                 }
         );
-        assertThat(thrown).hasMessageContaining("Invalid range. IPAddress{value=127.0.0.0} should be greater or equals to IPAddress{value=127.0.0.10}");
+        assertThat(thrown).hasMessageContaining("Invalid range. IPV4Address{value=127.0.0.0} should be greater or equals to IPV4Address{value=127.0.0.10}");
     }
 
     @Test
     public void isInRange() throws Exception {
         final IPRange IPRange = ImmutableIPRange.builder()
-                .from(ImmutableIPAddress.of("127.0.0.1"))
-                .to(ImmutableIPAddress.of("127.0.0.3"))
+                .from(ImmutableIPV4Address.of("127.0.0.1"))
+                .to(ImmutableIPV4Address.of("127.0.0.3"))
                 .build();
-        Assertions.assertThat(IPRange.isInRange(ImmutableIPAddress.of("127.0.0.1"))).isTrue();
-        Assertions.assertThat(IPRange.isInRange(ImmutableIPAddress.of("127.0.0.2"))).isTrue();
-        Assertions.assertThat(IPRange.isInRange(ImmutableIPAddress.of("127.0.0.3"))).isTrue();
+        Assertions.assertThat(IPRange.isInRange(ImmutableIPV4Address.of("127.0.0.1"))).isTrue();
+        Assertions.assertThat(IPRange.isInRange(ImmutableIPV4Address.of("127.0.0.2"))).isTrue();
+        Assertions.assertThat(IPRange.isInRange(ImmutableIPV4Address.of("127.0.0.3"))).isTrue();
 
-        Assertions.assertThat(IPRange.isInRange(ImmutableIPAddress.of("127.0.0.0"))).isFalse();
+        Assertions.assertThat(IPRange.isInRange(ImmutableIPV4Address.of("127.0.0.0"))).isFalse();
     }
 
 }

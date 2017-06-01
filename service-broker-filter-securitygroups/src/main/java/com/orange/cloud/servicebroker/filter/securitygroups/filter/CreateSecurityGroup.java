@@ -166,7 +166,7 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
     }
 
     private Mono<List<RuleEntity>> getRules(Destination destination, String description) {
-        return Mono.justOrEmpty(destination.getIPs()
+        return Mono.justOrEmpty(destination.getIPV4s()
                 .map(ip -> RuleEntity.builder()
                         .protocol(DEFAULT_PROTOCOL)
                         .destination(ip)

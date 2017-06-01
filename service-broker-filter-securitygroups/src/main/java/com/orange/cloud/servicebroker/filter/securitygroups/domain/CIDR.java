@@ -12,15 +12,15 @@ import java.util.Optional;
 CIDR IP addresses
  */
 @Value.Immutable
-public abstract class CIDR implements Range<IPAddress> {
+public abstract class CIDR implements Range<IPV4Address> {
 
     @Value.Parameter
     public abstract String value();
 
     @Override
-    public boolean isInRange(IPAddress candidate) {
+    public boolean isInRange(IPV4Address candidate) {
         return Optional.ofNullable(candidate)
-                .map(IPAddress::value)
+                .map(IPV4Address::value)
                 .map(ip -> {
                     final SubnetUtils cidr = new SubnetUtils(value());
                     return cidr.getInfo().isInRange(ip);

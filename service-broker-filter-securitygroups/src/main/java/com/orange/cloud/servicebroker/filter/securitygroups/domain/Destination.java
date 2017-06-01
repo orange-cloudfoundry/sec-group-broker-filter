@@ -19,10 +19,7 @@ package com.orange.cloud.servicebroker.filter.securitygroups.domain;
 
 import org.springframework.util.Assert;
 
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.stream.Stream;
 
 /**
@@ -78,9 +75,10 @@ public class Destination {
         this.host = host;
     }
 
-    public Stream<String> getIPs() {
+    public Stream<String> getIPV4s() {
         try {
             return Stream.of(InetAddress.getAllByName(host))
+                    .filter(Inet4Address.class::isInstance)
                     .map(InetAddress::getHostAddress);
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
