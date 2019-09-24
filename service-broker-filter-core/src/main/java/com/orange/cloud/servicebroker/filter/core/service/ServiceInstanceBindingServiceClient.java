@@ -38,11 +38,13 @@ public interface ServiceInstanceBindingServiceClient {
     @RequestMapping(value = "/v2/service_instances/{instanceId}/service_bindings/{bindingId}", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
     ResponseEntity<CreateServiceInstanceAppBindingResponse> createServiceInstanceBinding(@PathVariable("instanceId") String serviceInstanceId,
                                                                                          @PathVariable("bindingId") String bindingId,
+                                                                                         @RequestHeader(value = OsbConstants.X_Broker_API_Version, defaultValue = OsbConstants.X_Broker_API_Version_Value) String apiVersion,
                                                                                          @Valid @RequestBody CreateServiceInstanceBindingRequest request);
 
     @RequestMapping(value = "/v2/service_instances/{instanceId}/service_bindings/{bindingId}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_VALUE})
     ResponseEntity<String> deleteServiceInstanceBinding(@PathVariable("instanceId") String serviceInstanceId,
                                                         @PathVariable("bindingId") String bindingId,
                                                         @RequestParam("service_id") String serviceDefinitionId,
-                                                        @RequestParam("plan_id") String planId);
+                                                        @RequestParam("plan_id") String planId,
+                                                        @RequestHeader(value = OsbConstants.X_Broker_API_Version, defaultValue = OsbConstants.X_Broker_API_Version_Value) String apiVersion);
 }

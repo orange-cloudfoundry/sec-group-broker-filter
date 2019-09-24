@@ -48,7 +48,7 @@ public class DestinationTest {
     public void get_ips_from_uri() throws Exception {
         Destination destination = new Destination("mysql://2106:Uq3YCioVsO3Dbcp4@localhost:3306/mydb?reconnect=true");
 
-        Assertions.assertThat(destination.getIPs().collect(Collectors.toList())).containsOnly("127.0.0.1", "0:0:0:0:0:0:0:1");
+        Assertions.assertThat(destination.getIPs().collect(Collectors.toList())).containsOnly("127.0.0.1");
     }
 
     @Test(expected = IllegalArgumentException.class)

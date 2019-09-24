@@ -18,6 +18,7 @@
 package com.orange.cloud.servicebroker.filter.core;
 
 import com.orange.cloud.servicebroker.filter.core.config.CatalogConfig;
+import com.orange.cloud.servicebroker.filter.core.service.OsbConstants;
 import com.orange.cloud.servicebroker.filter.core.service.ServiceInstanceBindingServiceClient;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -59,7 +60,7 @@ public class ServiceInstanceBindingFilterBrokerIntegrationTest {
                 .withBindingId("binding_id");
         ResponseEntity<CreateServiceInstanceAppBindingResponse> response = new ResponseEntity<CreateServiceInstanceAppBindingResponse>(new CreateServiceInstanceAppBindingResponse(), HttpStatus.CREATED);
 
-        given(this.serviceInstanceBindingServiceClient.createServiceInstanceBinding("instance_id", "binding_id", request))
+        given(this.serviceInstanceBindingServiceClient.createServiceInstanceBinding("instance_id", "binding_id", OsbConstants.X_Broker_API_Version_Value, request))
                 .willReturn(response);
 
         final ResponseEntity<CreateServiceInstanceAppBindingResponse> forEntity = this.restTemplate.getForEntity("/v2/service_instances/{instance_id}/service_bindings/{binding_id}",

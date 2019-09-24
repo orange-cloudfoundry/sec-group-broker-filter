@@ -53,7 +53,7 @@ public class ServiceInstanceBindingServiceProxy implements ServiceInstanceBindin
     public CreateServiceInstanceBindingResponse createServiceInstanceBinding(CreateServiceInstanceBindingRequest request) {
         preBinding(request);
         final CreateServiceInstanceBindingRequest req = mapper.map(request);
-        final ResponseEntity<CreateServiceInstanceAppBindingResponse> response = client.createServiceInstanceBinding(req.getServiceInstanceId(), req.getBindingId(), req);
+        final ResponseEntity<CreateServiceInstanceAppBindingResponse> response = client.createServiceInstanceBinding(req.getServiceInstanceId(), req.getBindingId(), OsbConstants.X_Broker_API_Version_Value,req);
         postBinding(request, response.getBody());
         return response.getBody();
     }
@@ -63,7 +63,7 @@ public class ServiceInstanceBindingServiceProxy implements ServiceInstanceBindin
     public void deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest request) {
         preUnbinding(request);
         final DeleteServiceInstanceBindingRequest req = mapper.map(request);
-        client.deleteServiceInstanceBinding(req.getServiceInstanceId(), req.getBindingId(), req.getServiceDefinitionId(), req.getPlanId());
+        client.deleteServiceInstanceBinding(req.getServiceInstanceId(), req.getBindingId(), req.getServiceDefinitionId(), req.getPlanId(), OsbConstants.X_Broker_API_Version_Value);
         postUnbinding(request);
     }
 

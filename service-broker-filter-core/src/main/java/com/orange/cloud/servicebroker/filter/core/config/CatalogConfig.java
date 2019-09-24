@@ -18,6 +18,7 @@
 package com.orange.cloud.servicebroker.filter.core.config;
 
 import com.orange.cloud.servicebroker.filter.core.service.CatalogServiceClient;
+import com.orange.cloud.servicebroker.filter.core.service.OsbConstants;
 import com.orange.cloud.servicebroker.filter.core.service.mapper.CatalogMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.model.Catalog;
@@ -40,7 +41,7 @@ public class CatalogConfig {
 
     @Bean
     public Catalog catalog(CatalogMapper catalogMapper) {
-        return catalogMapper.toCatalog(client.getCatalog());
+        return catalogMapper.toCatalog(client.getCatalog(OsbConstants.X_Broker_API_Version_Value));
     }
 
 }

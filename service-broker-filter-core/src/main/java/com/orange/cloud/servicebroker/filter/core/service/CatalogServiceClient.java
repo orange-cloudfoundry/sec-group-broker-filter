@@ -20,6 +20,7 @@ package com.orange.cloud.servicebroker.filter.core.service;
 import com.orange.cloud.servicebroker.filter.core.config.FilteredBrokerFeignConfig;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.servicebroker.model.Catalog;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -32,5 +33,5 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface CatalogServiceClient {
 
     @RequestMapping(value = "/v2/catalog", method = RequestMethod.GET)
-    Catalog getCatalog();
+    Catalog getCatalog(@RequestHeader(value = OsbConstants.X_Broker_API_Version, defaultValue = OsbConstants.X_Broker_API_Version_Value) String apiVersion);
 }

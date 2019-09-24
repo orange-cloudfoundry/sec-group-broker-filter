@@ -64,17 +64,17 @@ public class ServiceInstanceBindingServiceProxyTest {
 
     @Test
     public void should_proxy_create_service_instance_binding_request_to_filtered_broker() throws Exception {
-        Mockito.when(client.createServiceInstanceBinding("instance_id", "binding_id", createServiceInstanceBindingRequest()))
+        Mockito.when(client.createServiceInstanceBinding("instance_id", "binding_id", OsbConstants.X_Broker_API_Version_Value,createServiceInstanceBindingRequest()))
                 .thenReturn(created());
 
         serviceInstanceBindingServiceProxy.createServiceInstanceBinding(createServiceInstanceBindingRequest());
 
-        Mockito.verify(client).createServiceInstanceBinding("instance_id", "binding_id", createServiceInstanceBindingRequest());
+        Mockito.verify(client).createServiceInstanceBinding("instance_id", "binding_id", OsbConstants.X_Broker_API_Version_Value,createServiceInstanceBindingRequest());
     }
 
     @Test
     public void should_fail_to_create_service_instance_instance_when_any_post_filter_fails() throws Exception {
-        Mockito.when(client.createServiceInstanceBinding("instance_id", "binding_id", createServiceInstanceBindingRequest()))
+        Mockito.when(client.createServiceInstanceBinding("instance_id", "binding_id", OsbConstants.X_Broker_API_Version_Value,createServiceInstanceBindingRequest()))
                 .thenReturn(created());
         Mockito.doThrow(new RuntimeException("filter failed"))
                 .when(filterRunner).postBind(createServiceInstanceBindingRequest(), new CreateServiceInstanceAppBindingResponse());
@@ -103,7 +103,7 @@ public class ServiceInstanceBindingServiceProxyTest {
 
         serviceInstanceBindingServiceProxy.deleteServiceInstanceBinding(request);
 
-        Mockito.verify(client).deleteServiceInstanceBinding("instance_id", "binding_id", "service_definition_id", "plan_id");
+        Mockito.verify(client).deleteServiceInstanceBinding("instance_id", "binding_id", "service_definition_id", "plan_id", OsbConstants.X_Broker_API_Version_Value);
     }
 
 }

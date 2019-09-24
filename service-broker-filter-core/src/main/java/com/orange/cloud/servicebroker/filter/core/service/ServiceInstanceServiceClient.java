@@ -35,19 +35,23 @@ public interface ServiceInstanceServiceClient {
     @RequestMapping(value = "/v2/service_instances/{instanceId}", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
     ResponseEntity<CreateServiceInstanceResponse> createServiceInstance(@PathVariable("instanceId") String serviceInstanceId,
                                                                         @Valid @RequestBody CreateServiceInstanceRequest request,
-                                                                        @RequestParam(value = "accepts_incomplete", required = false) boolean acceptsIncomplete);
+                                                                        @RequestParam(value = "accepts_incomplete", required = false) boolean acceptsIncomplete,
+                                                                        @RequestHeader(value = OsbConstants.X_Broker_API_Version, defaultValue = OsbConstants.X_Broker_API_Version_Value) String apiVersion);
 
     @RequestMapping(value = "/v2/service_instances/{instanceId}/last_operation", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    ResponseEntity<GetLastServiceOperationResponse> getServiceInstanceLastOperation(@PathVariable("instanceId") String serviceInstanceId);
+    ResponseEntity<GetLastServiceOperationResponse> getServiceInstanceLastOperation(@PathVariable("instanceId") String serviceInstanceId,
+                                                                                    @RequestHeader(value = OsbConstants.X_Broker_API_Version, defaultValue = OsbConstants.X_Broker_API_Version_Value) String apiVersion);
 
     @RequestMapping(value = "/v2/service_instances/{instanceId}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_VALUE})
     ResponseEntity<DeleteServiceInstanceResponse> deleteServiceInstance(@PathVariable("instanceId") String serviceInstanceId,
                                                                         @RequestParam("service_id") String serviceDefinitionId,
                                                                         @RequestParam("plan_id") String planId,
-                                                                        @RequestParam(value = "accepts_incomplete", required = false) boolean acceptsIncomplete);
+                                                                        @RequestParam(value = "accepts_incomplete", required = false) boolean acceptsIncomplete,
+                                                                        @RequestHeader(value = OsbConstants.X_Broker_API_Version, defaultValue = OsbConstants.X_Broker_API_Version_Value) String apiVersion);
 
     @RequestMapping(value = "/v2/service_instances/{instanceId}", method = RequestMethod.PATCH, produces = {MediaType.APPLICATION_JSON_VALUE})
     ResponseEntity<UpdateServiceInstanceResponse> updateServiceInstance(@PathVariable("instanceId") String serviceInstanceId,
                                                                         @Valid @RequestBody UpdateServiceInstanceRequest request,
-                                                                        @RequestParam(value = "accepts_incomplete", required = false) boolean acceptsIncomplete);
+                                                                        @RequestParam(value = "accepts_incomplete", required = false) boolean acceptsIncomplete,
+                                                                        @RequestHeader(value = OsbConstants.X_Broker_API_Version, defaultValue = OsbConstants.X_Broker_API_Version_Value) String apiVersion);
 }
