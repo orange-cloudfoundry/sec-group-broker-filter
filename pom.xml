@@ -21,6 +21,15 @@
         <version>1.4.0.RELEASE</version>
     </parent>
 
+    <scm>
+        <url>https://github.com/orange-cloudfoundry/sec-group-broker-filter</url>
+        <connection>scm:git:https://github.com/orange-cloudfoundry/sec-group-broker-filter.git</connection>
+        <developerConnection>scm:git:https://github.com/orange-cloudfoundry/sec-group-broker-filter.git
+        </developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+
     <properties>
         <lombok>1.16.8</lombok>
         <cf-java-client.version>2.4.0.RELEASE</cf-java-client.version>
