@@ -136,6 +136,41 @@ To run the integration tests, run the following:
 $ ./mvnw -Pintegration-test clean test
 ```
 
+# Releasing
+
+Prereqs: checkout the branch to release (master), and make sure it is up-to-date w.r.t. the github remote.
+ 
+Releasing is made using [maven release plugin](http://maven.apache.org/maven-release/maven-release-plugin/) as follows :
+ 
+ ```shell
+ 
+ $ mvn release:prepare --batch-mode -Dtag={your git tag} -DreleaseVersion={release version to be set} -DdevelopmentVersion={next snapshot version to be set}
+ 
+ # ex : mvn release:prepare --batch-mode -Dtag=v2.3.0.RELEASE -DreleaseVersion=2.3.0.RELEASE -DdevelopmentVersion=2.4.0.BUILD
+ 
+ ```
+ 
+The jar file is available there : <your_workspace>/service-broker-filter-securitygroups/target/service-broker-filter-securitygroups-{release version}.jar
+ ```shell
+  
+ # ex : ./service-broker-filter-securitygroups/target/service-broker-filter-securitygroups-2.3.0.RELEASE.jar
+ 
+ ```
+
+You must upload manually this jar file
+
+Following the release:
+- edit the release notes in github
+- clean up your local workspace using `mvn release:clean`
+
+In case of issues, try:
+* `mvn release:rollback` (which creates a new commit reverting changes)
+    * possibly revert the commits in git (`git reset --hard commitid`), 
+* clean up the git tag `git tag -d vXX && git push --delete origin vXX`, 
+* `mvn release:clean`
+* fix the root cause and retry.
+
+
 **IMPORTANT**
 Integration tests should be run against an empty Cloud Foundry instance. The integration tests are destructive, affecting nearly everything on an instance given the chance.
 
