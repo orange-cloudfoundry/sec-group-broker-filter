@@ -31,7 +31,7 @@
     <properties>
         <lombok>1.16.8</lombok>
         <cf-java-client.version>2.4.0.RELEASE</cf-java-client.version>
-        <reactor-core.version>3.0.5.RELEASE</reactor-core.version>
+        <reactor-core.version>3.3.8.RELEASE</reactor-core.version>
         <reactor-addons.version>3.0.5.RELEASE</reactor-addons.version>
         <reactor-netty.version>0.6.0.RELEASE</reactor-netty.version>
         <immutables.version>2.3.9</immutables.version>
