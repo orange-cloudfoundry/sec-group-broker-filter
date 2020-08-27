@@ -28,9 +28,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceBindingRequest;
+
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -53,13 +54,14 @@ public class ServiceInstanceBindingServiceProxyTest {
     private ServiceInstanceBindingServiceProxy serviceInstanceBindingServiceProxy;
 
     private static ResponseEntity<CreateServiceInstanceAppBindingResponse> created() {
-        return new ResponseEntity<CreateServiceInstanceAppBindingResponse>(new CreateServiceInstanceAppBindingResponse(), HttpStatus.CREATED);
+        return new ResponseEntity<>(new CreateServiceInstanceAppBindingResponse(), HttpStatus.CREATED);
     }
 
     private static CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest() {
-        return new CreateServiceInstanceBindingRequest()
-                .withServiceInstanceId("instance_id")
-                .withBindingId("binding_id");
+        return CreateServiceInstanceBindingRequest.builder()
+                .serviceInstanceId("instance_id")
+                .bindingId("binding_id")
+            .build();
     }
 
     @Test
@@ -99,7 +101,13 @@ public class ServiceInstanceBindingServiceProxyTest {
 
     @Test
     public void should_proxy_delete_service_instance_binding_request_to_filtered_broker() throws Exception {
-        DeleteServiceInstanceBindingRequest request = new DeleteServiceInstanceBindingRequest("instance_id", "binding_id", "service_definition_id", "plan_id", null);
+        DeleteServiceInstanceBindingRequest request =
+            DeleteServiceInstanceBindingRequest.builder()
+            .serviceInstanceId("instance_id")
+            .bindingId("binding_id")
+            .serviceDefinitionId("service_definition_id")
+            .planId("plan_id")
+            .build();
 
         serviceInstanceBindingServiceProxy.deleteServiceInstanceBinding(request);
 

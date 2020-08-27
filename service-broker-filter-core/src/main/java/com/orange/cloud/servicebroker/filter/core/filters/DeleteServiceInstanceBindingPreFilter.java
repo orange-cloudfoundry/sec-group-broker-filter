@@ -17,7 +17,8 @@
 
 package com.orange.cloud.servicebroker.filter.core.filters;
 
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceBindingRequest;
+
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
 
 /**
  * This interface is implemented by filters that should be processed before

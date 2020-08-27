@@ -40,8 +40,8 @@ import org.cloudfoundry.client.v2.services.GetServiceRequest;
 import org.cloudfoundry.client.v2.services.ServiceEntity;
 import org.cloudfoundry.util.ResourceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
@@ -139,7 +139,7 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
         try {
             final SecurityGroupEntity securityGroup = Mono.when(
                     getRuleDescription(cloudFoundryClient, request.getBindingId(), request.getServiceInstanceId()),
-                    getSpaceId(cloudFoundryClient, request.getBoundAppGuid())
+                    getSpaceId(cloudFoundryClient, request.getAppGuid())
             ).then(function((description, spaceId) -> create(getSecurityGroupName(request), destination, description, spaceId)))
                     .doOnError(t -> log.error("Fail to create security group. Error details {}", t))
                     .block();

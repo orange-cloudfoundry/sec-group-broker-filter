@@ -1,3 +1,8 @@
 language: java
 jdk:
 - openjdk14
+# avoid downloading maven dependencies at each build.
+# See https://docs.travis-ci.com/user/caching/#clearing-caches for manually cleaning it if necessary
+cache:
+  directories:
+    - $HOME/.m2

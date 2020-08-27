@@ -17,11 +17,12 @@
 
 package com.orange.cloud.servicebroker.filter.core.service.mapper;
 
-import org.springframework.cloud.servicebroker.model.Catalog;
-import org.springframework.cloud.servicebroker.model.Plan;
-import org.springframework.cloud.servicebroker.model.ServiceDefinition;
 
 import java.util.stream.Collectors;
+
+import org.springframework.cloud.servicebroker.model.catalog.Catalog;
+import org.springframework.cloud.servicebroker.model.catalog.Plan;
+import org.springframework.cloud.servicebroker.model.catalog.ServiceDefinition;
 
 /**
  * Adds a suffix to service ids and names, plan ids and names to avoid conflicts
@@ -42,26 +43,41 @@ public class SuffixedCatalogMapper implements CatalogMapper {
     }
 
     private ServiceDefinition toSuffixedServiceDefinition(ServiceDefinition serviceDefinition) {
-        return new ServiceDefinition(withSuffix(serviceDefinition.getId(), serviceOfferingSuffix),
-                withSuffix(serviceDefinition.getName(), serviceOfferingSuffix),
-                serviceDefinition.getDescription(),
-                serviceDefinition.isBindable(),
-                serviceDefinition.isPlanUpdateable(),
+        ServiceDefinition.ServiceDefinitionBuilder serviceDefinitionBuilder = ServiceDefinition.builder()
+            .id(withSuffix(serviceDefinition.getId(), serviceOfferingSuffix))
+            .name(withSuffix(serviceDefinition.getName(), serviceOfferingSuffix))
+            .description(serviceDefinition.getDescription())
+            .bindable(serviceDefinition.isBindable())
+            .planUpdateable(serviceDefinition.isPlanUpdateable())
+            .plans(
                 serviceDefinition.getPlans()
-                        .stream()
-                        .map(this::toPlan)
-                        .collect(Collectors.toList()),
-                serviceDefinition.getTags(),
-                serviceDefinition.getMetadata(),
-                serviceDefinition.getRequires(),
-                serviceDefinition.getDashboardClient());
+                    .stream()
+                    .map(this::toPlan)
+                    .collect(Collectors.toList()));
+        if (serviceDefinition.getTags() != null) {
+            serviceDefinitionBuilder
+                .tags(serviceDefinition.getTags());
+        }
+        if (serviceDefinition.getRequires() != null) {
+            serviceDefinitionBuilder
+                .requires(serviceDefinition.getRequires());
+        }
+        if (serviceDefinition.getMetadata() !=null) {
+            serviceDefinitionBuilder
+                .metadata(serviceDefinition.getMetadata());
+        }
+        return serviceDefinitionBuilder
+            .dashboardClient(serviceDefinition.getDashboardClient())
+            .build();
     }
 
     private Plan toPlan(Plan plan) {
-        return new Plan(withSuffix(plan.getId(), serviceOfferingSuffix),
-                withSuffix(plan.getName(), serviceOfferingSuffix),
-                plan.getDescription(),
-                plan.getMetadata());
+        return Plan.builder()
+            .id(withSuffix(plan.getId(), serviceOfferingSuffix))
+            .name(withSuffix(plan.getName(), serviceOfferingSuffix))
+            .description(plan.getDescription())
+            .metadata(plan.getMetadata())
+            .build();
     }
 
     @Override

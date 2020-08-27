@@ -19,13 +19,15 @@ package com.orange.cloud.servicebroker.filter.core.service.mapper;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest;
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceRequest;
-import org.springframework.cloud.servicebroker.model.GetLastServiceOperationRequest;
-import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceRequest;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.cloud.servicebroker.model.CloudFoundryContext;
+import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
+import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest;
+import org.springframework.cloud.servicebroker.model.instance.GetLastServiceOperationRequest;
+import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceRequest;
 
 /**
  * @author Sebastien Bortolussi
@@ -33,47 +35,58 @@ import java.util.Map;
 public class SuffixedServiceInstanceRequestMapperTest {
 
     @Test
-    public void withoutSuffix() throws Exception {
+    public void withoutSuffix() {
         Assert.assertEquals("plan-one-id", SuffixedServiceInstanceRequestMapper.withoutSuffix("plan-one-id-suffix", "-suffix"));
     }
 
     @Test
-    public void should_map_create_service_instance_request() throws Exception {
+    public void should_map_create_service_instance_request() {
         SuffixedServiceInstanceRequestMapper mapper = new SuffixedServiceInstanceRequestMapper("-suffixed");
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("key1", "value1");
 
-        Assert.assertEquals(new CreateServiceInstanceRequest("serviceDefinitionId",
-                        "planId",
-                        "organizationGuid",
-                        "spaceGuid",
-                        parameters)
-                        .withServiceInstanceId("serviceInstanceId")
-                        .withAsyncAccepted(true),
-                mapper.map(new CreateServiceInstanceRequest("serviceDefinitionId-suffixed",
-                        "planId-suffixed",
-                        "organizationGuid",
-                        "spaceGuid",
-                        parameters)
-                        .withServiceInstanceId("serviceInstanceId")
-                        .withAsyncAccepted(true)));
+        Assert.assertEquals(
+            CreateServiceInstanceRequest.builder()
+                .serviceDefinitionId("serviceDefinitionId")
+                .planId("planId")
+                .context(CloudFoundryContext.builder()
+                    .organizationGuid("organizationGuid")
+                    .spaceGuid("spaceGuid")
+                    .build())
+                .parameters(parameters)
+                .serviceInstanceId("serviceInstanceId")
+                .asyncAccepted(true)
+                .build()
+            , mapper.map(
+            CreateServiceInstanceRequest.builder()
+                .serviceDefinitionId("serviceDefinitionId-suffixed")
+                .planId("planId-suffixed")
+                .context(CloudFoundryContext.builder()
+                    .organizationGuid("organizationGuid")
+                    .spaceGuid("spaceGuid")
+                    .build())
+                .parameters(parameters)
+                .serviceInstanceId("serviceInstanceId")
+                .asyncAccepted(true).build()));
     }
 
     @Test
     public void should_map_delete_service_instance_request() throws Exception {
         SuffixedServiceInstanceRequestMapper mapper = new SuffixedServiceInstanceRequestMapper("-suffixed");
 
-        Assert.assertEquals(new DeleteServiceInstanceRequest("serviceInstanceId",
-                        "serviceDefinitionId",
-                        "planId",
-                        null)
-                        .withAsyncAccepted(true),
-                mapper.map(new DeleteServiceInstanceRequest("serviceInstanceId",
-                        "serviceDefinitionId-suffixed",
-                        "planId-suffixed",
-                        null)
-                        .withAsyncAccepted(true)));
+        Assert.assertEquals(DeleteServiceInstanceRequest.builder()
+                .serviceInstanceId("serviceInstanceId")
+                .serviceDefinitionId("serviceDefinitionId")
+                .planId("planId")
+                .asyncAccepted(true)
+                .build(),
+        mapper.map(DeleteServiceInstanceRequest.builder()
+            .serviceInstanceId("serviceInstanceId")
+            .serviceDefinitionId("serviceDefinitionId-suffixed")
+            .planId("planId-suffixed")
+            .asyncAccepted(true)
+            .build()));
     }
 
     @Test
@@ -83,26 +96,32 @@ public class SuffixedServiceInstanceRequestMapperTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("key1", "value1");
 
-        Assert.assertEquals(new UpdateServiceInstanceRequest("serviceDefinitionId",
-                        "planId",
-                        parameters)
-                        .withServiceInstanceId("serviceInstanceId")
-                        .withAsyncAccepted(true),
-                mapper.map(new UpdateServiceInstanceRequest("serviceDefinitionId-suffixed",
-                        "planId-suffixed",
-                        parameters)
-                        .withServiceInstanceId("serviceInstanceId")
-                        .withAsyncAccepted(true)));
+        Assert.assertEquals(UpdateServiceInstanceRequest.builder()
+                .serviceDefinitionId("serviceDefinitionId")
+                .planId("planId")
+                .parameters(parameters)
+                .serviceInstanceId("serviceInstanceId")
+                .asyncAccepted(true)
+                .build(),
+            mapper.map(UpdateServiceInstanceRequest.builder()
+                .serviceDefinitionId("serviceDefinitionId-suffixed")
+                .planId("planId-suffixed")
+                .parameters(parameters)
+                .serviceInstanceId("serviceInstanceId")
+                .asyncAccepted(true)
+                .build()));
     }
 
     @Test
     public void should_map_get_last_service_operation_request() throws Exception {
         SuffixedServiceInstanceRequestMapper mapper = new SuffixedServiceInstanceRequestMapper("-suffixed");
 
-        Assert.assertEquals(new GetLastServiceOperationRequest("serviceInstanceId"),
-                mapper.map(new GetLastServiceOperationRequest("serviceInstanceId")));
-
-
+        Assert.assertEquals(GetLastServiceOperationRequest.builder()
+                .serviceInstanceId("serviceInstanceId")
+                .build(),
+            mapper.map(GetLastServiceOperationRequest.builder()
+                .serviceInstanceId("serviceInstanceId")
+                .build()));
     }
 
 }
