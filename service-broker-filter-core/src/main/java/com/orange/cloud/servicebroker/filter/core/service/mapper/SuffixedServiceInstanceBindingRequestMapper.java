@@ -17,8 +17,11 @@
 
 package com.orange.cloud.servicebroker.filter.core.service.mapper;
 
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceBindingRequest;
+
+import org.springframework.cloud.servicebroker.model.CloudFoundryContext;
+import org.springframework.cloud.servicebroker.model.binding.BindResource;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
 
 /**
  * @author Sebastien Bortolussi
@@ -37,22 +40,24 @@ public class SuffixedServiceInstanceBindingRequestMapper implements ServiceInsta
 
     @Override
     public CreateServiceInstanceBindingRequest map(CreateServiceInstanceBindingRequest request) {
-        return new CreateServiceInstanceBindingRequest(withoutSuffix(request.getServiceDefinitionId(), serviceOfferingSuffix),
-                withoutSuffix(request.getPlanId(), serviceOfferingSuffix),
-                request.getAppGuid(),
-                request.getBindResource(),
-                request.getParameters())
-                .withBindingId(request.getBindingId())
-                .withServiceInstanceId(request.getServiceInstanceId());
+        return CreateServiceInstanceBindingRequest.builder()
+            .serviceDefinitionId(withoutSuffix(request.getServiceDefinitionId(), serviceOfferingSuffix))
+            .planId(withoutSuffix(request.getPlanId(), serviceOfferingSuffix))
+            .bindResource(request.getBindResource())
+            .parameters(request.getParameters())
+            .bindingId(request.getBindingId())
+            .serviceInstanceId(request.getServiceInstanceId())
+            .build();
     }
 
     @Override
     public DeleteServiceInstanceBindingRequest map(DeleteServiceInstanceBindingRequest request) {
-        return new DeleteServiceInstanceBindingRequest(request.getServiceInstanceId(),
-                request.getBindingId(),
-                withoutSuffix(request.getServiceDefinitionId(), serviceOfferingSuffix),
-                withoutSuffix(request.getPlanId(), serviceOfferingSuffix),
-                null);
+        return DeleteServiceInstanceBindingRequest.builder()
+            .serviceInstanceId(request.getServiceInstanceId())
+            .bindingId(request.getBindingId())
+            .serviceDefinitionId(withoutSuffix(request.getServiceDefinitionId(), serviceOfferingSuffix))
+            .planId(withoutSuffix(request.getPlanId(), serviceOfferingSuffix))
+            .build();
     }
 
 }

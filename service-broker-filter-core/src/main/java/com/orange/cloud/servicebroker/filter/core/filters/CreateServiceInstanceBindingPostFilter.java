@@ -17,8 +17,9 @@
 
 package com.orange.cloud.servicebroker.filter.core.filters;
 
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
+
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 
 /**
  * This interface is implemented by filters that should be processed after service instance instance binding

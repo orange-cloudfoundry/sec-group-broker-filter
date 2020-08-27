@@ -20,8 +20,8 @@ package com.orange.cloud.servicebroker.filter.core.service;
 import com.orange.cloud.servicebroker.filter.core.config.FilteredBrokerFeignConfig;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

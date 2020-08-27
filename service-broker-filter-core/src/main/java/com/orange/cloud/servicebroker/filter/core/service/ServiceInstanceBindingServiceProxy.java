@@ -19,11 +19,14 @@ package com.orange.cloud.servicebroker.filter.core.service;
 
 import com.orange.cloud.servicebroker.filter.core.filters.ServiceInstanceBindingFilterRunner;
 import com.orange.cloud.servicebroker.filter.core.service.mapper.ServiceInstanceBindingRequestMapper;
+import reactor.core.publisher.Mono;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingResponse;
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingResponse;
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingResponse;
 import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -50,21 +53,22 @@ public class ServiceInstanceBindingServiceProxy implements ServiceInstanceBindin
     }
 
     @Override
-    public CreateServiceInstanceBindingResponse createServiceInstanceBinding(CreateServiceInstanceBindingRequest request) {
+    public Mono<CreateServiceInstanceBindingResponse> createServiceInstanceBinding(CreateServiceInstanceBindingRequest request) {
         preBinding(request);
         final CreateServiceInstanceBindingRequest req = mapper.map(request);
         final ResponseEntity<CreateServiceInstanceAppBindingResponse> response = client.createServiceInstanceBinding(req.getServiceInstanceId(), req.getBindingId(), OsbConstants.X_Broker_API_Version_Value,req);
         postBinding(request, response.getBody());
-        return response.getBody();
+        return Mono.just(response.getBody());
     }
 
 
     @Override
-    public void deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest request) {
+    public Mono<DeleteServiceInstanceBindingResponse> deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest request) {
         preUnbinding(request);
         final DeleteServiceInstanceBindingRequest req = mapper.map(request);
         client.deleteServiceInstanceBinding(req.getServiceInstanceId(), req.getBindingId(), req.getServiceDefinitionId(), req.getPlanId(), OsbConstants.X_Broker_API_Version_Value);
         postUnbinding(request);
+        return Mono.just(DeleteServiceInstanceBindingResponse.builder().build());
     }
 
     private void postBinding(CreateServiceInstanceBindingRequest request, CreateServiceInstanceAppBindingResponse response) {
