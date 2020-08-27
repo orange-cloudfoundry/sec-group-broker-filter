@@ -9,6 +9,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
+
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -31,10 +33,10 @@ public class CheckCloudFoundryConnectionTest {
     }
 
     @Test
-    public void fail_to_start_app_when_cloudFoundry_cc_API_bad_credentials() throws Exception {
+    public void fail_to_start_app_when_cloudFoundry_cc_API_bad_credentials() {
         //Should fail when Bad Credentials
         this.thrown.expectCause(isA(UaaException.class));
-        this.context = new SpringApplicationBuilder(TestConfiguration.class).web(false).run();
+        this.context = new SpringApplicationBuilder(TestConfiguration.class).web(WebApplicationType.NONE).run();
     }
 
     @Configuration

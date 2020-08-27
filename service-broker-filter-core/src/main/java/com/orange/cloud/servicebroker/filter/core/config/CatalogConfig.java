@@ -21,7 +21,7 @@ import com.orange.cloud.servicebroker.filter.core.service.CatalogServiceClient;
 import com.orange.cloud.servicebroker.filter.core.service.OsbConstants;
 import com.orange.cloud.servicebroker.filter.core.service.mapper.CatalogMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.servicebroker.model.Catalog;
+import org.springframework.cloud.servicebroker.model.catalog.Catalog;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

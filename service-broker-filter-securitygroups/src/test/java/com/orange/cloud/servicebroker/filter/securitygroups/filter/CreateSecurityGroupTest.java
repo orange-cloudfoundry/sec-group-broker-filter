@@ -17,14 +17,27 @@
 
 package com.orange.cloud.servicebroker.filter.securitygroups.filter;
 
-import com.orange.cloud.servicebroker.filter.securitygroups.domain.*;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.orange.cloud.servicebroker.filter.securitygroups.domain.ImmutableCIDR;
+import com.orange.cloud.servicebroker.filter.securitygroups.domain.ImmutablePort;
+import com.orange.cloud.servicebroker.filter.securitygroups.domain.ImmutablePorts;
+import com.orange.cloud.servicebroker.filter.securitygroups.domain.ImmutableTrustedDestination;
+import com.orange.cloud.servicebroker.filter.securitygroups.domain.TrustedDestinationSpecification;
 import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.ClientV2Exception;
 import org.cloudfoundry.client.v2.applications.ApplicationEntity;
 import org.cloudfoundry.client.v2.applications.ApplicationsV2;
 import org.cloudfoundry.client.v2.applications.GetApplicationRequest;
 import org.cloudfoundry.client.v2.applications.GetApplicationResponse;
-import org.cloudfoundry.client.v2.securitygroups.*;
+import org.cloudfoundry.client.v2.securitygroups.CreateSecurityGroupRequest;
+import org.cloudfoundry.client.v2.securitygroups.CreateSecurityGroupResponse;
+import org.cloudfoundry.client.v2.securitygroups.Protocol;
+import org.cloudfoundry.client.v2.securitygroups.RuleEntity;
+import org.cloudfoundry.client.v2.securitygroups.SecurityGroupEntity;
+import org.cloudfoundry.client.v2.securitygroups.SecurityGroups;
 import org.cloudfoundry.client.v2.servicebrokers.GetServiceBrokerRequest;
 import org.cloudfoundry.client.v2.servicebrokers.GetServiceBrokerResponse;
 import org.cloudfoundry.client.v2.servicebrokers.ServiceBrokerEntity;
@@ -48,15 +61,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.boot.test.rule.OutputCapture;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
-import org.springframework.cloud.servicebroker.model.ServiceBindingResource;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.boot.test.system.OutputCaptureRule;
+import org.springframework.cloud.servicebroker.model.binding.BindResource;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 
 import static org.mockito.BDDMockito.given;
 
@@ -67,8 +77,9 @@ public class CreateSecurityGroupTest {
     static final String TEST_URI = "mysql://127.0.0.1:3306/mydb?user=2106password=Uq3YCioVsO3Dbcp4";
     static final String NO_HOST_URI = "mysql:///mydb?user=2106password=Uq3YCioVsO3Dbcp4";
     static final String NO_PORT_URI = "mysql://127.0.0.1/mydb?user=2106password=Uq3YCioVsO3Dbcp4";
+
     @Rule
-    public OutputCapture capture = new OutputCapture();
+    public OutputCaptureRule output = new OutputCaptureRule();
     @Mock
     CloudFoundryClient cloudFoundryClient;
     private CreateSecurityGroup createSecurityGroup;
@@ -163,15 +174,19 @@ public class CreateSecurityGroupTest {
         Map<String, Object> credentials = new HashMap<>();
         credentials.put("uri", TEST_URI);
 
-        Map<String, Object> bindResources = new HashMap<>();
-        bindResources.put(ServiceBindingResource.BIND_RESOURCE_KEY_APP.toString(), "app_guid");
-
         createSecurityGroup
                 .run(
-                        new CreateServiceInstanceBindingRequest("service-id", "plan-id", null, bindResources, null)
-                                .withBindingId("test-securitygroup-name")
-                                .withServiceInstanceId("service-instance-id"),
-                        new CreateServiceInstanceAppBindingResponse().withCredentials(credentials)
+                    CreateServiceInstanceBindingRequest.builder()
+                        .serviceDefinitionId("service-id")
+                        .planId("plan-id")
+                        .bindResource(BindResource.builder()
+                            .appGuid("app_guid")
+                            .build())
+                        .bindingId("test-securitygroup-name")
+                        .serviceInstanceId("service-instance-id")
+                        .build(),
+                    CreateServiceInstanceAppBindingResponse.builder()
+                        .credentials(credentials).build()
                 );
 
         Mockito.verify(cloudFoundryClient.securityGroups())
@@ -198,15 +213,20 @@ public class CreateSecurityGroupTest {
 
         Map<String, Object> credentials = new HashMap<>();
         credentials.put("uri", TEST_URI);
-        Map<String, Object> bindResources = new HashMap<>();
-        bindResources.put(ServiceBindingResource.BIND_RESOURCE_KEY_APP.toString(), "app_guid");
 
         createSecurityGroup
                 .run(
-                        new CreateServiceInstanceBindingRequest("service-id", "plan-id", null, bindResources, null)
-                                .withBindingId("test-securitygroup-name")
-                                .withServiceInstanceId("service-instance-id"),
-                        new CreateServiceInstanceAppBindingResponse().withCredentials(credentials)
+                    CreateServiceInstanceBindingRequest.builder()
+                        .serviceDefinitionId("service-id")
+                        .planId("plan-id")
+                        .bindResource(BindResource.builder()
+                            .appGuid("app_guid")
+                            .build())
+                        .bindingId("test-securitygroup-name")
+                        .serviceInstanceId("service-instance-id")
+                        .build()
+                    , CreateServiceInstanceAppBindingResponse.builder()
+                        .credentials(credentials).build()
                 );
 
     }
@@ -222,16 +242,20 @@ public class CreateSecurityGroupTest {
 
         Map<String, Object> credentials = new HashMap<>();
         credentials.put("uri", TEST_URI);
-        Map<String, Object> bindResources = new HashMap<>();
-        bindResources.put(ServiceBindingResource.BIND_RESOURCE_KEY_APP.toString(), "app_guid");
 
         createSecurityGroup
                 .run(
-                        new CreateServiceInstanceBindingRequest("service-id", "plan-id", null, bindResources, null)
-                                .withBindingId("test-securitygroup-name")
-                                .withServiceInstanceId("service-instance-id"),
-                        new CreateServiceInstanceAppBindingResponse().withCredentials(credentials)
-                );
+                    CreateServiceInstanceBindingRequest.builder()
+                        .serviceDefinitionId("service-id")
+                        .planId("plan-id")
+                        .bindResource(BindResource.builder()
+                            .appGuid("app_guid")
+                            .build())
+                        .bindingId("test-securitygroup-name")
+                        .serviceInstanceId("service-instance-id")
+                        .build(),
+                    CreateServiceInstanceAppBindingResponse.builder()
+                        .credentials(credentials).build());
 
         Mockito.verify(cloudFoundryClient.securityGroups())
                 .create(CreateSecurityGroupRequest.builder()
@@ -315,27 +339,41 @@ public class CreateSecurityGroupTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void noHostname() throws Exception {
-        CreateServiceInstanceBindingRequest request = new CreateServiceInstanceBindingRequest(null, null, "app_guid", null, null);
+    public void noHostname() {
+        CreateServiceInstanceBindingRequest request = CreateServiceInstanceBindingRequest.builder()
+            .bindResource(BindResource.builder()
+                .appGuid("app_guid")
+                .build())
+            .build();
         Map<String, Object> credentials = new HashMap<>();
         credentials.put("uri", NO_HOST_URI);
-        CreateServiceInstanceAppBindingResponse response = new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
+        CreateServiceInstanceAppBindingResponse response =
+            CreateServiceInstanceAppBindingResponse.builder()
+                .credentials(credentials)
+                .build();
 
         createSecurityGroup.run(request, response);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void noPort() throws Exception {
-        CreateServiceInstanceBindingRequest request = new CreateServiceInstanceBindingRequest(null, null, "app_guid", null, null);
+    public void noPort() {
+        CreateServiceInstanceBindingRequest request = CreateServiceInstanceBindingRequest.builder()
+            .bindResource(BindResource.builder()
+                .appGuid("app_guid")
+                .build())
+            .build();
         Map<String, Object> credentials = new HashMap<>();
         credentials.put("uri", NO_PORT_URI);
-        CreateServiceInstanceAppBindingResponse response = new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
+        CreateServiceInstanceAppBindingResponse response =
+            CreateServiceInstanceAppBindingResponse.builder()
+                .credentials(credentials)
+            .build();
 
         createSecurityGroup.run(request, response);
     }
 
     @Test(expected = CreateSecurityGroup.NotAllowedDestination.class)
-    public void should_reject_security_group_with_destination_out_of_range() throws Exception {
+    public void should_reject_security_group_with_destination_out_of_range() {
         givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
         givenService(this.cloudFoundryClient, "service-id", "service-broker-id");
         givenServiceBroker(this.cloudFoundryClient, "service-broker-id", "service-broker-name");
@@ -345,8 +383,6 @@ public class CreateSecurityGroupTest {
         Map<String, Object> credentials = new HashMap<>();
         credentials.put("uri", TEST_URI);
 
-        Map<String, Object> bindResources = new HashMap<>();
-        bindResources.put(ServiceBindingResource.BIND_RESOURCE_KEY_APP.toString(), "app_guid");
         final TrustedDestinationSpecification trustedDestinationSpecification = new TrustedDestinationSpecification(
                 ImmutableTrustedDestination.builder()
                         .hosts(ImmutableCIDR.of("192.168.0.1/29"))
@@ -358,12 +394,17 @@ public class CreateSecurityGroupTest {
         CreateSecurityGroup createSecurityGroupWithRestrictiveDestinationRange = new CreateSecurityGroup(cloudFoundryClient, trustedDestinationSpecification);
 
         createSecurityGroupWithRestrictiveDestinationRange
-                .run(
-                        new CreateServiceInstanceBindingRequest("service-id", "plan-id", null, bindResources, null)
-                                .withBindingId("test-securitygroup-name")
-                                .withServiceInstanceId("service-instance-id"),
-                        new CreateServiceInstanceAppBindingResponse().withCredentials(credentials)
-                );
+                .run(CreateServiceInstanceBindingRequest.builder()
+                        .serviceDefinitionId("service-id")
+                        .planId("plan-id")
+                        .bindResource(BindResource.builder()
+                            .appGuid("app_guid")
+                            .build())
+                        .bindingId("test-securitygroup-name")
+                        .serviceInstanceId("service-instance-id")
+                        .build(),
+                    CreateServiceInstanceAppBindingResponse.builder()
+                        .credentials(credentials).build());
 
         Mockito.verify(cloudFoundryClient.securityGroups())
                 .create(CreateSecurityGroupRequest.builder()

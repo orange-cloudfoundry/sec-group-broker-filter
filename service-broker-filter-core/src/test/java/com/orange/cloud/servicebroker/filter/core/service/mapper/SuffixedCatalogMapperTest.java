@@ -19,26 +19,26 @@ package com.orange.cloud.servicebroker.filter.core.service.mapper;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.cloud.servicebroker.model.Catalog;
-import org.springframework.cloud.servicebroker.model.Plan;
-import org.springframework.cloud.servicebroker.model.ServiceDefinition;
-import org.springframework.cloud.servicebroker.model.fixture.CatalogFixture;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.springframework.cloud.servicebroker.model.catalog.Catalog;
+import org.springframework.cloud.servicebroker.model.catalog.Plan;
+import org.springframework.cloud.servicebroker.model.catalog.ServiceDefinition;
+
 /**
  * @author Sebastien Bortolussi
  */
 public class SuffixedCatalogMapperTest {
     @Test
-    public void should_get_gatalog_whith_prefixed_service_offering() {
+    public void should_get_catalog_with_prefixed_service_offering() {
 
         SuffixedCatalogMapper mapper = new SuffixedCatalogMapper("-suffix");
 
-        Catalog input = CatalogFixture.getCatalog();
+        Catalog input = catalog();
 
         final Catalog prefixedCatalog = mapper.toCatalog(input);
 
@@ -56,9 +56,24 @@ public class SuffixedCatalogMapperTest {
         HashMap metadata = new HashMap();
         metadata.put("key1", "value1");
         metadata.put("key2", "value2");
-        plans.add(new Plan("plan-one-id-suffix", "Plan One-suffix", "Description for Plan One"));
-        plans.add(new Plan("plan-two-id-suffix", "Plan Two-suffix", "Description for Plan Two", metadata));
-        List services = Collections.singletonList(new ServiceDefinition("service-one-id-suffix", "Service One-suffix", "Description for Service One", true, plans));
+        plans.add(Plan.builder()
+            .id("plan-one-id-suffix")
+            .name("Plan One-suffix")
+            .description("Description for Plan One")
+            .build());
+        plans.add(Plan.builder()
+            .id("plan-two-id-suffix")
+            .name("Plan Two-suffix")
+            .description("Description for Plan Two")
+            .metadata(metadata)
+            .build());
+        List services = Collections.singletonList(ServiceDefinition.builder()
+            .id("service-one-id-suffix")
+            .name( "Service One-suffix")
+            .description("Description for Service One")
+            .bindable(true)
+            .plans(plans)
+        .build());
         return new Catalog(services);
     }
 
@@ -67,9 +82,24 @@ public class SuffixedCatalogMapperTest {
         HashMap metadata = new HashMap();
         metadata.put("key1", "value1");
         metadata.put("key2", "value2");
-        plans.add(new Plan("plan-one-id-suffix", "Plan One-suffix", "Description for Plan One"));
-        plans.add(new Plan("plan-two-id-suffix", "Plan Two-suffix", "Description for Plan Two", metadata));
-        List services = Collections.singletonList(new ServiceDefinition("service-one-id-suffix", "Service One-suffix", "Description for Service One", true, plans));
+        plans.add(Plan.builder()
+            .id("plan-one-id")
+            .name("Plan One")
+            .description("Description for Plan One")
+            .build());
+        plans.add(Plan.builder()
+            .id("plan-two-id")
+            .name("Plan Two")
+            .description("Description for Plan Two")
+            .metadata(metadata)
+            .build());
+        List services = Collections.singletonList(ServiceDefinition.builder()
+            .id("service-one-id")
+            .name("Service One")
+            .description("Description for Service One")
+            .bindable(true)
+            .plans(plans)
+            .build());
         return new Catalog(services);
     }
 

@@ -26,10 +26,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceBindingRequest;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
+
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
@@ -55,7 +56,12 @@ public class DeleteSecurityGroupTest {
         givenSecurityGroupExists(this.cloudFoundryClient, "test-securitygroup-name");
         givenDeleteSecurityGroupsSucceeds(this.cloudFoundryClient, "test-securitygroup-id");
 
-        DeleteServiceInstanceBindingRequest request = new DeleteServiceInstanceBindingRequest("serviceInstanceId", "test-securitygroup-name", "serviceDefinitionId", "planId", null);
+        DeleteServiceInstanceBindingRequest request = DeleteServiceInstanceBindingRequest.builder()
+        .serviceInstanceId("serviceInstanceId")
+        .bindingId("test-securitygroup-name")
+            .serviceDefinitionId("serviceDefinitionId")
+            .planId("planId")
+            .build();
         deleteSecurityGroup.run(request, null);
 
         Mockito.verify(cloudFoundryClient.securityGroups())
@@ -69,7 +75,12 @@ public class DeleteSecurityGroupTest {
         givenSecurityGroupDoesNotExist(this.cloudFoundryClient, "test-securitygroup-name");
         givenDeleteSecurityGroupsSucceeds(this.cloudFoundryClient, "test-securitygroup-id");
 
-        DeleteServiceInstanceBindingRequest request = new DeleteServiceInstanceBindingRequest("serviceInstanceId", "test-securitygroup-name", "serviceDefinitionId", "planId", null);
+        DeleteServiceInstanceBindingRequest request = DeleteServiceInstanceBindingRequest.builder()
+        .serviceInstanceId("serviceInstanceId")
+        .bindingId("test-securitygroup-name")
+            .serviceDefinitionId("serviceDefinitionId")
+            .planId("planId")
+            .build();
         deleteSecurityGroup.run(request, null);
 
         Mockito.verify(cloudFoundryClient.securityGroups(), Mockito.never())

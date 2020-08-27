@@ -17,7 +17,8 @@
 
 package com.orange.cloud.servicebroker.filter.core.service.mapper;
 
-import org.springframework.cloud.servicebroker.model.Catalog;
+
+import org.springframework.cloud.servicebroker.model.catalog.Catalog;
 
 /**
  * A very basic implementation that just map directly "target broker" catalog to "filter broker" catalog.

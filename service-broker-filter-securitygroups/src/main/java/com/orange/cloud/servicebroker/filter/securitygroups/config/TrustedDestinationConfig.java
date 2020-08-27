@@ -19,8 +19,8 @@ public class TrustedDestinationConfig {
      */
     private String ports;
 
-    public TrustedDestinationConfig() {
-    }
+//    public TrustedDestinationConfig() {
+//    }
 
     public String getHosts() {
         return hosts;
