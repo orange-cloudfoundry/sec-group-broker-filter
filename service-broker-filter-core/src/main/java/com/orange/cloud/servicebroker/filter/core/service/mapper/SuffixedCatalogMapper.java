@@ -43,7 +43,7 @@ public class SuffixedCatalogMapper implements CatalogMapper {
     }
 
     private ServiceDefinition toSuffixedServiceDefinition(ServiceDefinition serviceDefinition) {
-        return ServiceDefinition.builder()
+        ServiceDefinition.ServiceDefinitionBuilder serviceDefinitionBuilder = ServiceDefinition.builder()
             .id(withSuffix(serviceDefinition.getId(), serviceOfferingSuffix))
             .name(withSuffix(serviceDefinition.getName(), serviceOfferingSuffix))
             .description(serviceDefinition.getDescription())
@@ -51,12 +51,22 @@ public class SuffixedCatalogMapper implements CatalogMapper {
             .planUpdateable(serviceDefinition.isPlanUpdateable())
             .plans(
                 serviceDefinition.getPlans()
-                        .stream()
-                        .map(this::toPlan)
-                        .collect(Collectors.toList()))
-            .tags(serviceDefinition.getTags())
-            .metadata(serviceDefinition.getMetadata())
-            .requires(serviceDefinition.getRequires())
+                    .stream()
+                    .map(this::toPlan)
+                    .collect(Collectors.toList()));
+        if (serviceDefinition.getTags() != null) {
+            serviceDefinitionBuilder
+                .tags(serviceDefinition.getTags());
+        }
+        if (serviceDefinition.getRequires() != null) {
+            serviceDefinitionBuilder
+                .requires(serviceDefinition.getRequires());
+        }
+        if (serviceDefinition.getMetadata() !=null) {
+            serviceDefinitionBuilder
+                .metadata(serviceDefinition.getMetadata());
+        }
+        return serviceDefinitionBuilder
             .dashboardClient(serviceDefinition.getDashboardClient())
             .build();
     }
