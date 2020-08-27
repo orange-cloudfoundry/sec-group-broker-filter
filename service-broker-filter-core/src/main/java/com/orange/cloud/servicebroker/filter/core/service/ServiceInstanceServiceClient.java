@@ -18,7 +18,8 @@
 package com.orange.cloud.servicebroker.filter.core.service;
 
 import com.orange.cloud.servicebroker.filter.core.config.FilteredBrokerFeignConfig;
-import org.springframework.cloud.netflix.feign.FeignClient;
+
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.servicebroker.model.*;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
