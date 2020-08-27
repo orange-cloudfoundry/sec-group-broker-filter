@@ -17,10 +17,12 @@
 
 package com.orange.cloud.servicebroker.filter.core.service.mapper;
 
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest;
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceRequest;
-import org.springframework.cloud.servicebroker.model.GetLastServiceOperationRequest;
-import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceRequest;
+import org.springframework.cloud.servicebroker.model.CloudFoundryContext;
+import org.springframework.cloud.servicebroker.model.catalog.ServiceDefinition;
+import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
+import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest;
+import org.springframework.cloud.servicebroker.model.instance.GetLastServiceOperationRequest;
+import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceRequest;
 
 /**
  * @author Sebastien Bortolussi
@@ -39,34 +41,44 @@ public class SuffixedServiceInstanceRequestMapper implements ServiceInstanceRequ
 
     @Override
     public CreateServiceInstanceRequest map(CreateServiceInstanceRequest request) {
-        return new CreateServiceInstanceRequest(withoutSuffix(request.getServiceDefinitionId(), serviceOfferingSuffix),
-                withoutSuffix(request.getPlanId(), serviceOfferingSuffix),
-                request.getOrganizationGuid(),
-                request.getSpaceGuid(),
-                request.getParameters())
-                .withServiceInstanceId(request.getServiceInstanceId())
-                .withAsyncAccepted(request.isAsyncAccepted());
+        return CreateServiceInstanceRequest.builder()
+            .serviceDefinitionId(withoutSuffix(request.getServiceDefinitionId(), serviceOfferingSuffix))
+            .planId(withoutSuffix(request.getPlanId(), serviceOfferingSuffix))
+            .context(CloudFoundryContext.builder()
+                .organizationGuid(request.getOrganizationGuid())
+                .spaceGuid(request.getSpaceGuid())
+                .build())
+            .parameters(request.getParameters())
+            .serviceInstanceId(request.getServiceInstanceId())
+            .asyncAccepted(request.isAsyncAccepted())
+            .build();
     }
 
     @Override
     public DeleteServiceInstanceRequest map(DeleteServiceInstanceRequest request) {
-        return new DeleteServiceInstanceRequest(request.getServiceInstanceId(),
-                withoutSuffix(request.getServiceDefinitionId(), serviceOfferingSuffix),
-                withoutSuffix(request.getPlanId(), serviceOfferingSuffix),
-                null)
-                .withAsyncAccepted(request.isAsyncAccepted());
+        return DeleteServiceInstanceRequest.builder()
+            .serviceInstanceId(request.getServiceInstanceId())
+            .serviceDefinitionId(withoutSuffix(request.getServiceDefinitionId(), serviceOfferingSuffix))
+            .planId(withoutSuffix(request.getPlanId(), serviceOfferingSuffix))
+            .asyncAccepted(request.isAsyncAccepted())
+            .build();
     }
 
     @Override
     public UpdateServiceInstanceRequest map(UpdateServiceInstanceRequest request) {
-        return new UpdateServiceInstanceRequest(withoutSuffix(request.getServiceDefinitionId(), serviceOfferingSuffix),
-                withoutSuffix(request.getPlanId(), serviceOfferingSuffix), request.getParameters())
-                .withServiceInstanceId(request.getServiceInstanceId())
-                .withAsyncAccepted(request.isAsyncAccepted());
+        return UpdateServiceInstanceRequest.builder()
+            .serviceDefinitionId(withoutSuffix(request.getServiceDefinitionId(), serviceOfferingSuffix))
+            .planId(withoutSuffix(request.getPlanId(), serviceOfferingSuffix))
+            .parameters(request.getParameters())
+            .serviceInstanceId(request.getServiceInstanceId())
+            .asyncAccepted(request.isAsyncAccepted())
+            .build();
     }
 
     @Override
     public GetLastServiceOperationRequest map(GetLastServiceOperationRequest request) {
-        return new GetLastServiceOperationRequest(request.getServiceInstanceId());
+        return GetLastServiceOperationRequest.builder()
+            .serviceInstanceId(request.getServiceInstanceId())
+            .build();
     }
 }

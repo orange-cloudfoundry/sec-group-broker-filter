@@ -19,9 +19,9 @@ package com.orange.cloud.servicebroker.filter.core.filters;
 
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

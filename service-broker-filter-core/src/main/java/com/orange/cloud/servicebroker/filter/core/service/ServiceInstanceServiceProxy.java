@@ -18,8 +18,17 @@
 package com.orange.cloud.servicebroker.filter.core.service;
 
 import com.orange.cloud.servicebroker.filter.core.service.mapper.ServiceInstanceRequestMapper;
+import reactor.core.publisher.Mono;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.servicebroker.model.*;
+import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
+import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceResponse;
+import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest;
+import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceResponse;
+import org.springframework.cloud.servicebroker.model.instance.GetLastServiceOperationRequest;
+import org.springframework.cloud.servicebroker.model.instance.GetLastServiceOperationResponse;
+import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceRequest;
+import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceResponse;
 import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -44,31 +53,31 @@ public class ServiceInstanceServiceProxy implements ServiceInstanceService {
     }
 
     @Override
-    public CreateServiceInstanceResponse createServiceInstance(CreateServiceInstanceRequest request) {
+    public Mono<CreateServiceInstanceResponse> createServiceInstance(CreateServiceInstanceRequest request) {
         final CreateServiceInstanceRequest req = mapper.map(request);
         final ResponseEntity<CreateServiceInstanceResponse> serviceInstanceResponse = serviceClient.createServiceInstance(req.getServiceInstanceId(), req, req.isAsyncAccepted(), OsbConstants.X_Broker_API_Version_Value);
-        return serviceInstanceResponse.getBody();
+        return Mono.just(serviceInstanceResponse.getBody());
     }
 
     @Override
-    public GetLastServiceOperationResponse getLastOperation(GetLastServiceOperationRequest request) {
+    public Mono<GetLastServiceOperationResponse> getLastOperation(GetLastServiceOperationRequest request) {
         final GetLastServiceOperationRequest req = mapper.map(request);
         final ResponseEntity<GetLastServiceOperationResponse> response = serviceClient.getServiceInstanceLastOperation(req.getServiceInstanceId(), OsbConstants.X_Broker_API_Version_Value);
-        return response.getBody();
+        return Mono.just(response.getBody());
     }
 
     @Override
-    public DeleteServiceInstanceResponse deleteServiceInstance(DeleteServiceInstanceRequest request) {
+    public Mono<DeleteServiceInstanceResponse> deleteServiceInstance(DeleteServiceInstanceRequest request) {
         final DeleteServiceInstanceRequest req = mapper.map(request);
         final ResponseEntity<DeleteServiceInstanceResponse> response = serviceClient.deleteServiceInstance(req.getServiceInstanceId(), req.getServiceDefinitionId(), req.getPlanId(), req.isAsyncAccepted(), OsbConstants.X_Broker_API_Version_Value);
-        return response.getBody();
+        return Mono.just(response.getBody());
     }
 
     @Override
-    public UpdateServiceInstanceResponse updateServiceInstance(UpdateServiceInstanceRequest request) {
+    public Mono<UpdateServiceInstanceResponse> updateServiceInstance(UpdateServiceInstanceRequest request) {
         final UpdateServiceInstanceRequest req = mapper.map(request);
         final ResponseEntity<UpdateServiceInstanceResponse> response = serviceClient.updateServiceInstance(req.getServiceInstanceId(), req, req.isAsyncAccepted(), OsbConstants.X_Broker_API_Version_Value);
-        return response.getBody();
+        return Mono.just(response.getBody());
 
     }
 }

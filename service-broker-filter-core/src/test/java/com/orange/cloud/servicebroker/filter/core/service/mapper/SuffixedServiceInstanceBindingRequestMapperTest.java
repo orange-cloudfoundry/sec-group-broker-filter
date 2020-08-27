@@ -19,11 +19,13 @@ package com.orange.cloud.servicebroker.filter.core.service.mapper;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
-import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceBindingRequest;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.cloud.servicebroker.model.binding.BindResource;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
 
 /**
  * @author Sebastien Bortolussi
@@ -31,7 +33,7 @@ import java.util.Map;
 public class SuffixedServiceInstanceBindingRequestMapperTest {
 
     @Test
-    public void should_map_create_service_instance_binding_request() throws Exception {
+    public void should_map_create_service_instance_binding_request() {
 
         SuffixedServiceInstanceBindingRequestMapper mapper = new SuffixedServiceInstanceBindingRequestMapper("-suffix");
 
@@ -41,36 +43,50 @@ public class SuffixedServiceInstanceBindingRequestMapperTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("parameter1", "value1");
 
-        Assert.assertEquals(new CreateServiceInstanceBindingRequest("serviceDefinitionId",
-                        "planId",
-                        "appGuid",
-                        bindResource,
-                        parameters)
-                        .withBindingId("bindingId")
-                        .withServiceInstanceId("serviceInstanceId"),
-                mapper.map(new CreateServiceInstanceBindingRequest("serviceDefinitionId-suffix",
-                        "planId-suffix",
-                        "appGuid",
-                        bindResource,
-                        parameters)
-                        .withBindingId("bindingId")
-                        .withServiceInstanceId("serviceInstanceId")));
+        Assert.assertEquals(CreateServiceInstanceBindingRequest.builder()
+                .serviceDefinitionId("serviceDefinitionId")
+                .planId("planId")
+                .bindResource(BindResource.builder()
+                    .properties(bindResource)
+                    .appGuid("appGuid")
+                    .build())
+                .parameters(parameters)
+                .bindingId("bindingId")
+                .serviceInstanceId("serviceInstanceId")
+                .build(),
+
+            mapper.map(
+                CreateServiceInstanceBindingRequest.builder()
+                    .serviceDefinitionId("serviceDefinitionId-suffix")
+                    .planId("planId-suffix")
+                    .bindResource(BindResource.builder()
+                        .properties(bindResource)
+                        .appGuid("appGuid")
+                        .build())
+                    .parameters(parameters)
+                    .bindingId("bindingId")
+                    .serviceInstanceId("serviceInstanceId")
+                    .build()));
     }
 
     @Test
-    public void should_map_delete_service_instance_binding_request() throws Exception {
+    public void should_map_delete_service_instance_binding_request() {
         SuffixedServiceInstanceBindingRequestMapper mapper = new SuffixedServiceInstanceBindingRequestMapper("-suffix");
 
-        Assert.assertEquals(new DeleteServiceInstanceBindingRequest("serviceInstanceId",
-                        "bindingId",
-                        "serviceDefinitionId",
-                        "planId",
-                        null),
-                mapper.map(new DeleteServiceInstanceBindingRequest("serviceInstanceId",
-                        "bindingId",
-                        "serviceDefinitionId-suffix",
-                        "planId-suffix",
-                        null)));
+        Assert.assertEquals(
+            DeleteServiceInstanceBindingRequest.builder()
+                .serviceInstanceId("serviceInstanceId")
+                .bindingId("bindingId")
+                .serviceDefinitionId("serviceDefinitionId")
+                .planId("planId")
+                .build(),
+            mapper.map(
+                DeleteServiceInstanceBindingRequest.builder()
+                .serviceInstanceId("serviceInstanceId")
+                .bindingId("bindingId")
+                .serviceDefinitionId("serviceDefinitionId-suffix")
+                .planId("planId-suffix")
+                .build()));
 
     }
 

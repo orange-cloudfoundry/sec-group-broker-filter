@@ -20,7 +20,7 @@ package com.orange.cloud.servicebroker.filter.core.service;
 import com.orange.cloud.servicebroker.filter.core.config.FilteredBrokerFeignConfig;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.cloud.servicebroker.model.Catalog;
+import org.springframework.cloud.servicebroker.model.catalog.Catalog;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

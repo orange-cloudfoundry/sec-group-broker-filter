@@ -29,10 +29,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.cloud.servicebroker.model.Catalog;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
-import org.springframework.cloud.servicebroker.model.fixture.CatalogFixture;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
+import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.catalog.Catalog;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,9 +54,10 @@ public class ServiceInstanceBindingFilterBrokerIntegrationTest {
 
     @Test
     public void should_proxy_create_service_instance_binding_request_to_filtered_broker() throws Exception {
-        CreateServiceInstanceBindingRequest request = new CreateServiceInstanceBindingRequest()
-                .withServiceInstanceId("instance_id")
-                .withBindingId("binding_id");
+        CreateServiceInstanceBindingRequest request = CreateServiceInstanceBindingRequest.builder()
+                .serviceInstanceId("instance_id")
+                .bindingId("binding_id")
+            .build();
         ResponseEntity<CreateServiceInstanceAppBindingResponse> response = new ResponseEntity<CreateServiceInstanceAppBindingResponse>(new CreateServiceInstanceAppBindingResponse(), HttpStatus.CREATED);
 
         given(this.serviceInstanceBindingServiceClient.createServiceInstanceBinding("instance_id", "binding_id", OsbConstants.X_Broker_API_Version_Value, request))
@@ -82,7 +82,7 @@ class BrokerFilterApplication {
 
     @Bean
     public Catalog catalog() {
-        return CatalogFixture.getCatalog();
+        return Catalog.builder().build();
     }
 
 
