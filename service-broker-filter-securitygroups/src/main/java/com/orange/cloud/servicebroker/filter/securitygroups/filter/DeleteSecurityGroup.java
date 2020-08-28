@@ -70,7 +70,7 @@ public class DeleteSecurityGroup implements DeleteServiceInstanceBindingPostFilt
     @Override
     public void run(DeleteServiceInstanceBindingRequest request, Void response) {
         securityGroupId(request.getBindingId())
-                .then(securityGroupId -> cloudFoundryClient.securityGroups()
+                .flatMap(securityGroupId -> cloudFoundryClient.securityGroups()
                         .delete(DeleteSecurityGroupRequest.builder()
                                 .securityGroupId(securityGroupId)
                                 .build()))
