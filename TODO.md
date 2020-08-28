@@ -1,3 +1,10 @@
+* [ ] set up smoke test
+* [ ] TF: set up smoke test space with security group
+* [ ] set up common-broker script
+* p-mysql
+* [ ] release
+
+--------------
 Bump dependencies
 
 * [ ] reactor dependency updates
@@ -26,15 +33,40 @@ Bump dependencies
           > Use Mono.onErrorResume(Class, Function) instead. Will be removed in 3.1.0.
       * https://projectreactor.io/docs/core/3.0.7.RELEASE/api/reactor/core/publisher/Mono.html#flatMap-java.util.function.Function-
           > public final <R> Flux<R> flatMap(Function<? super T,? extends Publisher<? extends R>> mapper)
-          > Deprecated. will change signature and behavior in 3.1 to reflect current then(Function). flatMap will be renamed flatMapMany(Function), so use that instead.   
+          > Deprecated. will change signature and behavior in 3.1 to reflect current then(Function). flatMap will be renamed flatMapMany(Function), so use that instead.
    * Was on reactor 3.0.5
-   * See deprecation notice at https://spring.io/blog/2017/05/16/reactor-bismuth-release-train-first-milestone-available   
-* [ ] set up smoke test
-* [ ] TF: set up smoke test space with security group
-* [ ] set up common-broker script
-* p-mysql
-* [ ] release
+   * See deprecation notice at https://spring.io/blog/2017/05/16/reactor-bismuth-release-train-first-milestone-available
 
+   > 1. to first replace all usage of Mono.flatMap with flatMapMany
+   > 2. finish other refactor and migrations
+   > 3. switch to 3.1.0.M1
+   > 4. replace all usage of Mono.then(Function) (now not compiling) to flatMap
+
+    * [x] to first replace all usage of Mono.flatMap with flatMapMany
+    * [x] finish other refactor and migrations: search for deprecated calls
+    * [x] switch to 3.1.0.M1
+    * [x] replace all usage of Mono.then(Function) (now not compiling) to flatMap
+      * Pb with functions from cloudfoundry-utils 2.4.0 https://github.com/cloudfoundry/cf-java-client/releases/tag/v2.4.0.RELEASE
+         * Not much documented into next releases at https://github.com/cloudfoundry/cf-java-client/releases?after=v2.15.0.RELEASE
+         * Actually comes from the use of a deprecated code pattern in cf-java-client with Mono.when() and direct use of Tuples.of() which is now replaced with use of Mono.zip()
+
+Next pattern from cf-java-client DefaultServices:
+
+```
+  @Override
+    public Mono<Void> updateUserProvidedInstance(UpdateUserProvidedServiceInstanceRequest request) {
+        return Mono
+            .zip(this.cloudFoundryClient, this.spaceId)
+            .flatMap(function((cloudFoundryClient, spaceId) -> Mono.zip(
+                Mono.just(cloudFoundryClient),
+                getSpaceUserProvidedServiceInstanceId(cloudFoundryClient, request.getUserProvidedServiceInstanceName(), spaceId)
+            )))
+            .flatMap(function((cloudFoundryClient, userProvidedServiceInstanceId) -> updateUserProvidedServiceInstance(cloudFoundryClient, request, userProvidedServiceInstanceId)))
+            .then()
+            .transform(OperationsLogging.log("Update User Provided Service Instance"))
+            .checkpoint();
+    }
+```
 
 ```
 [INFO] --- maven-dependency-plugin:3.1.2:tree (default-cli) @ service-broker-filter-core ---
@@ -160,7 +192,7 @@ https://maven.apache.org/plugins/maven-dependency-plugin/usage.html
 [INFO] ch.qos.logback:logback-classic:jar was excluded in DepMgt, but version 1.2.3 has been found in the dependency tree.
 [INFO] com.fasterxml.jackson.core:jackson-databind:jar was excluded in DepMgt, but version 2.11.1 has been found in the dependency tree.
 [INFO] org.springframework:spring-core:jar was excluded in DepMgt, but version 5.2.8.RELEASE has been found in the dependency tree.
-[WARNING] Potential problems found in Dependency Management 
+[WARNING] Potential problems found in Dependency Management
 
 Could not resolve dependencies for project com.orange.cloud.servicebroker:service-broker-filter-securitygroups:jar:2.4.0.BUILD-SNAPSHOT: Failure to find com.orange.cloud.servicebroker:service-broker-filter-core:jar:2.4.0.BUILD-SNAPSHOT in https://repo.spring.io/snapshot/
 ```
@@ -168,25 +200,25 @@ Could not resolve dependencies for project com.orange.cloud.servicebroker:servic
 ```
 INFO] ------------------------------------------------------------------------
 [INFO] Reactor Build Order:
-[INFO] 
+[INFO]
 [INFO] service-broker-filter                                              [pom]
 [INFO] service-broker-filter-core                                         [jar]
 [INFO] service-broker-filter-securitygroups                               [jar]
 [INFO] integration-test                                                   [jar]
-[INFO] 
+[INFO]
 [INFO] --------< com.orange.cloud.servicebroker:service-broker-filter >--------
 [INFO] Building service-broker-filter 2.4.0.BUILD-SNAPSHOT                [1/4]
 [INFO] --------------------------------[ pom ]---------------------------------
-[INFO] 
+[INFO]
 [INFO] --- maven-dependency-plugin:3.1.2:analyze-dep-mgt (default-cli) @ service-broker-filter ---
 [INFO] Found Resolved Dependency/DependencyManagement mismatches:
 [INFO] 	Ignoring Direct Dependencies.
 [INFO] 	None
-[INFO] 
+[INFO]
 [INFO] -----< com.orange.cloud.servicebroker:service-broker-filter-core >------
 [INFO] Building service-broker-filter-core 2.4.0.BUILD-SNAPSHOT           [2/4]
 [INFO] --------------------------------[ jar ]---------------------------------
-[INFO] 
+[INFO]
 [INFO] --- maven-dependency-plugin:3.1.2:analyze-dep-mgt (default-cli) @ service-broker-filter-core ---
 [INFO] Found Resolved Dependency/DependencyManagement mismatches:
 [INFO] 	Ignoring Direct Dependencies.
@@ -196,29 +228,29 @@ INFO] ------------------------------------------------------------------------
 [INFO] ch.qos.logback:logback-classic:jar was excluded in DepMgt, but version 1.2.3 has been found in the dependency tree.
 [INFO] com.fasterxml.jackson.core:jackson-databind:jar was excluded in DepMgt, but version 2.11.1 has been found in the dependency tree.
 [INFO] org.springframework:spring-core:jar was excluded in DepMgt, but version 5.2.8.RELEASE has been found in the dependency tree.
-[WARNING] Potential problems found in Dependency Management 
-[INFO] 
+[WARNING] Potential problems found in Dependency Management
+[INFO]
 [INFO] --< com.orange.cloud.servicebroker:service-broker-filter-securitygroups >--
 [INFO] Building service-broker-filter-securitygroups 2.4.0.BUILD-SNAPSHOT [3/4]
 [INFO] --------------------------------[ jar ]---------------------------------
-[INFO] 
+[INFO]
 [INFO] --- maven-dependency-plugin:3.1.2:analyze-dep-mgt (default-cli) @ service-broker-filter-securitygroups ---
 [INFO] Found Resolved Dependency/DependencyManagement mismatches:
 [INFO] 	Ignoring Direct Dependencies.
 [INFO] commons-logging:commons-logging:jar was excluded in DepMgt, but version 1.1.1 has been found in the dependency tree.
 [INFO] ch.qos.logback:logback-classic:jar was excluded in DepMgt, but version 1.2.3 has been found in the dependency tree.
 [INFO] org.slf4j:jcl-over-slf4j:jar was excluded in DepMgt, but version 1.7.30 has been found in the dependency tree.
-[WARNING] Potential problems found in Dependency Management 
-[INFO] 
+[WARNING] Potential problems found in Dependency Management
+[INFO]
 [INFO] ----------< com.orange.cloud.servicebroker:integration-test >-----------
 [INFO] Building integration-test 2.4.0.BUILD-SNAPSHOT                     [4/4]
 [INFO] --------------------------------[ jar ]---------------------------------
-[INFO] 
+[INFO]
 [INFO] --- maven-dependency-plugin:3.1.2:analyze-dep-mgt (default-cli) @ integration-test ---
 [INFO] Found Resolved Dependency/DependencyManagement mismatches:
 [INFO] 	Ignoring Direct Dependencies.
 [INFO] ch.qos.logback:logback-classic:jar was excluded in DepMgt, but version 1.2.3 has been found in the dependency tree.
 [INFO] org.slf4j:jcl-over-slf4j:jar was excluded in DepMgt, but version 1.7.30 has been found in the dependency tree.
-[WARNING] Potential problems found in Dependency Management 
- 
+[WARNING] Potential problems found in Dependency Management
+
 ```
