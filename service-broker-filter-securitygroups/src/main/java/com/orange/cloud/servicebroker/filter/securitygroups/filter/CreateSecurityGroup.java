@@ -45,6 +45,9 @@ import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstan
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
 
@@ -53,9 +56,10 @@ import java.util.stream.Collectors;
 
 import static org.cloudfoundry.util.tuple.TupleUtils.function;
 
-@Slf4j
 @Component
 public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilter, ServiceBrokerPostFilter<CreateServiceInstanceBindingRequest, CreateServiceInstanceAppBindingResponse> {
+
+    private static final Logger log = LoggerFactory.getLogger(CreateSecurityGroup.class);
 
     static final Protocol DEFAULT_PROTOCOL = Protocol.TCP;
     private CloudFoundryClient cloudFoundryClient;
@@ -93,18 +97,23 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
 
     private static Mono<String> getRuleDescription(CloudFoundryClient cloudFoundryClient, String bindingId, String serviceInstanceId) {
         return getServiceInstance(cloudFoundryClient, serviceInstanceId)
-                .then(serviceInstance -> Mono.when(
+                .flatMap(serviceInstance -> Mono.zip(
                         Mono.just(bindingId),
                         Mono.just(serviceInstance),
-                        getPlan(cloudFoundryClient, serviceInstance.getServicePlanId()).map(ServicePlanEntity::getServiceId)
+                        getPlan(cloudFoundryClient, serviceInstance.getServicePlanId())
+                            .map(ServicePlanEntity::getServiceId)
                 ))
-                .then(function((serviceBindingId, serviceInstance, serviceId) -> getService(cloudFoundryClient, serviceId)
-                        .map(ServiceEntity::getServiceBrokerId)
-                        .map(serviceBrokerId -> Tuples.of(serviceBindingId, serviceInstance, serviceBrokerId))))
-                .then(function((serviceBindingId, serviceInstance, serviceBrokerId) -> getServiceBrokerName(cloudFoundryClient, serviceBrokerId)
-                        .map(serviceBrokerName -> Tuples.of(serviceBindingId, serviceInstance, serviceBrokerName))))
-                .map(function((servicebindingId, serviceInstance, serviceBrokerName) -> ImmutableRuleDescription.builder()
-                        .servicebindingId(servicebindingId)
+                .flatMap(function((serviceBindingId, serviceInstance, serviceId) -> Mono.zip(
+                    Mono.just(serviceBindingId),
+                    Mono.just(serviceInstance),
+                    getService(cloudFoundryClient, serviceId)
+                        .map(ServiceEntity::getServiceBrokerId))))
+                .flatMap(function((serviceBindingId, serviceInstance, serviceBrokerId) -> Mono.zip(
+                    Mono.just(serviceBindingId),
+                    Mono.just(serviceInstance),
+                    getServiceBrokerName(cloudFoundryClient, serviceBrokerId))))
+                .map(function((serviceBindingId, serviceInstance, serviceBrokerName) -> ImmutableRuleDescription.builder()
+                        .servicebindingId(serviceBindingId)
                         .serviceInstanceName(serviceInstance.getName())
                         .serviceBrokerName(serviceBrokerName).build()
                         .value()));
@@ -137,16 +146,17 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
         }
         log.debug("creating security group for credentials {}.", response.getCredentials());
         try {
-            final SecurityGroupEntity securityGroup = Mono.when(
+            final SecurityGroupEntity securityGroup = Mono.zip(
                     getRuleDescription(cloudFoundryClient, request.getBindingId(), request.getServiceInstanceId()),
                     getSpaceId(cloudFoundryClient, request.getAppGuid())
-            ).then(function((description, spaceId) -> create(getSecurityGroupName(request), destination, description, spaceId)))
-                    .doOnError(t -> log.error("Fail to create security group. Error details {}", t))
+            ).flatMap(function((description, spaceId) -> create(getSecurityGroupName(request), destination, description
+                , spaceId)))
+                    .doOnError(t -> log.error("Fail to create security group. Error details {}", t.toString(), t))
                     .block();
 
             log.debug("Security Group {} created", securityGroup.getName());
         } catch (Exception e) {
-            log.error("Fail to create Security Group. Error details {}", e);
+            log.error("Fail to create Security Group. Error details {}", e.toString(), e);
             ReflectionUtils.rethrowRuntimeException(e);
         }
 
@@ -154,7 +164,7 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
 
     private Mono<SecurityGroupEntity> create(String securityGroupName, Destination destination, String description, String spaceId) {
         return getRules(destination, description)
-                .then(rules ->
+                .flatMap(rules ->
                         cloudFoundryClient.securityGroups()
                                 .create(CreateSecurityGroupRequest.builder()
                                         .name(securityGroupName)
