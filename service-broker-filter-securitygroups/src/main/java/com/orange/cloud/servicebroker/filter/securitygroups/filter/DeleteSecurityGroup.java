@@ -18,7 +18,6 @@
 package com.orange.cloud.servicebroker.filter.securitygroups.filter;
 
 import com.orange.cloud.servicebroker.filter.core.filters.DeleteServiceInstanceBindingPostFilter;
-import lombok.extern.slf4j.Slf4j;
 import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.securitygroups.DeleteSecurityGroupRequest;
 import org.cloudfoundry.client.v2.securitygroups.ListSecurityGroupsRequest;
@@ -28,6 +27,9 @@ import org.cloudfoundry.util.ResourceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
 import org.springframework.stereotype.Component;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -35,11 +37,12 @@ import java.time.Duration;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-@Slf4j
 @Component
 public class DeleteSecurityGroup implements DeleteServiceInstanceBindingPostFilter {
 
-    private CloudFoundryClient cloudFoundryClient;
+    private static final Logger log = LoggerFactory.getLogger(DeleteSecurityGroup.class);
+
+    private final CloudFoundryClient cloudFoundryClient;
 
     @Autowired
     public DeleteSecurityGroup(CloudFoundryClient cloudFoundryClient) {
@@ -49,7 +52,7 @@ public class DeleteSecurityGroup implements DeleteServiceInstanceBindingPostFilt
     private Mono<SecurityGroupResource> getSecurityGroupId(String securityGroup) {
         return requestSecurityGroups(securityGroup)
                 .single()
-                .otherwise(NoSuchElementException.class, t -> {
+                .onErrorResume(NoSuchElementException.class, t -> {
                     log.warn("Cannot find any security group with name {} to delete.", securityGroup);
                     return Mono.empty();
                 });

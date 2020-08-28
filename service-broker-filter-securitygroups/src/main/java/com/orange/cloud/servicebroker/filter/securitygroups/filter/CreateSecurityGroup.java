@@ -126,8 +126,8 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
 
     @Override
     public void run(CreateServiceInstanceBindingRequest request, CreateServiceInstanceAppBindingResponse response) {
-        Assert.notNull(response);
-        Assert.notNull(response.getCredentials());
+        Assert.notNull(response, "expecting a non-null response");
+        Assert.notNull(response.getCredentials(), "expecting a non-null response credentials");
 
         final Destination destination = ConnectionInfoFactory.fromCredentials(response.getCredentials());
 
