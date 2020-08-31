@@ -33,6 +33,9 @@
     </properties>
 
     <dependencyManagement>
+        <!-- import a consistent dependency management for most spring cloud projects with a release train
+        See https://spring.io/projects/spring-cloud#release-trains
+        -->
         <dependencies>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
@@ -49,6 +52,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-open-service-broker</artifactId>
+            <!-- not yet managed by spring-cloud-dependencies, needs to be bumped manually -->
             <version>${springCloudServiceBrokerVersion}</version>
         </dependency>
 
