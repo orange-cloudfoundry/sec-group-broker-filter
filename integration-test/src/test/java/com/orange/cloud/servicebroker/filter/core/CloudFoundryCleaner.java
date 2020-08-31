@@ -23,21 +23,25 @@ import org.cloudfoundry.client.v2.applications.ListApplicationServiceBindingsReq
 import org.cloudfoundry.client.v2.applications.ListApplicationsRequest;
 import org.cloudfoundry.client.v2.applications.RemoveApplicationServiceBindingRequest;
 import org.cloudfoundry.client.v2.domains.GetDomainRequest;
+import org.cloudfoundry.client.v2.jobs.JobEntity;
 import org.cloudfoundry.client.v2.routes.DeleteRouteRequest;
 import org.cloudfoundry.client.v2.routes.ListRoutesRequest;
 import org.cloudfoundry.client.v2.servicebrokers.DeleteServiceBrokerRequest;
 import org.cloudfoundry.client.v2.servicebrokers.ListServiceBrokersRequest;
 import org.cloudfoundry.client.v2.serviceinstances.DeleteServiceInstanceRequest;
+import org.cloudfoundry.client.v2.serviceinstances.GetServiceInstanceRequest;
 import org.cloudfoundry.client.v2.serviceinstances.ListServiceInstancesRequest;
 import org.cloudfoundry.client.v2.spaces.DeleteSpaceRequest;
 import org.cloudfoundry.client.v2.spaces.ListSpacesRequest;
 import org.cloudfoundry.util.JobUtils;
+import org.cloudfoundry.util.LastOperationUtils;
 import org.cloudfoundry.util.PaginationUtils;
 import org.cloudfoundry.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 import javax.net.ssl.SSLException;
 import java.time.Duration;
@@ -80,14 +84,15 @@ final class CloudFoundryCleaner {
                         .list(ListRoutesRequest.builder()
                                 .page(page)
                                 .build()))
-                .flatMap(route -> Mono.when(
+                .flatMap(route -> Mono.zip(
                         Mono.just(route),
                         cloudFoundryClient.domains()
                                 .get(GetDomainRequest.builder()
                                         .domainId(ResourceUtils.getEntity(route).getDomainId())
                                         .build())
                 ))
-                .filter(predicate((route, domain) -> ResourceUtils.getEntity(domain).getName().startsWith("test.domain.") ||
+                .filter(predicate((route, domain) ->
+                        ResourceUtils.getEntity(domain).getName().startsWith("test.domain.") ||
                         ResourceUtils.getEntity(route).getHost().startsWith("test-application-") ||
                         ResourceUtils.getEntity(route).getHost().startsWith("test-host-")))
                 .map(function((route, domain) -> ResourceUtils.getId(route)))
@@ -96,7 +101,8 @@ final class CloudFoundryCleaner {
                                 .async(true)
                                 .routeId(routeId)
                                 .build()))
-                .flatMap(job -> JobUtils.waitForCompletion(cloudFoundryClient, job));
+                .map(ResourceUtils::getEntity)
+                .flatMap(job -> JobUtils.waitForCompletion(cloudFoundryClient, Duration.ofMinutes(1), job));
     }
 
     private static Flux<Void> cleanSpaces(CloudFoundryClient cloudFoundryClient) {
@@ -112,7 +118,8 @@ final class CloudFoundryCleaner {
                                 .async(true)
                                 .spaceId(spaceId)
                                 .build()))
-                .flatMap(job -> JobUtils.waitForCompletion(cloudFoundryClient, job));
+                .map(ResourceUtils::getEntity)
+                .flatMap(job -> JobUtils.waitForCompletion(cloudFoundryClient, Duration.ofMinutes(1), job));
     }
 
     private static Flux<Void> cleanServiceBrokers(CloudFoundryClient cloudFoundryClient) {
@@ -146,18 +153,35 @@ final class CloudFoundryCleaner {
 
     private static Flux<Void> cleanServiceInstances(CloudFoundryClient cloudFoundryClient) {
         return PaginationUtils.
-                requestClientV2Resources(page -> cloudFoundryClient.serviceInstances()
-                        .list(ListServiceInstancesRequest.builder()
-                                .page(page)
-                                .build()))
-                .filter(serviceInstance -> ResourceUtils.getEntity(serviceInstance).getName().startsWith("test-service-instance-"))
-                .map(ResourceUtils::getId)
-                .flatMap(serviceInstanceId -> cloudFoundryClient.serviceInstances()
-                        .delete(DeleteServiceInstanceRequest.builder()
-                                .async(true)
-                                .serviceInstanceId(serviceInstanceId)
-                                .build()))
-                .flatMap(job -> JobUtils.waitForCompletion(cloudFoundryClient, job));
+            requestClientV2Resources(page -> cloudFoundryClient.serviceInstances()
+                .list(ListServiceInstancesRequest.builder()
+                    .page(page)
+                    .build()))
+            .filter(serviceInstance -> ResourceUtils.getEntity(serviceInstance).getName()
+                .startsWith("test-service-instance-"))
+            .map(ResourceUtils::getId)
+            .flatMap(serviceInstanceId -> cloudFoundryClient.serviceInstances()
+                .delete(DeleteServiceInstanceRequest.builder()
+                    .async(true)
+                    .serviceInstanceId(serviceInstanceId)
+                    .build()))
+            .flatMap(response -> {
+                Object entity = response.getEntity();
+                // inspired from cf-java client org.cloudfoundry.operations.services
+                //.DefaultServices#deleteServiceInstance(org.cloudfoundry.client.CloudFoundryClient, java.time.Duration, org.cloudfoundry.client.v2.serviceinstances.UnionServiceInstanceResource)
+                if (entity instanceof JobEntity) {
+                    return JobUtils
+                        .waitForCompletion(cloudFoundryClient, Duration.ofMinutes(1), (JobEntity) response.getEntity());
+                }
+                else {
+                    return LastOperationUtils.waitForCompletion(Duration.ofMinutes(1),
+                        () -> cloudFoundryClient.serviceInstances().get(GetServiceInstanceRequest.builder()
+                            .serviceInstanceId(response.getMetadata().getId())
+                            .build())
+                            .map(r -> ResourceUtils.getEntity(r).getLastOperation())
+                    );
+                }
+            });
     }
 
     void clean() {
@@ -167,7 +191,7 @@ final class CloudFoundryCleaner {
                 .thenMany(cleanApplicationsV2(this.cloudFoundryClient))
                 .thenMany(cleanRoutes(this.cloudFoundryClient))
                 .thenMany(cleanSpaces(this.cloudFoundryClient))
-                .retry(5, t -> t instanceof SSLException)
+                .retryWhen(Retry.max(5).filter(t -> t instanceof SSLException))
                 .doOnSubscribe(s -> this.logger.debug(">> CLEANUP <<"))
                 .doOnError(Throwable::printStackTrace)
                 .doOnComplete(() -> this.logger.debug("<< CLEANUP >>"))

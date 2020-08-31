@@ -17,6 +17,9 @@
 
 package com.orange.cloud.servicebroker.filter.core;
 
+import java.security.SecureRandom;
+import java.util.Random;
+
 import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.organizations.ListOrganizationsRequest;
 import org.cloudfoundry.client.v2.spaces.AssociateSpaceDeveloperByUsernameRequest;
@@ -31,17 +34,15 @@ import org.cloudfoundry.util.PaginationUtils;
 import org.cloudfoundry.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import reactor.core.publisher.Mono;
 
-import java.security.SecureRandom;
-import java.util.Random;
-
-import static org.cloudfoundry.util.OperationUtils.thenKeep;
 
 /**
  * credits to <a href="https://github.com/cloudfoundry/cf-java-client/tree/master/integration-test">cf-java-client IT</a>
@@ -97,7 +98,7 @@ public class IntegrationTestConfiguration {
 
     @Bean(initMethod = "block")
     @DependsOn("cloudFoundryCleaner")
-    Mono<String> organizationId(CloudFoundryClient cloudFoundryClient, String organizationName) throws InterruptedException {
+    Mono<String> organizationId(CloudFoundryClient cloudFoundryClient, String organizationName) {
         return PaginationUtils
                 .requestClientV2Resources(page -> cloudFoundryClient.organizations()
                         .list(ListOrganizationsRequest.builder()
@@ -129,19 +130,21 @@ public class IntegrationTestConfiguration {
 
     @Bean(initMethod = "block")
     @DependsOn("cloudFoundryCleaner")
-    Mono<String> spaceId(CloudFoundryClient cloudFoundryClient, Mono<String> organizationId, String spaceName, String userName) throws InterruptedException {
+    Mono<String> spaceId(CloudFoundryClient cloudFoundryClient, Mono<String> organizationId, String spaceName, String userName) {
         return organizationId
-                .then(orgId -> cloudFoundryClient.spaces()
-                        .create(CreateSpaceRequest.builder()
-                                .name(spaceName)
-                                .organizationId(orgId)
-                                .build()))
-                .map(ResourceUtils::getId)
-                .as(thenKeep(spaceId1 -> cloudFoundryClient.spaces()
-                        .associateDeveloperByUsername(AssociateSpaceDeveloperByUsernameRequest.builder()
-                                .username(userName)
-                                .spaceId(spaceId1)
-                                .build())))
+            .flatMap(orgId -> cloudFoundryClient.spaces()
+                .create(CreateSpaceRequest.builder()
+                    .name(spaceName)
+                    .organizationId(orgId)
+                    .build()))
+            .map(ResourceUtils::getId) //Extract spaceId from response
+            .flatMap(spaceId -> Mono.zip(Mono.just(spaceId), //Save it into a Tuple to return it
+                cloudFoundryClient.spaces()
+                    .associateDeveloperByUsername(AssociateSpaceDeveloperByUsernameRequest.builder()
+                        .username(userName)
+                        .spaceId(spaceId)
+                        .build())))
+            .map(Tuple2::getT1) //extract spaceId from tuple to return it
                 .doOnSubscribe(s -> this.logger.debug(">> SPACE name({}) <<", spaceName))
                 .doOnError(Throwable::printStackTrace)
                 .doOnSuccess(id -> this.logger.debug("<< SPACE id({}) >>", id))

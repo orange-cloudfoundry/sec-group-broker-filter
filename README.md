@@ -104,7 +104,7 @@ The resulting security group opened would be:
 
 ```json
 [
-  {"protocol":"tcp","destination":"141.8.225.68/31","ports":"3306"},
+  {"protocol":"tcp","destination":"141.8.225.68/31","ports":"3306"}
 ]
 ```
 # IP/Port restriction
@@ -124,16 +124,38 @@ The resulting security group opened would be:
 The bugs and features enhancements are managed through github issues, possibly through [huboard](https://huboard.com/orange-cloudfoundry/sec-group-broker-filter#/milestones) to have overview of milestones.
 
 # Development
-The project depends on Java 8.  To build from source and install to your local Maven cache, run the following:
+The project depends on Java 14.  To build from source and install to your local Maven cache, run the following:
 
 ```shell
 $ ./mvnw clean install
 ```
 
+## Integration tests
+
+The integration tests deploy sec-group-broker-filter as a space-scoped service broker and expect a sample service broker to delegate to (e.g. static-cred-broker). 
+
+The integration validates the deployment of sec-group-broker-filter, registers is as a space-scoped service broker, verify it has a service offering matching the backing broker service offering, and instanciates a service instance. Note that currently, the network ACL to the service binding are not yet asserted, see related https://github.com/orange-cloudfoundry/sec-group-broker-filter/issues/14 
+
+Note that since this does not require CF admin permissions, such tests can run on a public CF instance such as PWS.
+
 To run the integration tests, run the following:
 
 ```
-$ ./mvnw -Pintegration-test clean test
+$ ./mvnw -Pintegration-test \
+    -Dtest.apiHost=... \
+    -Dtest.username=... \
+    -Dtest.password=... \
+    -Dtest.proxy.host=... \
+    -Dtest.proxy.password=... \
+    -Dtest.proxy.port=... \
+    -Dtest.proxy.username=... \
+    -Dtest.skipSslValidation=... \
+    -Dtest.org=... \
+    -Dtest.domain=... \
+    -Dbroker.filter.url=... \
+    -Dbroker.filter.user=... \
+    -Dbroker.filter.password=... \
+clean test
 ```
 
 # Releasing
