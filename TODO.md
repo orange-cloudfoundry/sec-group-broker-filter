@@ -1,5 +1,6 @@
-* [ ] build & serve tarball
-  * [ ] set up circle ci build
+* [x] build & serve tarball
+  * [x] set up circle ci build
+     * test it 
   * [ ] manually host tarball as a github release
   * [x] check whether travis now hosts artefacts. 
      * Still seems to direct to your own S3 bucket, see https://docs.travis-ci.com/user/uploading-artifacts/
