@@ -68,6 +68,12 @@ Next pattern from cf-java-client DefaultServices:
     }
 ```
 
+* [ ] Fix maven copy
+
+```
+Failed to execute goal org.apache.maven.plugins:maven-dependency-plugin:3.1.2:copy (copy) on project integration-test: Artifact has not been packaged yet. When used on reactor artifact, copy should be executed after packaging: see MDEP-187. 
+```
+
 ```
 [INFO] --- maven-dependency-plugin:3.1.2:tree (default-cli) @ service-broker-filter-core ---
 [INFO] com.orange.cloud.servicebroker:service-broker-filter-core:jar:2.4.0.BUILD-SNAPSHOT
