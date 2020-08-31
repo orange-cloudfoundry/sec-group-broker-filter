@@ -9,17 +9,23 @@ jobs: # a collection of steps
     docker: # run the steps with Docker
       # List of images at https://hub.docker.com/r/circleci/openjdk/tags
       #      - image: circleci/openjdk:8-jdk-stretch # ...with this image as the primary container; this is where all `steps` will run
-      - image: circleci/14-jdk-buster-node-browsers-legacy # ...with this image as the primary container; this is where all `steps` will run
+      - image: circleci/openjdk:14-jdk-buster-node-browsers-legacy # ...with this image as the primary container; this is where all `steps` will run
 
     steps: # a collection of executable commands
 
       - checkout # check out source code to working directory
 
-      - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
-          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
-          key: sec-group-broker-filter-{{ checksum "pom.xml" }}
+      - run:
+          name: Generate cumulative pom.xml checksum
+          command: |
+            find . -type f -name "pom.xml" -exec sh -c "sha256sum {} >> ~/pom-checksum.tmp" \;
+            sort -o ~/pom-checksum ~/pom-checksum.tmp
+          when: always
+      - restore_cache:
+          key: circleci-demo-java-spring-{{ checksum "~/pom-checksum" }}
 
-      - run: mvn dependency:go-offline # gets the project dependencies
+#      - run: mvn dependency:go-offline # gets the project dependencies
+      - run: mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies #gets the project dependencies include submodules
 
       - save_cache: # saves the project dependencies
           paths:
