@@ -22,7 +22,7 @@ jobs: # a collection of steps
             sort -o ~/pom-checksum ~/pom-checksum.tmp
           when: always
       - restore_cache:
-          key: circleci-demo-java-spring-{{ checksum "~/pom-checksum" }}
+          key: sec-group-broker-filter-{{ checksum "~/pom-checksum" }}
 
 #      - run: mvn dependency:go-offline # gets the project dependencies
       - run: mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies #gets the project dependencies include submodules
@@ -30,7 +30,7 @@ jobs: # a collection of steps
       - save_cache: # saves the project dependencies
           paths:
             - ~/.m2
-          key: sec-group-broker-filter-{{ checksum "pom.xml" }}
+          key: sec-group-broker-filter-{{ checksum "~/pom-checksum" }}
 
       - run: mvn package # run the actual tests
 
