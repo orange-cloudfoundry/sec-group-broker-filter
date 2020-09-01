@@ -35,6 +35,15 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- embed default HTTP container, tomcat
+         See https://docs.spring.io/spring-boot/docs/2.3.2.RELEASE/reference/htmlsingle/#boot-features-developing-web-applications
+         https://stackoverflow.com/a/46274214/1484823
+         -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

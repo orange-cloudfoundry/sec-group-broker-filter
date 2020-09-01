@@ -4,8 +4,8 @@
   * [ ] manually host tarball as a github release
   * [x] check whether travis now hosts artefacts. 
      * Still seems to direct to your own S3 bucket, see https://docs.travis-ci.com/user/uploading-artifacts/
-  * [ ] display build properties 
-     * [ ] using native spring boot
+  * [x] display build properties 
+     * [x] using native spring boot plugin
         * [ ] coab branch to display it
      * [ ] using git maven plugin
      
@@ -49,8 +49,11 @@ git.total.commit.count=123
 
 ```
 
-  * [ ] debug start up
-     * [ ] increase log verbosity
+  * [ ] debug start up failure with JVM exit
+     * [x] increase log verbosity
+        * [x] springboot debug mode
+        * [x] springboot logging level
+     * [x] disable port health check 
 * [ ] set up smoke test
     * [ ] TF: set up smoke test space with security group
     * [ ] set up common-broker script
