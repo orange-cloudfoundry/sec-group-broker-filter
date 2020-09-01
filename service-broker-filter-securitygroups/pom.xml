@@ -61,6 +61,7 @@
             <artifactId>value</artifactId>
         </dependency>
 
+        <!-- used to model trusted IP/port destinations -->
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
