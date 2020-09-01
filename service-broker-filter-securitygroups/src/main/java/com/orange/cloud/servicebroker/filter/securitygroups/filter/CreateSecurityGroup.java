@@ -148,7 +148,7 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
         try {
             final SecurityGroupEntity securityGroup = Mono.zip(
                     getRuleDescription(cloudFoundryClient, request.getBindingId(), request.getServiceInstanceId()),
-                    getSpaceId(cloudFoundryClient, request.getAppGuid())
+                    getSpaceId(cloudFoundryClient, request.getBindResource().getAppGuid())
             ).flatMap(function((description, spaceId) -> create(getSecurityGroupName(request), destination, description
                 , spaceId)))
                     .doOnError(t -> log.error("Fail to create security group. Error details {}", t.toString(), t))
