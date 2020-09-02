@@ -58,6 +58,17 @@ git.total.commit.count=123
     * [ ] TF: set up smoke test space with security group
     * [ ] set up common-broker script
         * p-mysql
+* [x] handle security regression: no more auth
+  * [x] search of use of the env var
+  ```
+    security:
+      user:
+        name: ${broker.filter.user}
+        password: ${broker.filter.password} 
+  ```        
+  * [ ] add spring-security starter ?         
+  * [ ] add unit test         
+    * [ ] add a profile to disable dependencies to CF at startup for this test          
 * [ ] release
 
 

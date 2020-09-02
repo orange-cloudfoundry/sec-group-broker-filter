@@ -1,4 +1,5 @@
-security:
-  user:
-    name: ${broker.filter.user}
-    password: ${broker.filter.password}
+spring:
+  security:
+    user:
+      name: ${broker.filter.user}
+      password: ${broker.filter.password}
