@@ -3,3 +3,17 @@ spring:
     user:
       name: ${broker.filter.user}
       password: ${broker.filter.password}
+
+
+# turn on actuator endpoints
+management:
+  endpoint:
+    beans:
+      enabled: true
+    info:
+      enabled: true
+    loggers:
+      enabled: true
+    metrics:
+      enabled: true
+

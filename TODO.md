@@ -49,7 +49,7 @@ git.total.commit.count=123
 
 ```
 
-  * [ ] debug start up failure with JVM exit
+  * [x] debug start up failure with JVM exit
      * [x] increase log verbosity
         * [x] springboot debug mode
         * [x] springboot logging level
@@ -68,7 +68,8 @@ git.total.commit.count=123
   ```        
   * [ ] add spring-security starter ?         
   * [ ] add unit test         
-    * [ ] add a profile to disable dependencies to CF at startup for this test          
+    * [ ] add a profile to disable dependencies to CF at startup for this test
+* [ ] troubleshoot apparently not invoked secgroup filter          
 * [ ] release
 
 
