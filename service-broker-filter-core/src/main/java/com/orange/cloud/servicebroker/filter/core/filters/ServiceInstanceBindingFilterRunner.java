@@ -18,6 +18,9 @@
 package com.orange.cloud.servicebroker.filter.core.filters;
 
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
@@ -36,6 +39,8 @@ import java.util.Optional;
 @Setter
 public class ServiceInstanceBindingFilterRunner {
 
+    private static final Logger log = LoggerFactory.getLogger(ServiceInstanceBindingFilterRunner.class);
+
     @Autowired(required = false)
     private List<CreateServiceInstanceBindingPreFilter> createServiceInstanceBindingPreFilters;
 
@@ -48,12 +53,14 @@ public class ServiceInstanceBindingFilterRunner {
     @Autowired(required = false)
     private List<DeleteServiceInstanceBindingPostFilter> deleteServiceInstanceBindingPostFilters;
 
+
     /**
      * Run all filters that should be processed before a service instance instance binding has been created.
      *
      * @param request details of a request to bind to a service instance binding.
      */
     public void preBind(CreateServiceInstanceBindingRequest request) {
+        log.debug("Running preBind on each filter from: {}", createServiceInstanceBindingPreFilters);
         Optional.ofNullable(createServiceInstanceBindingPreFilters)
                 .ifPresent(serviceBrokerFilters -> serviceBrokerFilters.forEach(filter -> filter.run(request)));
     }
@@ -64,6 +71,7 @@ public class ServiceInstanceBindingFilterRunner {
      * @param request details of a request to bind to a service instance binding.
      */
     public void postBind(CreateServiceInstanceBindingRequest request, CreateServiceInstanceAppBindingResponse response) {
+        log.debug("Running postBind on each filter from: {}", createServiceInstanceBindingPostFilters);
         Optional.ofNullable(createServiceInstanceBindingPostFilters)
                 .ifPresent(serviceBrokerFilters -> serviceBrokerFilters.forEach(filter -> filter.run(request, response)));
     }
@@ -74,6 +82,7 @@ public class ServiceInstanceBindingFilterRunner {
      * @param request details of a request to delete a service instance binding.
      */
     public void preUnbind(DeleteServiceInstanceBindingRequest request) {
+        log.debug("Running preUnbind on each filter from: {}", deleteServiceInstanceBindingPreFilters);
         Optional.ofNullable(deleteServiceInstanceBindingPreFilters)
                 .ifPresent(serviceBrokerFilters -> serviceBrokerFilters.forEach(filter -> filter.run(request)));
     }
@@ -84,6 +93,7 @@ public class ServiceInstanceBindingFilterRunner {
      * @param request details of a request to delete a service instance binding.
      */
     public void postUnbind(DeleteServiceInstanceBindingRequest request, Void response) {
+        log.debug("Running postUnbind on each filter from: {}", deleteServiceInstanceBindingPostFilters);
         Optional.ofNullable(deleteServiceInstanceBindingPostFilters)
                 .ifPresent(serviceBrokerFilters -> serviceBrokerFilters.forEach(filter -> filter.run(request, response)));
     }
