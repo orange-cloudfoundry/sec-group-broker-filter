@@ -66,10 +66,12 @@ git.total.commit.count=123
         name: ${broker.filter.user}
         password: ${broker.filter.password} 
   ```        
-  * [ ] add spring-security starter ?         
+  * [ ] add spring-security starter         
   * [ ] add unit test         
     * [ ] add a profile to disable dependencies to CF at startup for this test
-* [ ] troubleshoot apparently not invoked secgroup filter          
+* [ ] troubleshoot apparently not invoked secgroup filter
+    * [x] turn on actuator endpoints
+    * [x] check wired beans indeed include filter
 * [ ] release
 
 
