@@ -1,3 +1,6 @@
+
+# turn on basic auth
+
 spring:
   security:
     user:
@@ -5,7 +8,7 @@ spring:
       password: ${broker.filter.password}
 
 
-# turn on actuator endpoints
+# turn on actuator endpoints protected by basic auth
 management:
   endpoint:
     beans:
@@ -17,3 +20,8 @@ management:
     metrics:
       enabled: true
 
+# make all endpoints accessible over web
+  endpoints:
+    web:
+      exposure:
+        include: "*"
