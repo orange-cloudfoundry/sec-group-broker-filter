@@ -15,13 +15,17 @@ management:
       enabled: true
     info:
       enabled: true
+    health:
+      enabled: true
+    httptrace:
+      enabled: true
     loggers:
       enabled: true
     metrics:
       enabled: true
 
-# make all endpoints accessible over web
+# make enabled endpoints accessible over web. setting "*" seems to expose also non enabled endpoints
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: "beans,info,health,httptrace,loggers,metrics"
