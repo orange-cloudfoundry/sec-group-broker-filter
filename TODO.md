@@ -21,8 +21,32 @@
         * [x] turn on actuator request logger    
         * [x] check logback is present in classpath
     * [x] check whether tomcat or netty are included, explaining webflux to not be loaded: indeed root cause
-    * [ ] add unit test with wiremock to detect such issues in the future during tests    
+    * [ ] add unit test with wiremock to detect such issues in the future during tests
+       * [ ] This adds regression https://github.com/spring-cloud/spring-cloud-openfeign/issues/235
+          * [ ] Adding converters did not work
+             * [ ] Suspecting bean initialization order issue
+                * Feign client is declared using @FeignClient annotation on the interface
+                * The FeignClientBuilder isn't picking the messageConverters     
 
+```
+  2020-09-04T16:54:45.73+0200 [APP/PROC/WEB/1] OUT Description:
+   2020-09-04T16:54:45.73+0200 [APP/PROC/WEB/1] OUT Parameter 0 of method beanCatalogService in org.springframework.cloud.servicebroker.autoconfigure.web.ServiceBrokerAutoConfiguration required a bean of type 'org.springframework.boot.autoconfigure.http.HttpMessageConverters' that could not be found.
+   2020-09-04T16:54:45.73+0200 [APP/PROC/WEB/1] OUT The following candidates were found but could not be injected:
+   2020-09-04T16:54:45.73+0200 [APP/PROC/WEB/1] OUT 	- Bean method 'messageConverters' in 'HttpMessageConvertersAutoConfiguration' not loaded because NoneNestedConditions 1 matched 0 did not; NestedCondition on HttpMessageConvertersAutoConfiguration.NotReactiveWebApplicationCondition.ReactiveWebApplication found ConfigurableReactiveWebEnvironment
+   2020-09-04T16:54:45.73+0200 [APP/PROC/WEB/1] OUT Action:
+   2020-09-04T16:54:45.73+0200 [APP/PROC/WEB/1] OUT Consider revisiting the entries above or defining a bean of type 'org.springframework.boot.autoconfigure.http.HttpMessageConverters' in your configuration.
+
+```
+
+        * [ ] downgrade spring boot and spring cloud: likely need to align other dependencies (OSB, cf-java-client)
+```
+  2020-09-04T18:34:23.86+0200 [APP/PROC/WEB/1] OUT Caused by: java.lang.NoClassDefFoundError: org/springframework/boot/context/properties/ConfigurationPropertiesBean
+   2020-09-04T18:34:23.86+0200 [APP/PROC/WEB/1] OUT     at org.springframework.cloud.context.properties.ConfigurationPropertiesBeans.postProcessBeforeInitialization(ConfigurationPropertiesBeans.java:94) ~
+```
+        
+        * [ ] transiently use https://github.com/Playtika/feign-reactive
+           * Requires converting osb client calls to reactive
+         
 ```
 
 nested exception is feign.codec.DecodeException: No qualifying bean of type 'org.springframework.boot.autoconfigure.http.HttpMessageConverters' available
@@ -42,6 +66,18 @@ nested exception is feign.codec.DecodeException: No qualifying bean of type 'org
    2020-09-04T15:34:20.82+0200 [APP/PROC/WEB/0] OUT Consider revisiting the entries above or defining a bean of type 'org.springframework.boot.autoconfigure.http.HttpMessageConverters' in your configuration.
  
 ```
+
+```
+  2020-09-04T18:23:59.50+0200 [APP/PROC/WEB/1] OUT    HttpMessageConvertersAutoConfiguration:
+   2020-09-04T18:23:59.50+0200 [APP/PROC/WEB/1] OUT       Did not match:
+   2020-09-04T18:23:59.50+0200 [APP/PROC/WEB/1] OUT          - NoneNestedConditions 1 matched 0 did not; NestedCondition on HttpMessageConvertersAutoConfiguration.NotReactiveWebApplicationCondition.ReactiveWebApplication found ConfigurableReactiveWebEnvironment (HttpMessageConvertersAutoConfiguration.NotReactiveWebApplicationCondition)
+   2020-09-04T18:23:59.50+0200 [APP/PROC/WEB/1] OUT       Matched:
+   2020-09-04T18:23:59.50+0200 [APP/PROC/WEB/1] OUT          - @ConditionalOnClass found required class 'org.springframework.http.converter.HttpMessageConverter' (OnClassCondition)
+
+```
+
+
+
 
 * [ ] investigate the following warning:
 
