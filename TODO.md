@@ -69,12 +69,35 @@ git.total.commit.count=123
   * [ ] add spring-security starter         
   * [ ] add unit test         
     * [ ] add a profile to disable dependencies to CF at startup for this test
-* [ ] troubleshoot apparently not invoked secgroup filter
+* [x] troubleshoot apparently not invoked secgroup filter in bind-service
     * [x] turn on actuator endpoints
     * [x] check wired beans indeed include filter
+    * actually filter only applies during service binding
+    * [ ] debug list of filters to display a debugging log    
+        * [x] turn on actuator request logger    
+        * [x] check logback is present in classpath
+    * check whether tomcat or netty are included, explaining webflux to not be loaded    
 * [ ] release
 
+```
 
+nested exception is feign.codec.DecodeException: No qualifying bean of type 'org.springframework.boot.autoconfigure.http.HttpMessageConverters' available
+
+   2020-09-04T15:34:20.58+0200 [APP/PROC/WEB/0] OUT 2020-09-04 13:34:20.580  WARN 34 --- [           main] onfigReactiveWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'httpHandler' defined in class path resource [org/springframework/boot/autoconfigure/web/reactive/HttpHandlerAutoConfiguration$AnnotationConfig.class]: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.springframework.http.server.reactive.HttpHandler]: Factory method 'httpHandler' threw exception; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'org.springframework.cloud.servicebroker.autoconfigure.web.reactive.ServiceBrokerWebFluxAutoConfiguration': Unsatisfied dependency expressed through constructor parameter 0; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'beanCatalogService' defined in class path resource [org/springframework/cloud/servicebroker/autoconfigure/web/ServiceBrokerAutoConfiguration.class]: Unsatisfied dependency expressed through method 'beanCatalogService' parameter 0; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'catalog' defined in class path resource [com/orange/cloud/servicebroker/filter/core/config/CatalogConfig.class]: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.springframework.cloud.servicebroker.model.catalog.Catalog]: Factory method 'catalog' threw exception; nested exception is feign.codec.DecodeException: No qualifying bean of type 'org.springframework.boot.autoconfigure.http.HttpMessageConverters' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {@org.springframework.beans.factory.annotation.Autowired(required=true)}
+   2020-09-04T15:34:20.61+0200 [APP/PROC/WEB/0] OUT 2020-09-04 13:34:20.610  INFO 34 --- [           main] ConditionEvaluationReportLoggingListener : 
+   2020-09-04T15:34:20.61+0200 [APP/PROC/WEB/0] OUT Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+   2020-09-04T15:34:20.82+0200 [APP/PROC/WEB/0] OUT 2020-09-04 13:34:20.820 ERROR 34 --- [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+   2020-09-04T15:34:20.82+0200 [APP/PROC/WEB/0] OUT ***************************
+   2020-09-04T15:34:20.82+0200 [APP/PROC/WEB/0] OUT APPLICATION FAILED TO START
+   2020-09-04T15:34:20.82+0200 [APP/PROC/WEB/0] OUT ***************************
+   2020-09-04T15:34:20.82+0200 [APP/PROC/WEB/0] OUT Description:
+   2020-09-04T15:34:20.82+0200 [APP/PROC/WEB/0] OUT Parameter 0 of method beanCatalogService in org.springframework.cloud.servicebroker.autoconfigure.web.ServiceBrokerAutoConfiguration required a bean of type 'org.springframework.boot.autoconfigure.http.HttpMessageConverters' that could not be found.
+   2020-09-04T15:34:20.82+0200 [APP/PROC/WEB/0] OUT The following candidates were found but could not be injected:
+   2020-09-04T15:34:20.82+0200 [APP/PROC/WEB/0] OUT 	- Bean method 'messageConverters' in 'HttpMessageConvertersAutoConfiguration' not loaded because NoneNestedConditions 1 matched 0 did not; NestedCondition on HttpMessageConvertersAutoConfiguration.NotReactiveWebApplicationCondition.ReactiveWebApplication found ConfigurableReactiveWebEnvironment
+   2020-09-04T15:34:20.82+0200 [APP/PROC/WEB/0] OUT Action:
+   2020-09-04T15:34:20.82+0200 [APP/PROC/WEB/0] OUT Consider revisiting the entries above or defining a bean of type 'org.springframework.boot.autoconfigure.http.HttpMessageConverters' in your configuration.
+ 
+```
 
 ```
    2020-09-01T11:22:10.43+0200 [APP/PROC/WEB/1] OUT 2020-09-01 09:22:10.429  INFO 12 --- [-client-epoll-1] cloudfoundry-client.compatibility        : Client supports API version 2.145.0 and is connected to server with API version 2.152.0. Things may not work as expected.

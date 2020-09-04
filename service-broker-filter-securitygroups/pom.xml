@@ -35,13 +35,14 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- embed default HTTP container, tomcat
+        <!-- embed default reactive container. Warning, if using spring-boot-starter-web instead of spring-boot-starter-webflux, then reactive handlers are not called
+
          See https://docs.spring.io/spring-boot/docs/2.3.2.RELEASE/reference/htmlsingle/#boot-features-developing-web-applications
          https://stackoverflow.com/a/46274214/1484823
          -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
         <dependency>
