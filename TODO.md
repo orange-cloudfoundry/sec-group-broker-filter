@@ -39,10 +39,31 @@
 ```
 
         * [ ] downgrade spring boot and spring cloud: likely need to align other dependencies (OSB, cf-java-client)
+        
 ```
+        <spring.cloud.version>Hoxton.SR8</spring.cloud.version>
+        <spring.boot.version>2.1.9.RELEASE</spring.boot.version>
+
+
   2020-09-04T18:34:23.86+0200 [APP/PROC/WEB/1] OUT Caused by: java.lang.NoClassDefFoundError: org/springframework/boot/context/properties/ConfigurationPropertiesBean
    2020-09-04T18:34:23.86+0200 [APP/PROC/WEB/1] OUT     at org.springframework.cloud.context.properties.ConfigurationPropertiesBeans.postProcessBeforeInitialization(ConfigurationPropertiesBeans.java:94) ~
 ```
+          * [ ] Compatibility matrix:
+             * cf-java-client: 3.26.0.RELEASE ?
+             * spring-cloud-open-service-broker: 3.0.x: 3.0.4.RELEASE
+          * This pull the old OSB api 
+```
+java: constructor Catalog in class org.springframework.cloud.servicebroker.model.catalog.Catalog cannot be applied to given types;
+  required: no arguments
+  found: java.util.List<org.springframework.cloud.servicebroker.model.catalog.ServiceDefinition>
+  reason: actual and formal argument lists differ in length
+```
+         * Downgrade to a bit less  
+```
+        <spring.cloud.version>Hoxton.RELEASE</spring.cloud.version>
+        <spring.boot.version>2.2.1.RELEASE</spring.boot.version>
+```
+
         
         * [ ] transiently use https://github.com/Playtika/feign-reactive
            * Requires converting osb client calls to reactive
