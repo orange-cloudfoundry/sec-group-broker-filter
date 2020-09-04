@@ -33,6 +33,7 @@ import org.springframework.cloud.openfeign.support.SpringDecoder;
 import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
 /**
  * Overrides  {@link <a href="http://projects.spring.io/spring-cloud/spring-cloud.html#spring-cloud-feign">Feign</a>} Defaults
@@ -49,7 +50,19 @@ public class FilteredBrokerFeignConfig {
     @Autowired
     okhttp3.OkHttpClient customOkHttpClient;
 
-    private ObjectFactory<HttpMessageConverters> messageConverters = HttpMessageConverters::new;
+   ObjectFactory<HttpMessageConverters> messageConverters = HttpMessageConverters::new;
+
+    //Required with spring boot version Hoxton.RELEASE, see related issue https://github.com/spring-cloud/spring-cloud-openfeign/issues/235
+    @Bean
+    Decoder feignFormDecoder() {
+        return new SpringDecoder(messageConverters);
+    }
+
+    //Required with spring boot version Hoxton.RELEASE, see related issue https://github.com/spring-cloud/spring-cloud-openfeign/issues/235
+    @Bean
+    Encoder feignFormEncoder() {
+        return new SpringFormEncoder(new SpringEncoder(messageConverters));
+    }
 
     @Bean
     public BasicAuthRequestInterceptor basicAuthRequestInterceptor() {
@@ -67,20 +80,9 @@ public class FilteredBrokerFeignConfig {
     }
 
     @Bean
+    @DependsOn({"feignFormEncoder", "feignFormDecoder"})
     Feign.Builder customFeignBuilder() {
         return Feign.builder().client(new OkHttpClient(customOkHttpClient));
-    }
-
-    //Required with spring boot version Hoxton.RELEASE, see related issue https://github.com/spring-cloud/spring-cloud-openfeign/issues/235
-    @Bean
-    Decoder feignFormDecoder() {
-        return new SpringDecoder(messageConverters);
-    }
-
-    //Required with spring boot version Hoxton.RELEASE, see related issue https://github.com/spring-cloud/spring-cloud-openfeign/issues/235
-    @Bean
-    Encoder feignFormEncoder() {
-        return new SpringFormEncoder(new SpringEncoder(messageConverters));
     }
 
 }
