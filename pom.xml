@@ -16,7 +16,11 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.3.RELEASE</version>
+        <version>2.1.9.RELEASE</version>
+        <!--        <version>2.3.3.RELEASE</version>-->
+
+        <!--    properties are prohibited in parent project -->
+        <!--        <version>${spring.boot.version}</version>-->
     </parent>
 
     <scm>
@@ -32,7 +36,14 @@
         <lombok>1.18.12</lombok>
         <cf-java-client.version>4.9.0.RELEASE</cf-java-client.version>
         <immutables.version>2.8.8</immutables.version>
+
+        <spring.cloud.version>Hoxton.SR8</spring.cloud.version>
+        <spring.boot.version>2.1.9.RELEASE</spring.boot.version>
+        <!-- blocked by https://github.com/spring-cloud/spring-cloud-openfeign/issues/235 -->
+        <!--        <spring.cloud.version>Greenwich.SR4</spring.cloud.version> -->
+        <!--        <spring.boot.version>2.3.3.RELEASE</spring.boot.version>   -->
     </properties>
+
 
     <dependencyManagement>
         <dependencies>
