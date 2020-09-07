@@ -16,7 +16,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.9.RELEASE</version>
+        <version>2.2.1.RELEASE</version>
         <!--        <version>2.3.3.RELEASE</version>-->
 
         <!--    properties are prohibited in parent project -->
@@ -34,15 +34,51 @@
 
     <properties>
         <lombok>1.18.12</lombok>
-        <cf-java-client.version>3.26.0.RELEASE</cf-java-client.version>
-        <immutables.version>2.8.8</immutables.version>
+<!--        <cf-java-client.version>4.9.0.RELEASE</cf-java-client.version>-->
+<!--        <cf-java-client.version>4.7.0.RELEASE</cf-java-client.version>-->
+        <cf-java-client.version>4.4.0.RELEASE</cf-java-client.version>
+<!--
+        https://github.com/cloudfoundry/cf-java-client/releases/tag/v4.7.0.RELEASE
+        Note: This is the final version of the 4.x line that will be based on Spring Boot 2.2 for its managed dependencies. The next release will update to Spring Boot 2.3.
 
-        <spring.cloud.version>Hoxton.SR8</spring.cloud.version>
-        <spring.cloud.open.service.broker.version>3.0.4.RELEASE</spring.cloud.open.service.broker.version>
-        <spring.boot.version>2.1.9.RELEASE</spring.boot.version>
+        https://github.com/cloudfoundry/cf-java-client/releases/tag/v4.5.0.RELEASE
+        This release increments several dependencies to include important security updates.
+-->
+<!--        https://github.com/cloudfoundry/cf-java-client#versions
+The Cloud Foundry Java Client has two active versions.
+The 4.x line uses Spring Boot 2.2.x just to manage its dependencies, while the 3.x line uses Spring Boot 2.1.x.
+Unless you have a specific dependency-related reason for using the older version we recommend you adopt the 4.x line.
+-->
+<!--        <cf-java-client.version>3.26.0.RELEASE</cf-java-client.version>-->
+        <immutables.version>2.8.8</immutables.version>
+        <spring.cloud.version>Hoxton.SR4</spring.cloud.version>
+<!--        <spring.cloud.version>Greenwich.SR4</spring.cloud.version>-->
+
+        <spring.cloud.open.service.broker.version>3.1.2.RELEASE</spring.cloud.open.service.broker.version>
+        <spring.boot.version>2.2.1.RELEASE</spring.boot.version>
+        <!--        <spring.cloud.version>Hoxton.SR8</spring.cloud.version>-->
         <!-- blocked by https://github.com/spring-cloud/spring-cloud-openfeign/issues/235 -->
-        <!--        <spring.cloud.version>Greenwich.SR4</spring.cloud.version> -->
+
+        <!-- compatibility matrix at https://spring.io/projects/spring-cloud#release-trains
+            Release Train | Boot Version
+            Hoxton | 2.2.x, 2.3.x (Starting with SR5)
+            Greenwich | 2.1.x
+            Finchley | 2.0.x
+            Edgware | 1.5.x
+            Dalston | 1.5.x
+        -->
         <!--        <spring.boot.version>2.3.3.RELEASE</spring.boot.version>   -->
+
+        <!--
+            https://github.com/spring-cloud/spring-cloud-open-service-broker#version-compatibility
+
+            Spring Cloud Open Service Broker | Open Service Broker API | Spring Boot | Spring Framework
+            3.2.x | 2.15 | 2.3.x | 5.2.x
+            3.1.x | 2.15 | 2.2.x | 5.2.x
+            3.0.x | 2.14 | 2.1.x | 5.1.x
+            2.1.x | 2.14 | 2.0.x | 5.0.x
+
+-->
         <!--        <spring.cloud.open.service.broker.version>3.1.2.RELEASE</spring.cloud.open.service.broker.version>-->
         <!--        <cf-java-client.version>4.9.0.RELEASE</cf-java-client.version>-->
     </properties>

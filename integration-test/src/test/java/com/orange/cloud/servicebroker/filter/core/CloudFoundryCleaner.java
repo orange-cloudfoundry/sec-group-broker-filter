@@ -17,6 +17,10 @@
 
 package com.orange.cloud.servicebroker.filter.core;
 
+import java.time.Duration;
+
+import javax.net.ssl.SSLException;
+
 import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.applications.DeleteApplicationRequest;
 import org.cloudfoundry.client.v2.applications.ListApplicationServiceBindingsRequest;
@@ -41,10 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
-
-import javax.net.ssl.SSLException;
-import java.time.Duration;
 
 import static org.cloudfoundry.util.tuple.TupleUtils.function;
 import static org.cloudfoundry.util.tuple.TupleUtils.predicate;
@@ -191,7 +191,7 @@ final class CloudFoundryCleaner {
                 .thenMany(cleanApplicationsV2(this.cloudFoundryClient))
                 .thenMany(cleanRoutes(this.cloudFoundryClient))
                 .thenMany(cleanSpaces(this.cloudFoundryClient))
-                .retryWhen(Retry.max(5).filter(t -> t instanceof SSLException))
+                .retry(5, t -> t instanceof SSLException)
                 .doOnSubscribe(s -> this.logger.debug(">> CLEANUP <<"))
                 .doOnError(Throwable::printStackTrace)
                 .doOnComplete(() -> this.logger.debug("<< CLEANUP >>"))

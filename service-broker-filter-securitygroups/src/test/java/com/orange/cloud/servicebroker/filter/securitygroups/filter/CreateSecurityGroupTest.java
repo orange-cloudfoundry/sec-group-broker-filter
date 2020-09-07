@@ -63,7 +63,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import reactor.core.publisher.Mono;
 
-import org.springframework.boot.test.system.OutputCaptureRule;
+import org.springframework.boot.test.rule.OutputCapture;
 import org.springframework.cloud.servicebroker.model.binding.BindResource;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
@@ -79,7 +79,8 @@ public class CreateSecurityGroupTest {
     static final String NO_PORT_URI = "mysql://127.0.0.1/mydb?user=2106password=Uq3YCioVsO3Dbcp4";
 
     @Rule
-    public OutputCaptureRule output = new OutputCaptureRule();
+    public OutputCapture capture = new OutputCapture();
+
     @Mock
     CloudFoundryClient cloudFoundryClient;
     private CreateSecurityGroup createSecurityGroup;

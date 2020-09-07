@@ -22,11 +22,11 @@
         * [x] check logback is present in classpath
     * [x] check whether tomcat or netty are included, explaining webflux to not be loaded: indeed root cause
     * [ ] add unit test with wiremock to detect such issues in the future during tests
-       * [ ] This adds regression https://github.com/spring-cloud/spring-cloud-openfeign/issues/235
-          * [ ] Adding converters did not work
-             * [ ] Suspecting bean initialization order issue
-                * Feign client is declared using @FeignClient annotation on the interface
-                * The FeignClientBuilder isn't picking the messageConverters     
+   * [ ] This adds regression https://github.com/spring-cloud/spring-cloud-openfeign/issues/235
+      * [ ] Adding converters did not work
+         * [ ] Suspecting bean initialization order issue
+            * Feign client is declared using @FeignClient annotation on the interface
+            * The FeignClientBuilder isn't picking the messageConverters     
 
 ```
   2020-09-04T16:54:45.73+0200 [APP/PROC/WEB/1] OUT Description:
@@ -63,10 +63,78 @@ java: constructor Catalog in class org.springframework.cloud.servicebroker.model
         <spring.cloud.version>Hoxton.RELEASE</spring.cloud.version>
         <spring.boot.version>2.2.1.RELEASE</spring.boot.version>
 ```
+         * resulting to 
+```
+An attempt was made to call a method that does not exist. The attempt was made from the following location:
+    org.cloudfoundry.reactor._DefaultConnectionContext.getConnectionProvider(_DefaultConnectionContext.java:176)
+The following method did not exist:
+    'reactor.netty.resources.ConnectionProvider$Builder reactor.netty.resources.ConnectionProvider.builder(java.lang.String)'
+The method's class, reactor.netty.resources.ConnectionProvider, is available from the following locations:
+    jar:file:/home/guillaume/.m2/repository/io/projectreactor/netty/reactor-netty/0.9.1.RELEASE/reactor-netty-0.9.1.RELEASE.jar!/reactor/netty/resources/ConnectionProvider.class
+It was loaded from the following location:
+    file:/home/guillaume/.m2/repository/io/projectreactor/netty/reactor-netty/0.9.1.RELEASE/reactor-netty-0.9.1.RELEASE.jar
+
+Action:
+Correct the classpath of your application so that it contains a single, compatible version of reactor.netty.resources.ConnectionProvider
+```         
+            * [ ] maven dependency analysis, to understand expected version by cf-java-client, and which version to is currently provided         
+``` 
+[INFO] +- org.springframework.boot:spring-boot-starter-webflux:jar:2.2.1.RELEASE:compile
+[...]
+[INFO] |  +- org.springframework.boot:spring-boot-starter-reactor-netty:jar:2.2.1.RELEASE:compile
+
+[INFO] +- org.cloudfoundry:cloudfoundry-client-reactor:jar:4.9.0.RELEASE:compile
+[...]
+[INFO] |  +- io.projectreactor.netty:reactor-netty:jar:0.9.1.RELEASE:compile
+[INFO] |  |  +- io.netty:netty-codec-http:jar:4.1.43.Final:compile
+[INFO] |  |  |  +- io.netty:netty-common:jar:4.1.43.Final:compile
+[INFO] |  |  |  +- io.netty:netty-buffer:jar:4.1.43.Final:compile
+[INFO] |  |  |  +- io.netty:netty-transport:jar:4.1.43.Final:compile
+[INFO] |  |  |  |  \- io.netty:netty-resolver:jar:4.1.43.Final:compile
+[INFO] |  |  |  \- io.netty:netty-codec:jar:4.1.43.Final:compile
+[INFO] |  |  +- io.netty:netty-codec-http2:jar:4.1.43.Final:compile
+[INFO] |  |  +- io.netty:netty-handler:jar:4.1.43.Final:compile
+[INFO] |  |  +- io.netty:netty-handler-proxy:jar:4.1.43.Final:compile
+[INFO] |  |  |  \- io.netty:netty-codec-socks:jar:4.1.43.Final:compile
+[INFO] |  |  \- io.netty:netty-transport-native-epoll:jar:linux-x86_64:4.1.43.Final:compile
+[INFO] |  |     \- io.netty:netty-transport-native-unix-common:jar:4.1.43.Final:compile
+```
+            * [ ] reactor-netty 0.9.1 is from oct 2019. 0.9.11 is from aug 2020
+               * https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty         
+            * Suspecting reactor-nettoy 0.9.1 to be too old, and brought by spring cloud starter webflux, while cf-java-client is compiled against a newer version
+            * changes to builder code brought in 4.5.0
+               * https://github.com/cloudfoundry/cf-java-client/commit/11b1d2d49bb83e9dd3f1d1a311cd317e076ee18b
+               ```
+                 <dependencies.version>2.2.5.RELEASE</dependencies.version>
+                 [...]
+                             <dependency>
+                                 <groupId>org.springframework.boot</groupId>
+                                 <artifactId>spring-boot-dependencies</artifactId>
+                                 <version>${dependencies.version}</version>
+                                 <type>pom</type>
+                                 <scope>import</scope>
+                             </dependency>
+               ```
 
         
         * [ ] transiently use https://github.com/Playtika/feign-reactive
            * Requires converting osb client calls to reactive
+           * Recommended into https://docs.spring.io/spring-cloud-openfeign/docs/2.2.5.RELEASE/reference/html/#reactive-support
+           > As the OpenFeign project does not currently support reactive clients, such as Spring WebClient, neither does Spring Cloud OpenFeign. We will add support for it here as soon as it becomes available in the core project.
+           > Until that is done, we recommend using feign-reactive https://github.com/Playtika/feign-reactive for Spring WebClient support.
+
+
+
+      * Stay with servlet api non reactive engine and use feign blocking apis
+         * https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux
+         > Both web frameworks mirror the names of their source modules (spring-webmvc and spring-webflux) and co-exist side by side in the Spring Framework. Each module is optional. Applications can use one or the other module or, in some cases, both for example, Spring MVC controllers with the reactive WebClient
+         * https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-programming-models
+         > Both Spring MVC and WebFlux controllers support reactive (Reactor and RxJava) return types, and, as a result, it is not easy to tell them apart. One notable difference is that WebFlux also supports reactive @RequestBody arguments.
+         * https://docs.spring.io/spring-boot/docs/2.3.2.RELEASE/reference/htmlsingle/#boot-features-webclient-runtime
+         
+
+      * Keep latest boot 2.3 reactive stack, but convert use of feign to another webclient
+         * https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-client
          
 ```
 
