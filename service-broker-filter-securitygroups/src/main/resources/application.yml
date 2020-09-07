@@ -23,9 +23,11 @@ management:
       enabled: true
     metrics:
       enabled: true
+    threaddump:
+      enabled: true
 
 # make enabled endpoints accessible over web. setting "*" seems to expose also non enabled endpoints
   endpoints:
     web:
       exposure:
-        include: "beans,info,health,httptrace,loggers,metrics"
+        include: "beans,info,health,httptrace,loggers,metrics,threaddump"
