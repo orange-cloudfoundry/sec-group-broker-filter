@@ -17,15 +17,14 @@
 
 package com.orange.cloud.servicebroker.filter.securitygroups.filter;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.orange.cloud.servicebroker.filter.core.filters.CreateServiceInstanceBindingPostFilter;
 import com.orange.cloud.servicebroker.filter.core.filters.ServiceBrokerPostFilter;
 import com.orange.cloud.servicebroker.filter.securitygroups.domain.Destination;
 import com.orange.cloud.servicebroker.filter.securitygroups.domain.TrustedDestinationSpecification;
-import lombok.extern.slf4j.Slf4j;
 import org.cloudfoundry.client.CloudFoundryClient;
-import org.cloudfoundry.client.v2.applications.ApplicationEntity;
-import org.cloudfoundry.client.v2.applications.GetApplicationRequest;
-import org.cloudfoundry.client.v2.applications.GetApplicationResponse;
 import org.cloudfoundry.client.v2.securitygroups.CreateSecurityGroupRequest;
 import org.cloudfoundry.client.v2.securitygroups.Protocol;
 import org.cloudfoundry.client.v2.securitygroups.RuleEntity;
@@ -39,24 +38,22 @@ import org.cloudfoundry.client.v2.serviceplans.ServicePlanEntity;
 import org.cloudfoundry.client.v2.services.GetServiceRequest;
 import org.cloudfoundry.client.v2.services.ServiceEntity;
 import org.cloudfoundry.util.ResourceUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.model.CloudFoundryContext;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Mono;
-import reactor.util.function.Tuples;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static org.cloudfoundry.util.tuple.TupleUtils.function;
 
+@Profile("!offline-test-without-cf")
 @Component
 public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilter, ServiceBrokerPostFilter<CreateServiceInstanceBindingRequest, CreateServiceInstanceAppBindingResponse> {
 

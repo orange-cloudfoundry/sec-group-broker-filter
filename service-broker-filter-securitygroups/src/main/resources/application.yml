@@ -13,6 +13,8 @@ management:
   endpoint:
     beans:
       enabled: true
+    conditions:
+      enabled: true
     info:
       enabled: true
     health:
@@ -30,4 +32,5 @@ management:
   endpoints:
     web:
       exposure:
-        include: "beans,info,health,httptrace,loggers,metrics,threaddump"
+        include: "beans,conditions,
+        info,health,httptrace,loggers,metrics,threaddump"

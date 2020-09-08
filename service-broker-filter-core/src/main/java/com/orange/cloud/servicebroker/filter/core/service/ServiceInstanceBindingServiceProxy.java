@@ -28,6 +28,7 @@ import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstan
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingResponse;
 import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Sebastien Bortolussi
  */
+@Profile("!offline-test-without-cf")
 @Component
 public class ServiceInstanceBindingServiceProxy implements ServiceInstanceBindingService {
 

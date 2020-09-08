@@ -25,6 +25,7 @@ import feign.slf4j.Slf4jLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 /**
  * Overrides  {@link <a href="http://projects.spring.io/spring-cloud/spring-cloud.html#spring-cloud-feign">Feign</a>} Defaults
@@ -32,6 +33,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author Sebastien Bortolussi
  */
+@Profile("!offline-test-without-cf")
 @Configuration
 public class FilteredBrokerFeignConfig {
 

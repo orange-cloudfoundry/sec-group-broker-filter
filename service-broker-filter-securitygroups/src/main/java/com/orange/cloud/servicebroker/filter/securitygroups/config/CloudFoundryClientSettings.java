@@ -19,6 +19,7 @@ package com.orange.cloud.servicebroker.filter.securitygroups.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Data
 @ConfigurationProperties(prefix = "cloudfoundry")
+@Profile("!offline-test-without-cf")
 public class CloudFoundryClientSettings {
 
     private String host;

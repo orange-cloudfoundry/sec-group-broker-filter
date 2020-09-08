@@ -4,6 +4,7 @@ import org.cloudfoundry.client.CloudFoundryClient;
 import org.cloudfoundry.client.v2.info.GetInfoRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -14,6 +15,7 @@ import java.time.Duration;
  *
  */
 @Component
+@Profile("!offline-test-without-cf")
 public class CheckCloudFoundryConnection implements CommandLineRunner {
 
     @Autowired

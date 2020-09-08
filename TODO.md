@@ -2,6 +2,17 @@
     * [ ] TF: set up smoke test space with security group
     * [ ] set up common-broker script
         * p-mysql
+    * [ ] sec-broker-filter does not seem to support service keys:
+    ```
+      cf create-service-key sec-group-broker-filter-cf-smoketest-1599561485 mykey
+      Creating service key mykey for service instance sec-group-broker-filter-cf-smoketest-1599561485 as admin...
+      Service broker error: applicationId
+      FAILED
+    ```     
+       * [ ] skip service key in smoke test         
+       * [x] implement service key in sec-group-filter         
+          * [x] search for an existing issue https://github.com/orange-cloudfoundry/sec-group-broker-filter/issues/97         
+          * benefits: enables service keys in the same space for apps that can't leverage service bindings (e.g. don't parse VCAP_SERVICES)         
 * [ ] investigate the following warning:
     ```
        2020-09-01T11:22:10.43+0200 [APP/PROC/WEB/1] OUT 2020-09-01 09:22:10.429  INFO 12 --- [-client-epoll-1] cloudfoundry-client.compatibility        : Client supports API version 2.145.0 and is connected to server with API version 2.152.0. Things may not work as expected.
