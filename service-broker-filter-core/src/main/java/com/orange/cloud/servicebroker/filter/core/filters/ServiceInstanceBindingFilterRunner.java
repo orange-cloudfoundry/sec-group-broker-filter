@@ -60,7 +60,8 @@ public class ServiceInstanceBindingFilterRunner {
      * @param request details of a request to bind to a service instance binding.
      */
     public void preBind(CreateServiceInstanceBindingRequest request) {
-        log.debug("Running preBind on each filter from: {}", createServiceInstanceBindingPreFilters);
+        log.debug("Running preBind on each filter from: {} for osb request: {}",
+            createServiceInstanceBindingPreFilters, request);
         Optional.ofNullable(createServiceInstanceBindingPreFilters)
                 .ifPresent(serviceBrokerFilters -> serviceBrokerFilters.forEach(filter -> filter.run(request)));
     }
@@ -71,7 +72,8 @@ public class ServiceInstanceBindingFilterRunner {
      * @param request details of a request to bind to a service instance binding.
      */
     public void postBind(CreateServiceInstanceBindingRequest request, CreateServiceInstanceAppBindingResponse response) {
-        log.debug("Running postBind on each filter from: {}", createServiceInstanceBindingPostFilters);
+        log.debug("Running postBind on each filter from: {} for osb request: {} and osb response: {}",
+            createServiceInstanceBindingPostFilters, request, response);
         Optional.ofNullable(createServiceInstanceBindingPostFilters)
                 .ifPresent(serviceBrokerFilters -> serviceBrokerFilters.forEach(filter -> filter.run(request, response)));
     }
@@ -82,7 +84,8 @@ public class ServiceInstanceBindingFilterRunner {
      * @param request details of a request to delete a service instance binding.
      */
     public void preUnbind(DeleteServiceInstanceBindingRequest request) {
-        log.debug("Running preUnbind on each filter from: {}", deleteServiceInstanceBindingPreFilters);
+        log.debug("Running preUnbind on each filter from: {} for osb request: {}",
+            deleteServiceInstanceBindingPreFilters, request);
         Optional.ofNullable(deleteServiceInstanceBindingPreFilters)
                 .ifPresent(serviceBrokerFilters -> serviceBrokerFilters.forEach(filter -> filter.run(request)));
     }
@@ -93,7 +96,8 @@ public class ServiceInstanceBindingFilterRunner {
      * @param request details of a request to delete a service instance binding.
      */
     public void postUnbind(DeleteServiceInstanceBindingRequest request, Void response) {
-        log.debug("Running postUnbind on each filter from: {}", deleteServiceInstanceBindingPostFilters);
+        log.debug("Running postUnbind on each filter from: {} for osb request: {} and osb response: {}",
+            deleteServiceInstanceBindingPostFilters, request, response);
         Optional.ofNullable(deleteServiceInstanceBindingPostFilters)
                 .ifPresent(serviceBrokerFilters -> serviceBrokerFilters.forEach(filter -> filter.run(request, response)));
     }
