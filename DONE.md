@@ -4,6 +4,7 @@ This file holds implementation notes from previous features. It aims at being ea
 
 Bump dependencies
 
+* [x] bump spring-boot-starter-web bumps tomcat and thus closes #52
 * [x] reactor dependency updates
    * compilation fails
        ```
