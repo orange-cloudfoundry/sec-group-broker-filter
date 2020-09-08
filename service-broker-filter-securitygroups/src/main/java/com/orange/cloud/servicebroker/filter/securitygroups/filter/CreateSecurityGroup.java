@@ -197,15 +197,6 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
         return request.getBindingId();
     }
 
-    private Mono<String> getSpaceId(CloudFoundryClient cloudFoundryClient, String appId) {
-        return cloudFoundryClient.applicationsV2().get(GetApplicationRequest.builder()
-                .applicationId(appId)
-                .build())
-                .map(GetApplicationResponse::getEntity)
-                .map(ApplicationEntity::getSpaceId)
-                .checkpoint();
-    }
-
     public class NotAllowedDestination extends RuntimeException {
 
         public NotAllowedDestination(Destination destination) {
