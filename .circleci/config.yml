@@ -9,7 +9,8 @@ jobs: # a collection of steps
     docker: # run the steps with Docker
       # List of images at https://hub.docker.com/r/circleci/openjdk/tags
       #      - image: circleci/openjdk:8-jdk-stretch # ...with this image as the primary container; this is where all `steps` will run
-      - image: circleci/openjdk:14-jdk-buster-node-browsers-legacy # ...with this image as the primary container; this is where all `steps` will run
+#      - image: circleci/openjdk:14-jdk-buster-node-browsers-legacy # ...with this image as the primary container; this is where all `steps` will run
+      - image: circleci/openjdk:8-jdk-buster-node-browsers-legacy # ...with this image as the primary container; this is where all `steps` will run
 
     steps: # a collection of executable commands
 

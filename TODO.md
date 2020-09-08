@@ -71,7 +71,7 @@
            > As the OpenFeign project does not currently support reactive clients, such as Spring WebClient, neither does Spring Cloud OpenFeign. We will add support for it here as soon as it becomes available in the core project.
            > Until that is done, we recommend using feign-reactive https://github.com/Playtika/feign-reactive for Spring WebClient support.
 
-        * [ ] Stay with servlet api non reactive engine and use feign blocking apis
+        * [x] **Stay with servlet api non reactive engine and use feign blocking apis**
            * https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux
            > Both web frameworks mirror the names of their source modules (spring-webmvc and spring-webflux) and co-exist side by side in the Spring Framework. Each module is optional. Applications can use one or the other module or, in some cases, both for example, Spring MVC controllers with the reactive WebClient
            * https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-programming-models
@@ -170,7 +170,7 @@
         * downgrade to 4.4.0 fixed the cf-java-client / reactor-netty incompatibility once a fresh cf push (preceded by a `cf d -f` ) was done. Previsouly still the feign message converters error
 
 
-   * other issue at binding
+   * other issue at binding with webflux
             ```
             An unbind operation for the service binding between app gberche and service instance gberche failed: The service broker rejected the request. Status Code: 403 Forbidden, Body: CSRF Token has been associated to this client 
             ```
@@ -183,22 +183,189 @@
              ```
       * [x] look for inspiration in spring-cloud-open-service-broker:spring-cloud-open-service-broker-acceptance-webflux/build.gradle
          * does not inclure security related assertiones
-      * [ ] Look at spring security repo for webflux samples   
-* [ ] investigate the following warning:
+      * [ ] Look at spring security repo for webflux samples
+      * [x] **revert to using webmvc for now and not webflux**
 
-```
-   2020-09-01T11:22:10.43+0200 [APP/PROC/WEB/1] OUT 2020-09-01 09:22:10.429  INFO 12 --- [-client-epoll-1] cloudfoundry-client.compatibility        : Client supports API version 2.145.0 and is connected to server with API version 2.152.0. Things may not work as expected.
-   2020-09-01T11:22:10.66+0200 [APP/PROC/WEB/0] OUT 2020-09-01 09:22:10.666  INFO 6 --- [-client-epoll-1] cloudfoundry-client.compatibility        : Client supports API version 2.145.0 and is connected to server with API version 2.152.0. Things may not work as expected.
-   2020-09-01T11:22:10.78+0200 [APP/PROC/WEB/1] OUT 2020-09-01 09:22:10.782  INFO 12 --- [           main] c.o.c.s.f.s.BrokerFilterApplication      : Started BrokerFilterApplication in 4.317 seconds (JVM running for 5.062)
-   2020-09-01T11:22:10.89+0200 [APP/PROC/WEB/0] OUT 2020-09-01 09:22:10.892  INFO 6 --- [           main] c.o.c.s.f.s.BrokerFilterApplication      : Started BrokerFilterApplication in 4.322 seconds (JVM running for 5.09)
-   2020-09-01T11:22:11.26+0200 [APP/PROC/WEB/1] OUT Exit status 0
-   2020-09-01T11:22:11.26+0200 [CELL/SSHD/1] OUT Exit status 0
-   2020-09-01T11:22:11.37+0200 [APP/PROC/WEB/0] OUT Exit status 0
-   2020-09-01T11:22:11.37+0200 [CELL/SSHD/0] OUT Exit status 0
-   2020-09-01T11:22:16.63+0200 [CELL/0] OUT Cell 52fb3406-81d7-4ef2-a68f-ea5ff7cf7f3f stopping instance 596801c5-88f8-4419-656d-f953
-   2020-09-01T11:22:16.63+0200 [CELL/0] OUT Cell 52fb3406-81d7-4ef2-a68f-ea5ff7cf7f3f destroying container for instance 596801c5-88f8-4419-656d-f953
-   2020-09-01T11:22:16.64+0200 [CELL/1] OUT Cell 76c68bea-605d-42e6-958e-3372371d822b stopping instance b48274e4-d2b7-4339-57a4-3956
-   2020-09-01T11:22:16.64+0200 [CELL/1] OUT Cell 76c68bea-605d-42e6-958e-3372371d822b destroying container for instance b48274e4-d2b7-4339-57a4-3956
-```
+
+* [ ] fix service binding timeout
+   ```
+  Binding service gberche to app gberche in org service-sandbox / space cf-redis as gberche...
+  Unexpected Response
+  Response code: 504
+  CC code:       0
+  CC error code: 
+  Request ID:    9cb2e5d5-608c-4f06-5123-3c44a6b19154::8ee89267-9992-4c7d-8cd0-dbebb16da2fe
+  Description:   {
+    "description": "The request to the service broker timed out: https://redis-sec-group-broker-filter.redacted-cfapi/v2/service_instances/b28308b7-78b9-4ec3-9e45-e888ac5f97aa/service_bindings/7247f15f-aa8d-4e15-8648-922536dd3fd0?accepts_incomplete=true",
+    "error_code": "CF-HttpClientTimeout",
+    "code": 10001,
+    "http": {
+      "uri": "https://redis-sec-group-broker-filter.redacted-cfapi/v2/service_instances/b28308b7-78b9-4ec3-9e45-e888ac5f97aa/service_bindings/7247f15f-aa8d-4e15-8648-922536dd3fd0?accepts_incomplete=true",
+      "method": "PUT"
+    }
+  }
+   ```
+   * [ ] check ASG to CF API
+   * [ ] check verbose traces in cf java client
+
+* [ ] investigate and fix start up issue
+   ```
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT java.lang.IllegalStateException: Failed to execute CommandLineRunner
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at org.springframework.boot.SpringApplication.callRunner(SpringApplication.java:798) ~[spring-boot-2.3.3.RELEASE.jar:2.3.3.RELEASE]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at org.springframework.boot.SpringApplication.callRunners(SpringApplication.java:779) ~[spring-boot-2.3.3.RELEASE.jar:2.3.3.RELEASE]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:322) ~[spring-boot-2.3.3.RELEASE.jar:2.3.3.RELEASE]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1237) ~[spring-boot-2.3.3.RELEASE.jar:2.3.3.RELEASE]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1226) ~[spring-boot-2.3.3.RELEASE.jar:2.3.3.RELEASE]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at com.orange.cloud.servicebroker.filter.securitygroups.BrokerFilterApplication.main(BrokerFilterApplication.java:30) ~[classes/:2.4.0.BUILD-SNAPSHOT]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source) ~[na:na]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source) ~[na:na]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at java.base/java.lang.reflect.Method.invoke(Unknown Source) ~[na:na]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at org.springframework.boot.loader.MainMethodRunner.run(MainMethodRunner.java:49) ~[app/:na]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at org.springframework.boot.loader.Launcher.launch(Launcher.java:109) ~[app/:na]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at org.springframework.boot.loader.Launcher.launch(Launcher.java:58) ~[app/:na]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at org.springframework.boot.loader.JarLauncher.main(JarLauncher.java:88) ~[app/:na]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT Caused by: java.lang.IllegalStateException: Timeout on blocking read for 180000 MILLISECONDS
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.BlockingSingleSubscriber.blockingGet(BlockingSingleSubscriber.java:123) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.Mono.block(Mono.java:1704) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at com.orange.cloud.servicebroker.filter.securitygroups.config.CheckCloudFoundryConnection.run(CheckCloudFoundryConnection.java:25) ~[classes/:2.4.0.BUILD-SNAPSHOT]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	at org.springframework.boot.SpringApplication.callRunner(SpringApplication.java:795) ~[spring-boot-2.3.3.RELEASE.jar:2.3.3.RELEASE]
+         2020-09-08T09:15:00.56+0200 [APP/PROC/WEB/1] OUT 	... 13 common frames omitted
+   ```
+    * [x] network L4 (ASG) are properly opened, tested with curl from the container
+    * [x] take a threaddump using actuator, see doc at https://docs.spring.io/spring-boot/docs/current/actuator-api/html/#threaddump-retrieving-text
+       ```
+         "main" - Thread t@1
+            java.lang.Thread.State: TIMED_WAITING
+         	at java.base@14.0.2/jdk.internal.misc.Unsafe.park(Native Method)
+         	- parking to wait for <99b8c81> (a java.util.concurrent.CountDownLatch$Sync)
+         	at java.base@14.0.2/java.util.concurrent.locks.LockSupport.parkNanos(Unknown Source)
+         	at java.base@14.0.2/java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown Source)
+         	at java.base@14.0.2/java.util.concurrent.locks.AbstractQueuedSynchronizer.tryAcquireSharedNanos(Unknown Source)
+         	at java.base@14.0.2/java.util.concurrent.CountDownLatch.await(Unknown Source)
+         	at reactor.core.publisher.BlockingSingleSubscriber.blockingGet(BlockingSingleSubscriber.java:121)
+         	at reactor.core.publisher.Mono.block(Mono.java:1704)
+         	at com.orange.cloud.servicebroker.filter.securitygroups.config.CheckCloudFoundryConnection.run(CheckCloudFoundryConnection.java:25)
+         	at org.springframework.boot.SpringApplication.callRunner(SpringApplication.java:795)
+         	at org.springframework.boot.SpringApplication.callRunners(SpringApplication.java:779)
+         	at org.springframework.boot.SpringApplication.run(SpringApplication.java:322)
+         	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1237)
+         	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1226)
+         	at com.orange.cloud.servicebroker.filter.securitygroups.BrokerFilterApplication.main(BrokerFilterApplication.java:30)
+         	at java.base@14.0.2/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+         	at java.base@14.0.2/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+         	at java.base@14.0.2/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+         	at java.base@14.0.2/java.lang.reflect.Method.invoke(Unknown Source)
+         	at app//org.springframework.boot.loader.MainMethodRunner.run(MainMethodRunner.java:49)
+         	at app//org.springframework.boot.loader.Launcher.launch(Launcher.java:109)
+         	at app//org.springframework.boot.loader.Launcher.launch(Launcher.java:58)
+         	at app//org.springframework.boot.loader.JarLauncher.main(JarLauncher.java:88)
+       ```
+* [ ] investigate the following error:
+    ```
+    2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 2020-09-07 17:39:30.078  WARN 19 --- [-client-epoll-1] i.n.c.AbstractChannelHandlerContext      : An exception 'java.lang.NoClassDefFoundError: javax/xml/bind/DatatypeConverter' [enable DEBUG level for full stacktrace] was thrown by a user handler's exceptionCaught() method while handling the following exception:
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT java.lang.NoClassDefFoundError: javax/xml/bind/DatatypeConverter
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.jsonwebtoken.impl.Base64Codec.decode(Base64Codec.java:26) ~[jjwt-0.9.1.jar:0.9.1]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.jsonwebtoken.impl.Base64UrlCodec.decode(Base64UrlCodec.java:78) ~[jjwt-0.9.1.jar:0.9.1]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.jsonwebtoken.impl.AbstractTextCodec.decodeToString(AbstractTextCodec.java:36) ~[jjwt-0.9.1.jar:0.9.1]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:251) ~[jjwt-0.9.1.jar:0.9.1]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.jsonwebtoken.impl.DefaultJwtParser.parse(DefaultJwtParser.java:481) ~[jjwt-0.9.1.jar:0.9.1]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.jsonwebtoken.impl.DefaultJwtParser.parseClaimsJwt(DefaultJwtParser.java:514) ~[jjwt-0.9.1.jar:0.9.1]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at org.cloudfoundry.reactor.tokenprovider.AbstractUaaTokenProvider.parseToken(AbstractUaaTokenProvider.java:154) ~[cloudfoundry-client-reactor-4.9.0.RELEASE.jar:na]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at org.cloudfoundry.reactor.tokenprovider.AbstractUaaTokenProvider.lambda$null$3(AbstractUaaTokenProvider.java:196) ~[cloudfoundry-client-reactor-4.9.0.RELEASE.jar:na]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at java.base/java.util.Optional.ifPresent(Unknown Source) ~[na:na]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at org.cloudfoundry.reactor.tokenprovider.AbstractUaaTokenProvider.lambda$extractRefreshToken$4(AbstractUaaTokenProvider.java:192) ~[cloudfoundry-client-reactor-4.9.0.RELEASE.jar:na]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.FluxPeek$PeekSubscriber.onNext(FluxPeek.java:177) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:114) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.FluxMap$MapSubscriber.onNext(FluxMap.java:114) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.FluxHandle$HandleSubscriber.onNext(FluxHandle.java:112) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.FluxMap$MapConditionalSubscriber.onNext(FluxMap.java:213) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.FluxDoFinally$DoFinallySubscriber.onNext(FluxDoFinally.java:123) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.FluxHandleFuseable$HandleFuseableSubscriber.onNext(FluxHandleFuseable.java:178) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.FluxContextStart$ContextStartSubscriber.onNext(FluxContextStart.java:96) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.Operators$MonoSubscriber.complete(Operators.java:1782) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.MonoCollectList$MonoCollectListSubscriber.onComplete(MonoCollectList.java:121) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.FluxPeek$PeekSubscriber.onComplete(FluxPeek.java:252) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.FluxMap$MapSubscriber.onComplete(FluxMap.java:136) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.FluxDoFinally$DoFinallySubscriber.onComplete(FluxDoFinally.java:138) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.core.publisher.FluxMap$MapSubscriber.onComplete(FluxMap.java:136) ~[reactor-core-3.3.9.RELEASE.jar:3.3.9.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.netty.channel.FluxReceive.onInboundComplete(FluxReceive.java:378) ~[reactor-netty-0.9.11.RELEASE.jar:0.9.11.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.netty.channel.ChannelOperations.onInboundComplete(ChannelOperations.java:373) ~[reactor-netty-0.9.11.RELEASE.jar:0.9.11.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.netty.channel.ChannelOperations.terminate(ChannelOperations.java:429) ~[reactor-netty-0.9.11.RELEASE.jar:0.9.11.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.netty.http.client.HttpClientOperations.onInboundNext(HttpClientOperations.java:645) ~[reactor-netty-0.9.11.RELEASE.jar:0.9.11.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at reactor.netty.channel.ChannelOperationsHandler.channelRead(ChannelOperationsHandler.java:96) ~[reactor-netty-0.9.11.RELEASE.jar:0.9.11.RELEASE]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:379) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:365) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:357) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:103) ~[netty-codec-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:379) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:365) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:357) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.CombinedChannelDuplexHandler$DelegatingChannelHandlerContext.fireChannelRead(CombinedChannelDuplexHandler.java:436) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead(ByteToMessageDecoder.java:324) ~[netty-codec-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:296) ~[netty-codec-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.CombinedChannelDuplexHandler.channelRead(CombinedChannelDuplexHandler.java:251) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:379) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:365) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:357) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.handler.logging.LoggingHandler.channelRead(LoggingHandler.java:271) ~[netty-handler-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:379) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:365) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:357) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.handler.ssl.SslHandler.unwrap(SslHandler.java:1526) ~[netty-handler-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.handler.ssl.SslHandler.decodeJdkCompatible(SslHandler.java:1275) ~[netty-handler-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.handler.ssl.SslHandler.decode(SslHandler.java:1322) ~[netty-handler-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.handler.codec.ByteToMessageDecoder.decodeRemovalReentryProtection(ByteToMessageDecoder.java:501) ~[netty-codec-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.handler.codec.ByteToMessageDecoder.callDecode(ByteToMessageDecoder.java:440) ~[netty-codec-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:276) ~[netty-codec-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:379) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:365) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:357) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1410) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:379) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:365) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:919) ~[netty-transport-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.epoll.AbstractEpollStreamChannel$EpollStreamUnsafe.epollInReady(AbstractEpollStreamChannel.java:792) ~[netty-transport-native-epoll-4.1.51.Final-linux-x86_64.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.epoll.EpollEventLoop.processReady(EpollEventLoop.java:475) ~[netty-transport-native-epoll-4.1.51.Final-linux-x86_64.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.channel.epoll.EpollEventLoop.run(EpollEventLoop.java:378) ~[netty-transport-native-epoll-4.1.51.Final-linux-x86_64.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:989) ~[netty-common-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74) ~[netty-common-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30) ~[netty-common-4.1.51.Final.jar:4.1.51.Final]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at java.base/java.lang.Thread.run(Unknown Source) ~[na:na]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT Caused by: java.lang.ClassNotFoundException: javax.xml.bind.DatatypeConverter
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at java.base/java.net.URLClassLoader.findClass(Unknown Source) ~[na:na]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at java.base/java.lang.ClassLoader.loadClass(Unknown Source) ~[na:na]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at org.springframework.boot.loader.LaunchedURLClassLoader.loadClass(LaunchedURLClassLoader.java:135) ~[app/:na]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	at java.base/java.lang.ClassLoader.loadClass(Unknown Source) ~[na:na]
+     2020-09-07T19:39:30.07+0200 [APP/PROC/WEB/1] OUT 	... 67 common frames omitted
+    ```
+     * [ ] root cause in JWT library and java9+ see https://github.com/jwtk/jjwt/issues/333#issuecomment-409754833 fixed in 0.10.0
+        * [ ] Check dependency to jjwt lib in cf-java-client
+        ```
+       [INFO] +- org.cloudfoundry:cloudfoundry-client-reactor:jar:4.9.0.RELEASE:compile
+       [...]
+       [INFO] |  +- io.jsonwebtoken:jjwt:jar:0.9.1:compile 
+        ``` 
+        * [x] Check cf-java-client java9 support
+        * [x] Report the issue to cf-java-client. https://github.com/cloudfoundry/cf-java-client/issues/1067
+        * [ ] Add maven dependency management to 0.10.0
+           * has been split into multiple artifacts, see https://github.com/jwtk/jjwt#maven
+           * might be easier and more durable to wait for cf-java-client fix
+        * [ ] revert to using java8
+* [ ] investigate the following warning:
+    ```
+       2020-09-01T11:22:10.43+0200 [APP/PROC/WEB/1] OUT 2020-09-01 09:22:10.429  INFO 12 --- [-client-epoll-1] cloudfoundry-client.compatibility        : Client supports API version 2.145.0 and is connected to server with API version 2.152.0. Things may not work as expected.
+       2020-09-01T11:22:10.66+0200 [APP/PROC/WEB/0] OUT 2020-09-01 09:22:10.666  INFO 6 --- [-client-epoll-1] cloudfoundry-client.compatibility        : Client supports API version 2.145.0 and is connected to server with API version 2.152.0. Things may not work as expected.
+       2020-09-01T11:22:10.78+0200 [APP/PROC/WEB/1] OUT 2020-09-01 09:22:10.782  INFO 12 --- [           main] c.o.c.s.f.s.BrokerFilterApplication      : Started BrokerFilterApplication in 4.317 seconds (JVM running for 5.062)
+       2020-09-01T11:22:10.89+0200 [APP/PROC/WEB/0] OUT 2020-09-01 09:22:10.892  INFO 6 --- [           main] c.o.c.s.f.s.BrokerFilterApplication      : Started BrokerFilterApplication in 4.322 seconds (JVM running for 5.09)
+       2020-09-01T11:22:11.26+0200 [APP/PROC/WEB/1] OUT Exit status 0
+       2020-09-01T11:22:11.26+0200 [CELL/SSHD/1] OUT Exit status 0
+       2020-09-01T11:22:11.37+0200 [APP/PROC/WEB/0] OUT Exit status 0
+       2020-09-01T11:22:11.37+0200 [CELL/SSHD/0] OUT Exit status 0
+       2020-09-01T11:22:16.63+0200 [CELL/0] OUT Cell 52fb3406-81d7-4ef2-a68f-ea5ff7cf7f3f stopping instance 596801c5-88f8-4419-656d-f953
+       2020-09-01T11:22:16.63+0200 [CELL/0] OUT Cell 52fb3406-81d7-4ef2-a68f-ea5ff7cf7f3f destroying container for instance 596801c5-88f8-4419-656d-f953
+       2020-09-01T11:22:16.64+0200 [CELL/1] OUT Cell 76c68bea-605d-42e6-958e-3372371d822b stopping instance b48274e4-d2b7-4339-57a4-3956
+       2020-09-01T11:22:16.64+0200 [CELL/1] OUT Cell 76c68bea-605d-42e6-958e-3372371d822b destroying container for instance b48274e4-d2b7-4339-57a4-3956
+       ```
 
 * [ ] release
