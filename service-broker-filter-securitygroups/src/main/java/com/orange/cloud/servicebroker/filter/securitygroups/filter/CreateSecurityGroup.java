@@ -40,6 +40,7 @@ import org.cloudfoundry.client.v2.services.GetServiceRequest;
 import org.cloudfoundry.client.v2.services.ServiceEntity;
 import org.cloudfoundry.util.ResourceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.servicebroker.model.CloudFoundryContext;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 import org.springframework.stereotype.Component;
@@ -137,6 +138,9 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
     public void run(CreateServiceInstanceBindingRequest request, CreateServiceInstanceAppBindingResponse response) {
         Assert.notNull(response, "expecting a non-null response");
         Assert.notNull(response.getCredentials(), "expecting a non-null response credentials");
+        Assert.notNull(request.getContext(), "expecting a non-null OSB context");
+        Assert.isInstanceOf(CloudFoundryContext.class, request.getContext(), "only supporting CloudFoundry " +
+            "clients, but received unsupported context in OSB request");
 
         final Destination destination = ConnectionInfoFactory.fromCredentials(response.getCredentials());
 
@@ -146,14 +150,16 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
         }
         log.debug("creating security group for credentials {}.", response.getCredentials());
         try {
+            CloudFoundryContext cloudFoundryContext = (CloudFoundryContext) request.getContext();
             final SecurityGroupEntity securityGroup = Mono.zip(
                     getRuleDescription(cloudFoundryClient, request.getBindingId(), request.getServiceInstanceId()),
-                    getSpaceId(cloudFoundryClient, request.getBindResource().getAppGuid())
+                    Mono.just(cloudFoundryContext.getSpaceGuid())
             ).flatMap(function((description, spaceId) -> create(getSecurityGroupName(request), destination, description
                 , spaceId)))
                     .doOnError(t -> log.error("Fail to create security group. Error details {}", t.toString(), t))
                     .block();
 
+            assert securityGroup != null: "mono should not return empty";
             log.debug("Security Group {} created", securityGroup.getName());
         } catch (Exception e) {
             log.error("Fail to create Security Group. Error details {}", e.toString(), e);
