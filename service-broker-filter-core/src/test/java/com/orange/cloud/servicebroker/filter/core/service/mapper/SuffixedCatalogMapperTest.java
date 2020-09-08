@@ -17,13 +17,13 @@
 
 package com.orange.cloud.servicebroker.filter.core.service.mapper;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 import org.springframework.cloud.servicebroker.model.catalog.Catalog;
 import org.springframework.cloud.servicebroker.model.catalog.Plan;
@@ -52,10 +52,11 @@ public class SuffixedCatalogMapperTest {
     }
 
     private Catalog expectedCatalog() {
-        ArrayList plans = new ArrayList();
         HashMap metadata = new HashMap();
         metadata.put("key1", "value1");
         metadata.put("key2", "value2");
+
+        ArrayList plans = new ArrayList();
         plans.add(Plan.builder()
             .id("plan-one-id-suffix")
             .name("Plan One-suffix")
@@ -71,17 +72,23 @@ public class SuffixedCatalogMapperTest {
             .id("service-one-id-suffix")
             .name( "Service One-suffix")
             .description("Description for Service One")
+            .allowContextUpdates(true)
             .bindable(true)
+            .bindingsRetrievable(true)
+            .instancesRetrievable(true)
             .plans(plans)
+            .planUpdateable(true)
+            .tags("pivotal", "redis")
         .build());
         return new Catalog(services);
     }
 
     private Catalog catalog() {
-        ArrayList plans = new ArrayList();
         HashMap metadata = new HashMap();
         metadata.put("key1", "value1");
         metadata.put("key2", "value2");
+
+        ArrayList plans = new ArrayList();
         plans.add(Plan.builder()
             .id("plan-one-id")
             .name("Plan One")
@@ -97,8 +104,13 @@ public class SuffixedCatalogMapperTest {
             .id("service-one-id")
             .name("Service One")
             .description("Description for Service One")
+            .allowContextUpdates(true)
             .bindable(true)
+            .bindingsRetrievable(true)
+            .instancesRetrievable(true)
             .plans(plans)
+            .planUpdateable(true)
+            .tags("pivotal", "redis")
             .build());
         return new Catalog(services);
     }

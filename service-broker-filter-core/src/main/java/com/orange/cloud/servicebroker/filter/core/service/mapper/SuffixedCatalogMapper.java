@@ -48,12 +48,17 @@ public class SuffixedCatalogMapper implements CatalogMapper {
             .name(withSuffix(serviceDefinition.getName(), serviceOfferingSuffix))
             .description(serviceDefinition.getDescription())
             .bindable(serviceDefinition.isBindable())
+            .bindingsRetrievable(serviceDefinition.isBindingsRetrievable())
+            .instancesRetrievable(serviceDefinition.isInstancesRetrievable())
             .planUpdateable(serviceDefinition.isPlanUpdateable())
             .plans(
                 serviceDefinition.getPlans()
                     .stream()
                     .map(this::toPlan)
                     .collect(Collectors.toList()));
+        if (serviceDefinition.isAllowContextUpdates() != null) {
+            serviceDefinitionBuilder.allowContextUpdates(serviceDefinition.isAllowContextUpdates());
+        }
         if (serviceDefinition.getTags() != null) {
             serviceDefinitionBuilder
                 .tags(serviceDefinition.getTags());

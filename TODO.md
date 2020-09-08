@@ -2,7 +2,7 @@
     * [ ] TF: set up smoke test space with security group
     * [ ] set up common-broker script
         * p-mysql
-    * [ ] sec-broker-filter does not seem to support service keys:
+    * [x] sec-broker-filter does not seem to support service keys:
     ```
       cf create-service-key sec-group-broker-filter-cf-smoketest-1599561485 mykey
       Creating service key mykey for service instance sec-group-broker-filter-cf-smoketest-1599561485 as admin...
@@ -12,7 +12,75 @@
        * [ ] skip service key in smoke test         
        * [x] implement service key in sec-group-filter         
           * [x] search for an existing issue https://github.com/orange-cloudfoundry/sec-group-broker-filter/issues/97         
-          * benefits: enables service keys in the same space for apps that can't leverage service bindings (e.g. don't parse VCAP_SERVICES)         
+          * benefits: enables service keys in the same space for apps that can't leverage service bindings (e.g. don't parse VCAP_SERVICES)
+    * [ ] redis probe app fails with
+       ```
+      You must bind a Redis service instance to this application.
+      
+      You can run the following commands to create an instance and bind to it:
+      
+        $ cf create-service p-redis development redis-instance 
+       ```
+      * [x] look at probe source code https://github.com/orange-cloudfoundry/cf-redis-example-app/blob/9c2d51a7529b85d4382a5bf9536de44780ec3b30/lib/app.rb#L70-L79
+         ```
+        def redis_credentials
+          service_name = ENV['service_name'] || "redis"
+        
+          if ENV['VCAP_SERVICES']
+            all_pivotal_redis_credentials = CF::App::Credentials.find_all_by_all_service_tags(['Redis', 'Document'])
+            if all_pivotal_redis_credentials && all_pivotal_redis_credentials.first
+              all_pivotal_redis_credentials && all_pivotal_redis_credentials.first
+            else
+              redis_service_credentials = CF::App::Credentials.find_by_service_name(service_name)
+              redis_service_credentials
+            end
+          end 
+         ```
+      * [x] check tags in catalog are missing when faced by sec-group-broker-filter
+         * [x] check existing issue
+         * [x] check original p-redis catalog indeed contains tags
+         ```
+         "services": [
+            {
+              "id": "EEA47C3A-569C-4C24-869D-0ADB5B337A4C",
+              "name": "p-redis",
+              "description": "Redis service to provide a key-value store",
+              "bindable": true,
+              "tags": [
+                "pivotal",
+                "redis"
+              ],
+              "plan_updateable": false,
+              "plans": [
+                {
+                  "id": "C210CA06-E7E5-4F5D-A5AA-7A2C51CC290E",
+                  "name": "shared-vm",
+                  "description": "This plan provides a Redis server on a shared VM configured for data persistence.",
+                  "metadata": {
+                    "bullets": [
+                      "Each instance shares the same VM",
+                      "Single dedicated Redis process",
+                      "Suitable for development & testing workloads"
+                    ],
+                    "displayName": "Shared-VM"
+                  }
+                }
+              ],
+              "metadata": {
+                "displayName": "Redis",
+                "documentationUrl": "http://docs.pivotal.io/redis/index.html",
+                "imageUrl": "data:image/png;base64,iVBORw[...]",
+                "providerDisplayName": "Pivotal",
+                "supportUrl": "http://support.pivotal.io"
+              }
+            }
+          ]
+        }
+ 
+         ```
+         * [x] reproduce in a unit test
+          
+                   
 * [ ] investigate the following warning:
     ```
        2020-09-01T11:22:10.43+0200 [APP/PROC/WEB/1] OUT 2020-09-01 09:22:10.429  INFO 12 --- [-client-epoll-1] cloudfoundry-client.compatibility        : Client supports API version 2.145.0 and is connected to server with API version 2.152.0. Things may not work as expected.
