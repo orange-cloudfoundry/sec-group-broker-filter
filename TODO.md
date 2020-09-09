@@ -1,3 +1,15 @@
+* publish test status
+* fix prometheus exporter endpoint
+* refine smoke test assertions
+    * sec-group
+        * direct: ASG ?
+        * indirect: closed ASG
+    * actuator endpoint permissions
+       * actuator/health is always reacheable without auth
+       * actuator/ is always returning 401 without auth
+* polish
+* release
+
 * [ ] set up smoke test
     * [ ] TF: set up smoke test space with security group
     * [ ] set up common-broker script
