@@ -1,84 +1,75 @@
-* [ ] set up smoke test
-    * [ ] TF: set up smoke test space with security group
-    * [ ] set up common-broker script
-        * p-mysql
-    * [x] sec-broker-filter does not seem to support service keys:
-    ```
-      cf create-service-key sec-group-broker-filter-cf-smoketest-1599561485 mykey
-      Creating service key mykey for service instance sec-group-broker-filter-cf-smoketest-1599561485 as admin...
-      Service broker error: applicationId
-      FAILED
-    ```     
-       * [ ] skip service key in smoke test         
-       * [x] implement service key in sec-group-filter         
-          * [x] search for an existing issue https://github.com/orange-cloudfoundry/sec-group-broker-filter/issues/97         
-          * benefits: enables service keys in the same space for apps that can't leverage service bindings (e.g. don't parse VCAP_SERVICES)
-    * [ ] redis probe app fails with
-       ```
-      You must bind a Redis service instance to this application.
-      
-      You can run the following commands to create an instance and bind to it:
-      
-        $ cf create-service p-redis development redis-instance 
-       ```
-      * [x] look at probe source code https://github.com/orange-cloudfoundry/cf-redis-example-app/blob/9c2d51a7529b85d4382a5bf9536de44780ec3b30/lib/app.rb#L70-L79
+* [~] publish test status
+   * [ ] configure surefire-report-plugin to generate report
+      * [ ] Configure a single aggregated report for all submodules
+         * https://stackoverflow.com/questions/21585037/maven-reporting-and-site-generation-for-multiple-module-project mentions need to have separate aggregator and parent pom
+            * [ ] configure separate parent and aggregator
+            ```
+           [ERROR]   The project com.orange.cloud.servicebroker:service-broker-filter-core:2.4.0.BUILD-SNAPSHOT (/home/guillaume/code/sec-group-broker-filter/service-broker-filter-core/pom.xml) has 1 error
+           [ERROR]     Non-resolvable parent POM for com.orange.cloud.servicebroker:service-broker-filter-core:2.4.0.BUILD-SNAPSHOT: Could not find artifact com.orange.cloud.servicebroker:service-broker-filter-parent:pom:2.4.0.BUILD-SNAPSHOT and 'parent.relativePath' points at wrong local POM @ line 20, column 13 -> [Help 2]
+            ```
+           * => squashed and suspended for now.
+      * [x] Copy each report individually with a unique name
+   * [ ] review list of tests
+      * Report has broken GIFs
+         * https://stackoverflow.com/questions/21432663/how-to-get-the-icons-for-the-resulted-maven-surefire-report-plugin mentions `mvn site -DgenerateReports=false` however fails with 
+         ``` 
+            Failure to find org.springframework.boot:spring-boot-starter-parent:xml:site_en:2.3.3.RELEASE in https://repo.spring.io/snapshot/ was cached in the local repository, resolution will not be reattempted until the update interval of spring-snapshots has elapsed or updates are forced
          ```
-        def redis_credentials
-          service_name = ENV['service_name'] || "redis"
-        
-          if ENV['VCAP_SERVICES']
-            all_pivotal_redis_credentials = CF::App::Credentials.find_all_by_all_service_tags(['Redis', 'Document'])
-            if all_pivotal_redis_credentials && all_pivotal_redis_credentials.first
-              all_pivotal_redis_credentials && all_pivotal_redis_credentials.first
-            else
-              redis_service_credentials = CF::App::Credentials.find_by_service_name(service_name)
-              redis_service_credentials
-            end
-          end 
-         ```
-      * [x] check tags in catalog are missing when faced by sec-group-broker-filter
-         * [x] check existing issue
-         * [x] check original p-redis catalog indeed contains tags
-         ```
-         "services": [
-            {
-              "id": "EEA47C3A-569C-4C24-869D-0ADB5B337A4C",
-              "name": "p-redis",
-              "description": "Redis service to provide a key-value store",
-              "bindable": true,
-              "tags": [
-                "pivotal",
-                "redis"
-              ],
-              "plan_updateable": false,
-              "plans": [
-                {
-                  "id": "C210CA06-E7E5-4F5D-A5AA-7A2C51CC290E",
-                  "name": "shared-vm",
-                  "description": "This plan provides a Redis server on a shared VM configured for data persistence.",
-                  "metadata": {
-                    "bullets": [
-                      "Each instance shares the same VM",
-                      "Single dedicated Redis process",
-                      "Suitable for development & testing workloads"
-                    ],
-                    "displayName": "Shared-VM"
-                  }
-                }
-              ],
-              "metadata": {
-                "displayName": "Redis",
-                "documentationUrl": "http://docs.pivotal.io/redis/index.html",
-                "imageUrl": "data:image/png;base64,iVBORw[...]",
-                "providerDisplayName": "Pivotal",
-                "supportUrl": "http://support.pivotal.io"
-              }
-            }
-          ]
-        }
+           * https://github.com/spring-projects/spring-boot/issues/3358 says it's not in boot
+   * [ ] add an href into a badge on README
+   
+* [x] fix prometheus exporter endpoint
+* [ ] refine smoke test assertions
+    * sec-group
+        * direct: ASG being created and removed
+        * indirect: closed ASG in the smoke test space
+           * Pb: running-security-groups already include `services` ASG which opens all ports to all services
+           ```
+          cf security-group services
+          Getting info for security group services as gberche...
+          OK
+                  
+          Name    services
+          Rules
+          	[
+          		{
+          			"description": "any TCP to NET_CF_SERVICES",
+          			"destination": "192.168.30.0/24",
+          			"ports": "1-65000",
+          			"protocol": "tcp"
+          		},
+          		{
+          			"description": "any TCP to NET_CF_SERVICES_2",
+          			"destination": "192.168.31.0/24",
+          			"ports": "1-65000",
+          			"protocol": "tcp"
+          		}
+          	]
+          
+               Organization      Space
+          #0   service-sandbox   mongodb-smoke-tests
+          #1   service-sandbox   cassandra-smoke-tests
  
-         ```
-         * [x] reproduce in a unit test
+           ```
+          * How to assert that requests are rejected before the sec-group-broker-filters opens them ?
+             * first bind the probe app to a redis instance not faced by sec-group-broker-filter
+                * requires redis broker to be registered directly, at least in the smoke test space 
+                   * [ ]  set up terraform to
+                      * [ ] create smoke test space
+                      * [ ] register redis broker with name "direct-p-redis-broker"
+                   * [ ] modify smoke test to 
+                      * [ ] `cf create-service instance redis -b direct-p-redis-broker` + `cf bs` 
+                      * [ ] assert timeout or connection rejected from probe 
+                      * [ ] `cf unbind-service` + `cf delete-service -f redis` 
+                      * [ ] then proceed with existing probe asserts 
+                      
+    * [ ] actuator endpoint permissions
+       * actuator/health is always reacheable without auth
+       * actuator/ is always returning 401 without auth
+* [ ] polish & merge
+   * rebase/squash
+* release
+
           
                    
 * [ ] investigate the following warning:
