@@ -1,4 +1,8 @@
-# sec-group-broker-filter [![Build Status](https://travis-ci.org/orange-cloudfoundry/sec-group-broker-filter.svg?branch=master)](https://travis-ci.org/orange-cloudfoundry/sec-group-broker-filter)
+
+
+# sec-group-broker-filter 
+[![CircleCI Build status](https://circleci.com/gh/orange-cloudfoundry/sec-group-broker-filter.svg?style=svg)](https://app.circleci.com/pipelines/github/orange-cloudfoundry/sec-group-broker-filter)
+<!--  [![TravisCI Build Status](https://travis-ci.org/orange-cloudfoundry/sec-group-broker-filter.svg?branch=master)](https://travis-ci.org/orange-cloudfoundry/sec-group-broker-filter) -->
 
 This Cloud Foundry service broker is designed to be chained in front-of other service brokers and dynamically open [security groups](https://docs.cloudfoundry.org/adminguide/app-sec-groups.html) to let apps bound to service instance emmit outgoing traffic to IP addresses returned in the chained service instances credentials. 
 
