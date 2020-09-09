@@ -79,6 +79,9 @@
  
          ```
          * [x] reproduce in a unit test
+         * [x] fix the bug
+         * Still not sufficient as current tags (from p-redis) and expected tags (from coa) don't match
+            * [x] inject 'service_name' to the probe app systematically
           
                    
 * [ ] investigate the following warning:
