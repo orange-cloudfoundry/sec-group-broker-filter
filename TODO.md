@@ -1,5 +1,18 @@
-* publish test status
-* fix prometheus exporter endpoint
+* [ ] publish test status
+   * [ ] configure surefire-report-plugin to generate report
+      * [ ] Configure a single aggregated report for all submodules
+         * https://stackoverflow.com/questions/21585037/maven-reporting-and-site-generation-for-multiple-module-project mentions need to have separate aggregator and parent pom
+            * [ ] configure separate parent and aggregator
+            ```
+           [ERROR]   The project com.orange.cloud.servicebroker:service-broker-filter-core:2.4.0.BUILD-SNAPSHOT (/home/guillaume/code/sec-group-broker-filter/service-broker-filter-core/pom.xml) has 1 error
+           [ERROR]     Non-resolvable parent POM for com.orange.cloud.servicebroker:service-broker-filter-core:2.4.0.BUILD-SNAPSHOT: Could not find artifact com.orange.cloud.servicebroker:service-broker-filter-parent:pom:2.4.0.BUILD-SNAPSHOT and 'parent.relativePath' points at wrong local POM @ line 20, column 13 -> [Help 2]
+            ```
+           * => squashed and suspended for now.
+      * [ ] Copy each report individually with a unique name 
+   * [ ] add an href into a badge on README
+   * [ ] review list of tests
+   
+* [ ] fix prometheus exporter endpoint
 * refine smoke test assertions
     * sec-group
         * direct: ASG ?
@@ -7,7 +20,8 @@
     * actuator endpoint permissions
        * actuator/health is always reacheable without auth
        * actuator/ is always returning 401 without auth
-* polish
+* [ ] polish
+   * re
 * release
 
 * [ ] set up smoke test

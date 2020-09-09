@@ -2,7 +2,7 @@
 
 # sec-group-broker-filter 
 [![CircleCI Build status](https://circleci.com/gh/orange-cloudfoundry/sec-group-broker-filter.svg?style=svg)](https://app.circleci.com/pipelines/github/orange-cloudfoundry/sec-group-broker-filter)
-[![CircleCI Build status](https://img.shields.io/badge/-%20test%20results-green](https://circleci.com/api/v1.1/project/github/orange-cloudfoundry/sec-group-broker-filter/latest/artifacts/0/$CIRCLE_ARTIFACTS/hello.txt)
+[![CircleCI Build status](https://img.shields.io/badge/-%20test%20results-green](https://circleci.com/api/v1.1/project/github/orange-cloudfoundry/sec-group-broker-filter/latest/artifacts/0/$CIRCLE_ARTIFACTS/~/test-results/junit/TEST-com.orange.cloud.servicebroker.filter.core.ServiceInstanceBindingFilterBrokerIntegrationTest.xml)
 
 <!-- 
     URL=$(curl "https://circleci.com/api/v1.1/project/github/orange-cloudfoundry/${REPO_NAME}/latest/artifacts?filter=successful&branch=${TARBALL_BRANCH}" | grep -o 'https://[^"]*' | grep ${JAR_ARTEFACT_BASE_NAME})
