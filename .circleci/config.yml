@@ -33,7 +33,7 @@ jobs: # a collection of steps
             - ~/.m2
           key: sec-group-broker-filter-{{ checksum "~/pom-checksum" }}
 
-      - run: mvn package  surefire-report:report  # also run the actual tests and package a report
+      - run: mvn package # also run the actual tests and package a report
 
       # uploads the test metadata from the `target/surefire-reports` directory so that it can show up in the CircleCI dashboard.
       # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
