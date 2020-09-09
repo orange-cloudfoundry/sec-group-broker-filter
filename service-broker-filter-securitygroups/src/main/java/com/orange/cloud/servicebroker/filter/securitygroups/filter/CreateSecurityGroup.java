@@ -17,15 +17,14 @@
 
 package com.orange.cloud.servicebroker.filter.securitygroups.filter;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.orange.cloud.servicebroker.filter.core.filters.CreateServiceInstanceBindingPostFilter;
 import com.orange.cloud.servicebroker.filter.core.filters.ServiceBrokerPostFilter;
 import com.orange.cloud.servicebroker.filter.securitygroups.domain.Destination;
 import com.orange.cloud.servicebroker.filter.securitygroups.domain.TrustedDestinationSpecification;
-import lombok.extern.slf4j.Slf4j;
 import org.cloudfoundry.client.CloudFoundryClient;
-import org.cloudfoundry.client.v2.applications.ApplicationEntity;
-import org.cloudfoundry.client.v2.applications.GetApplicationRequest;
-import org.cloudfoundry.client.v2.applications.GetApplicationResponse;
 import org.cloudfoundry.client.v2.securitygroups.CreateSecurityGroupRequest;
 import org.cloudfoundry.client.v2.securitygroups.Protocol;
 import org.cloudfoundry.client.v2.securitygroups.RuleEntity;
@@ -39,23 +38,22 @@ import org.cloudfoundry.client.v2.serviceplans.ServicePlanEntity;
 import org.cloudfoundry.client.v2.services.GetServiceRequest;
 import org.cloudfoundry.client.v2.services.ServiceEntity;
 import org.cloudfoundry.util.ResourceUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.servicebroker.model.CloudFoundryContext;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Mono;
-import reactor.util.function.Tuples;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static org.cloudfoundry.util.tuple.TupleUtils.function;
 
+@Profile("!offline-test-without-cf")
 @Component
 public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilter, ServiceBrokerPostFilter<CreateServiceInstanceBindingRequest, CreateServiceInstanceAppBindingResponse> {
 
@@ -137,6 +135,9 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
     public void run(CreateServiceInstanceBindingRequest request, CreateServiceInstanceAppBindingResponse response) {
         Assert.notNull(response, "expecting a non-null response");
         Assert.notNull(response.getCredentials(), "expecting a non-null response credentials");
+        Assert.notNull(request.getContext(), "expecting a non-null OSB context");
+        Assert.isInstanceOf(CloudFoundryContext.class, request.getContext(), "only supporting CloudFoundry " +
+            "clients, but received unsupported context in OSB request");
 
         final Destination destination = ConnectionInfoFactory.fromCredentials(response.getCredentials());
 
@@ -146,14 +147,16 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
         }
         log.debug("creating security group for credentials {}.", response.getCredentials());
         try {
+            CloudFoundryContext cloudFoundryContext = (CloudFoundryContext) request.getContext();
             final SecurityGroupEntity securityGroup = Mono.zip(
                     getRuleDescription(cloudFoundryClient, request.getBindingId(), request.getServiceInstanceId()),
-                    getSpaceId(cloudFoundryClient, request.getAppGuid())
+                    Mono.just(cloudFoundryContext.getSpaceGuid())
             ).flatMap(function((description, spaceId) -> create(getSecurityGroupName(request), destination, description
                 , spaceId)))
                     .doOnError(t -> log.error("Fail to create security group. Error details {}", t.toString(), t))
                     .block();
 
+            assert securityGroup != null: "mono should not return empty";
             log.debug("Security Group {} created", securityGroup.getName());
         } catch (Exception e) {
             log.error("Fail to create Security Group. Error details {}", e.toString(), e);
@@ -189,15 +192,6 @@ public class CreateSecurityGroup implements CreateServiceInstanceBindingPostFilt
 
     private String getSecurityGroupName(CreateServiceInstanceBindingRequest request) {
         return request.getBindingId();
-    }
-
-    private Mono<String> getSpaceId(CloudFoundryClient cloudFoundryClient, String appId) {
-        return cloudFoundryClient.applicationsV2().get(GetApplicationRequest.builder()
-                .applicationId(appId)
-                .build())
-                .map(GetApplicationResponse::getEntity)
-                .map(ApplicationEntity::getSpaceId)
-                .checkpoint();
     }
 
     public class NotAllowedDestination extends RuntimeException {

@@ -26,6 +26,7 @@ import org.cloudfoundry.reactor.tokenprovider.PasswordGrantTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
@@ -34,6 +35,7 @@ import java.time.Duration;
  * @author Sebastien Bortolussi
  */
 @Configuration
+@Profile("!offline-test-without-cf")
 public class CloudfoundryClientConfig {
 
     @Autowired

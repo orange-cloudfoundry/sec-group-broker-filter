@@ -64,6 +64,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import reactor.core.publisher.Mono;
 
 import org.springframework.boot.test.system.OutputCaptureRule;
+import org.springframework.cloud.servicebroker.model.CloudFoundryContext;
 import org.springframework.cloud.servicebroker.model.binding.BindResource;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
@@ -140,8 +141,6 @@ public class CreateSecurityGroupTest {
     public void init() {
         given(cloudFoundryClient.securityGroups())
                 .willReturn(Mockito.mock(SecurityGroups.class));
-        given(cloudFoundryClient.applicationsV2())
-                .willReturn(Mockito.mock(ApplicationsV2.class));
         given(cloudFoundryClient.serviceBrokers())
                 .willReturn(Mockito.mock(ServiceBrokers.class));
         given(cloudFoundryClient.serviceInstances())
@@ -162,8 +161,33 @@ public class CreateSecurityGroupTest {
     }
 
     @Test
-    public void should_create_security_group() throws Exception {
-        givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
+    public void should_create_security_group_for_a_service_key() {
+        //Given a service key request
+        //See https://github.com/openservicebrokerapi/servicebroker/blob/master/profile.md#cloud-foundry-bind-resource-object
+        BindResource bindResource = BindResource.builder()
+            .properties("credential_client_id", "cc_service_key_client") //not actually used in our test, just here
+            // to make test representative of real received content
+            .build();
+        //Given other prereqs, when request is received then security group is created
+        //Sample request from logs
+        /*
+                2020-09-08T14:22:12.16+0200 [APP/PROC/WEB/0] OUT 2020-09-08 12:22:12.169 DEBUG 30 --- [nio-8080-exec-6] f.c.f.ServiceInstanceBindingFilterRunner : Running postBind on each filter from: [com.orange.cloud.servicebroker.filter.securitygroups.filter.CreateSecurityGroup@354dda0] for osb request: ServiceBrokerRequest{platformInstanceId='null', apiInfoLocation='api.redacted-domain.org/v2/info', originatingIdentity=Context{platform='cloudfoundry', properties={user_id=0fff310e-552c-4014-9943-d7acd9875865}}', requestIdentity=adfb8b2e-83f8-46ba-b7df-60f7c52bde9c}AsyncServiceBrokerRequest{asyncAccepted=false}AsyncParameterizedServiceInstanceRequest{parameters={}, context=Context{platform='cloudfoundry', properties={spaceGuid=ae31a4ce-f56a-4050-8f2e-f54e4bc59ac3, spaceName=cf-redis, organizationName=service-sandbox, organizationGuid=b65a1232-add9-49ab-8bf1-283ddc08c0de}}}CreateServiceInstanceBindingRequest{serviceDefinitionId='EEA47C3A-569C-4C24-869D-0ADB5B337A4C', planId='C210CA06-E7E5-4F5D-A5AA-7A2C51CC290E', appGuid='null', bindResource=BindResource{appGuid='null', route='null', properties={credential_client_id=cc_service_key_client}}, serviceInstanceId='b28308b7-78b9-4ec3-9e45-e888ac5f97aa', bindingId='d1947fb1-a1be-4cc2-a231-4d0c73942b2c'} and osb response: CreateServiceInstanceBindingResponse{bindingExisted=false}CreateServiceInstanceAppBindingResponse{credentials={host=192.168.30.190, password=3d63e230-1ea0-4886-a10c-0095692e5e6d, port=46485}, syslogDrainUrl='null', volumeMounts=[], endpoints=[]}
+
+         */
+        assertSecurityGroupCreated(bindResource);
+    }
+
+    @Test
+    public void should_create_security_group_for_a_service_binding() {
+        //Given a service binding request referencing an app
+        BindResource bindResource = BindResource.builder()
+            .appGuid("app_guid")
+            .build();
+        //Given other prereqs, when request is received then security group is created
+        assertSecurityGroupCreated(bindResource);
+    }
+
+    private void assertSecurityGroupCreated(BindResource bindResource) {
         givenServicePlan(this.cloudFoundryClient, "plan-id", "service-id");
         givenService(this.cloudFoundryClient, "service-id", "service-broker-id");
         givenServiceBroker(this.cloudFoundryClient, "service-broker-id", "service-broker-name");
@@ -175,36 +199,40 @@ public class CreateSecurityGroupTest {
         credentials.put("uri", TEST_URI);
 
         createSecurityGroup
-                .run(
-                    CreateServiceInstanceBindingRequest.builder()
-                        .serviceDefinitionId("service-id")
-                        .planId("plan-id")
-                        .bindResource(BindResource.builder()
-                            .appGuid("app_guid")
-                            .build())
-                        .bindingId("test-securitygroup-name")
-                        .serviceInstanceId("service-instance-id")
-                        .build(),
-                    CreateServiceInstanceAppBindingResponse.builder()
-                        .credentials(credentials).build()
-                );
+            .run(
+                CreateServiceInstanceBindingRequest.builder()
+                    .serviceDefinitionId("service-id")
+                    .planId("plan-id")
+                    .bindResource(bindResource)
+                    .bindingId("test-securitygroup-name")
+                    .serviceInstanceId("service-instance-id")
+                    .context(CloudFoundryContext.builder()
+                        .spaceGuid("space_id")
+                        //Unnecessary details omitted for now
+//                        .spaceName("space_name")
+//                        .organizationGuid("org_guid")
+//                        .organizationName("org_name")
+                        .build())
+                    .build(),
+                CreateServiceInstanceAppBindingResponse.builder()
+                    .credentials(credentials).build()
+            );
 
         Mockito.verify(cloudFoundryClient.securityGroups())
-                .create(CreateSecurityGroupRequest.builder()
-                        .name("test-securitygroup-name")
-                        .spaceId("space_id")
-                        .rule(RuleEntity.builder()
-                                .description(RULE_DESCRIPTION)
-                                .protocol(Protocol.TCP)
-                                .ports("3306")
-                                .destination("127.0.0.1")
-                                .build())
-                        .build());
+            .create(CreateSecurityGroupRequest.builder()
+                .name("test-securitygroup-name")
+                .spaceId("space_id")
+                .rule(RuleEntity.builder()
+                    .description(RULE_DESCRIPTION)
+                    .protocol(Protocol.TCP)
+                    .ports("3306")
+                    .destination("127.0.0.1")
+                    .build())
+                .build());
     }
 
     @Test(expected = ClientV2Exception.class)
-    public void fail_to_create_create_security_group_should_raise_exception_so_that_CC_requests_unbinding_action_to_clean_up_target_broker_related_resources() throws Exception {
-        givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
+    public void fail_to_create_create_security_group_should_raise_exception_so_that_CC_requests_unbinding_action_to_clean_up_target_broker_related_resources() {
         givenServicePlan(this.cloudFoundryClient, "plan-id", "service-id");
         givenService(this.cloudFoundryClient, "service-id", "service-broker-id");
         givenServiceBroker(this.cloudFoundryClient, "service-broker-id", "service-broker-name");
@@ -224,6 +252,9 @@ public class CreateSecurityGroupTest {
                             .build())
                         .bindingId("test-securitygroup-name")
                         .serviceInstanceId("service-instance-id")
+                        .context(CloudFoundryContext.builder()
+                            .spaceGuid("space_id")
+                            .build())
                         .build()
                     , CreateServiceInstanceAppBindingResponse.builder()
                         .credentials(credentials).build()
@@ -232,8 +263,7 @@ public class CreateSecurityGroupTest {
     }
 
     @Test(expected = ClientV2Exception.class)
-    public void should_block_until_create_security_group_returns() throws Exception {
-        givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
+    public void should_block_until_create_security_group_returns() {
         givenServicePlan(this.cloudFoundryClient, "plan-id", "service-id");
         givenService(this.cloudFoundryClient, "service-id", "service-broker-id");
         givenServiceBroker(this.cloudFoundryClient, "service-broker-id", "service-broker-name");
@@ -253,6 +283,9 @@ public class CreateSecurityGroupTest {
                             .build())
                         .bindingId("test-securitygroup-name")
                         .serviceInstanceId("service-instance-id")
+                        .context(CloudFoundryContext.builder()
+                            .spaceGuid("space_id")
+                            .build())
                         .build(),
                     CreateServiceInstanceAppBindingResponse.builder()
                         .credentials(credentials).build());
@@ -300,18 +333,6 @@ public class CreateSecurityGroupTest {
                 .willReturn(Mono
                         .delay(Duration.ofSeconds(2))
                         .then(Mono.error(new ClientV2Exception(null, 999, "test-exception-description", "test-exception-errorCode"))));
-    }
-
-    private void givenBoundedAppExists(CloudFoundryClient cloudFoundryClient, String appId) {
-        given(cloudFoundryClient.applicationsV2()
-                .get(GetApplicationRequest.builder()
-                        .applicationId(appId)
-                        .build()))
-                .willReturn(Mono.just(GetApplicationResponse.builder()
-                        .entity(ApplicationEntity.builder()
-                                .spaceId("space_id")
-                                .build())
-                        .build()));
     }
 
     private void givenCreateSecurityGroupsSucceeds(CloudFoundryClient cloudFoundryClient, String securityGroupName) {
@@ -374,7 +395,6 @@ public class CreateSecurityGroupTest {
 
     @Test(expected = CreateSecurityGroup.NotAllowedDestination.class)
     public void should_reject_security_group_with_destination_out_of_range() {
-        givenBoundedAppExists(this.cloudFoundryClient, "app_guid");
         givenService(this.cloudFoundryClient, "service-id", "service-broker-id");
         givenServiceBroker(this.cloudFoundryClient, "service-broker-id", "service-broker-name");
         givenServiceInstance(this.cloudFoundryClient, "service-instance-id", "service-instance-name", "plan-id");
@@ -402,6 +422,9 @@ public class CreateSecurityGroupTest {
                             .build())
                         .bindingId("test-securitygroup-name")
                         .serviceInstanceId("service-instance-id")
+                        .context(CloudFoundryContext.builder()
+                            .spaceGuid("space_id")
+                            .build())
                         .build(),
                     CreateServiceInstanceAppBindingResponse.builder()
                         .credentials(credentials).build());

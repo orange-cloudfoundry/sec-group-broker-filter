@@ -68,7 +68,7 @@ public abstract class AbstractServiceBrokerFilterTest extends AbstractIntegratio
         logger.debug("pushing app {} ...", applicationName);
         return cloudFoundryOperations.applications()
                 .push(PushApplicationRequest.builder()
-                        .application(applicationPath)
+                        .path(applicationPath)
                         .diskQuota(512)
                         .memory(512)
                         .name(applicationName)

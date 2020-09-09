@@ -30,6 +30,7 @@ import org.springframework.cloud.servicebroker.model.instance.GetLastServiceOper
 import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceRequest;
 import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceResponse;
 import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,7 @@ import org.springframework.stereotype.Service;
  *
  * @author Sebastien Bortolussi
  */
+@Profile("!offline-test-without-cf")
 @Service
 public class ServiceInstanceServiceProxy implements ServiceInstanceService {
 

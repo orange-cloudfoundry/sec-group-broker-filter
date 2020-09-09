@@ -22,6 +22,7 @@ import com.orange.cloud.servicebroker.filter.core.config.FilteredBrokerFeignConf
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,7 @@ import javax.validation.Valid;
  *
  * @author Sebastien Bortolussi
  */
+@Profile("!offline-test-without-cf")
 @FeignClient(name = "bindings", url = "${broker.filter.url}", configuration = FilteredBrokerFeignConfig.class)
 public interface ServiceInstanceBindingServiceClient {
 

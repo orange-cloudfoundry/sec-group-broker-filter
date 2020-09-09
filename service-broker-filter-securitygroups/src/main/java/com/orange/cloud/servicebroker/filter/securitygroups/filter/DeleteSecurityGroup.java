@@ -26,6 +26,7 @@ import org.cloudfoundry.util.PaginationUtils;
 import org.cloudfoundry.util.ResourceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.model.binding.DeleteServiceInstanceBindingRequest;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import java.time.Duration;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@Profile("!offline-test-without-cf")
 @Component
 public class DeleteSecurityGroup implements DeleteServiceInstanceBindingPostFilter {
 

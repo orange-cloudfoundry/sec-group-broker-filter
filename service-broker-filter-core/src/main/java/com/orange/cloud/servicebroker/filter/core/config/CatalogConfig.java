@@ -24,12 +24,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.model.catalog.Catalog;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 /**
  * Configure the catalog of services offered by the service broker.
  *
  * @author Sebastien Bortolussi
  */
+@Profile("!offline-test-without-cf")
 @Configuration
 public class CatalogConfig {
 

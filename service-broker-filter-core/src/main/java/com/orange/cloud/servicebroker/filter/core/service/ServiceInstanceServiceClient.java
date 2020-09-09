@@ -26,6 +26,7 @@ import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInsta
 import org.springframework.cloud.servicebroker.model.instance.GetLastServiceOperationResponse;
 import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceRequest;
 import org.springframework.cloud.servicebroker.model.instance.UpdateServiceInstanceResponse;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,7 @@ import javax.validation.Valid;
 /**
  * @author Sebastien Bortolussi
  */
+@Profile("!offline-test-without-cf")
 @FeignClient(name = "instances", url = "${broker.filter.url}", configuration = FilteredBrokerFeignConfig.class)
 public interface ServiceInstanceServiceClient {
 

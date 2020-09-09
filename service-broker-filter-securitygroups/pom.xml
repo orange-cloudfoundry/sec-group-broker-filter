@@ -35,6 +35,15 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- embed default HTTP container, tomcat
+         See https://docs.spring.io/spring-boot/docs/2.3.2.RELEASE/reference/htmlsingle/#boot-features-developing-web-applications
+         https://stackoverflow.com/a/46274214/1484823
+         -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -61,6 +70,7 @@
             <artifactId>value</artifactId>
         </dependency>
 
+        <!-- used to model trusted IP/port destinations -->
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
@@ -85,6 +95,25 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
 
+                <!-- enable generation of META-INF/build-info.properties
+                See https://docs.spring.io/spring-boot/docs/2.3.2.RELEASE/maven-plugin/reference/html/#goals-build-info
+                and https://www.vojtechruzicka.com/spring-boot-version/
+                -->
+
+                <executions>
+                    <execution>
+                        <id>build-info</id>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
                 <!-- Support for custom config.
                      See https://docs.spring.io/spring-boot/docs/2.3.2.RELEASE/reference/html/appendix-configuration-metadata.html#configuration-metadata-annotation-processor-->
                 <configuration>
@@ -95,6 +124,14 @@
                         </exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+
+            <!--
+            Turn on generation of git properties
+            see https://docs.spring.io/spring-boot/docs/2.3.2.RELEASE/reference/htmlsingle/#howto-git-info -->
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
             </plugin>
         </plugins>
 

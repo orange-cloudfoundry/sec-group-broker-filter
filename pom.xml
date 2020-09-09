@@ -27,6 +27,16 @@
         <tag>HEAD</tag>
     </scm>
 
+    <!-- generate an HTML report of unit tests that gets archived and served from circleci builds -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>3.0.0-M5</version>
+            </plugin>
+        </plugins>
+    </reporting>
 
     <properties>
         <lombok>1.18.12</lombok>

@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import javax.net.ssl.*;
 import java.io.IOException;
@@ -33,31 +34,30 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
+@Profile("!offline-test-without-cf")
 @Configuration
 @ConditionalOnClass(OkHttpClient.class)
 @Slf4j
 public class OkHttpClientConfig {
 
-    private static final Interceptor LOGGING_INTERCEPTOR = new Interceptor() {
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            Request request = chain.request();
+    private static final Interceptor LOGGING_INTERCEPTOR = chain -> {
+        Request request = chain.request();
 
-            long t1 = System.nanoTime();
-            log.info(String.format("Sending request %s on %s%n%s",
-                    request.url(), chain.connection(), request.headers()));
+        long t1 = System.nanoTime();
+        log.info(String.format("Sending request %s on %s%n%s",
+                request.url(), chain.connection(), request.headers()));
 
-            Response response = chain.proceed(request);
+        Response response = chain.proceed(request);
 
-            long t2 = System.nanoTime();
-            log.info(String.format("Received response for %s in %.1fms%n%s",
-                    response.request().url(), (t2 - t1) / 1e6d, response.headers()));
+        long t2 = System.nanoTime();
+        log.info(String.format("Received response for %s in %.1fms%n%s",
+                response.request().url(), (t2 - t1) / 1e6d, response.headers()));
 
-            return response;
-        }
+        return response;
     };
     @Value("${director.proxyHost:}")
     private String proxyHost;
@@ -66,30 +66,26 @@ public class OkHttpClientConfig {
 
     @Bean
     public OkHttpClient squareHttpClient() {
-        HostnameVerifier hostnameVerifier = new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        };
+        HostnameVerifier hostnameVerifier = (hostname, session) -> true;
+        //See https://blog.codavel.com/accepting-self-signed-certificates-in-okhttp3
         TrustManager[] trustAllCerts = new TrustManager[]{new TrustAllCerts()};
 
-        SSLSocketFactory sslSocketFactory = null;
+        SSLSocketFactory sslSocketFactory;
         try {
             SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(null, trustAllCerts, new SecureRandom());
-            sslSocketFactory = (SSLSocketFactory) sc.getSocketFactory();
+            sslSocketFactory = sc.getSocketFactory();
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            new IllegalArgumentException(e);
+            throw new IllegalArgumentException(e);
         }
 
         log.info("===> configuring OkHttp");
         OkHttpClient.Builder ohc = new OkHttpClient.Builder()
-                .protocols(Arrays.asList(Protocol.HTTP_1_1))
+                .protocols(Collections.singletonList(Protocol.HTTP_1_1))
                 .followRedirects(true)
                 .followSslRedirects(true)
                 .hostnameVerifier(hostnameVerifier)
-                .sslSocketFactory(sslSocketFactory)
+                .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
                 .addInterceptor(LOGGING_INTERCEPTOR);
 
         if ((this.proxyHost != null) && (this.proxyHost.length() > 0)) {
@@ -99,7 +95,7 @@ public class OkHttpClientConfig {
             ohc.proxySelector(new ProxySelector() {
                 @Override
                 public List<Proxy> select(URI uri) {
-                    return Arrays.asList(proxy);
+                    return Collections.singletonList(proxy);
                 }
 
                 @Override
@@ -114,13 +110,11 @@ public class OkHttpClientConfig {
 
     public static class TrustAllCerts extends X509ExtendedTrustManager {
         @Override
-        public void checkClientTrusted(X509Certificate[] chain, String authType)
-                throws CertificateException {
+        public void checkClientTrusted(X509Certificate[] chain, String authType) {
         }
 
         @Override
-        public void checkServerTrusted(X509Certificate[] chain, String authType)
-                throws CertificateException {
+        public void checkServerTrusted(X509Certificate[] chain, String authType) {
         }
 
         @Override
@@ -129,29 +123,25 @@ public class OkHttpClientConfig {
         }
 
         @Override
-        public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket)
-                throws CertificateException {
+        public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine)
-                throws CertificateException {
+        public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket)
-                throws CertificateException {
+        public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket) {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine)
-                throws CertificateException {
+        public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) {
             // TODO Auto-generated method stub
 
         }

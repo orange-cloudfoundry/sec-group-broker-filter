@@ -9,7 +9,8 @@ jobs: # a collection of steps
     docker: # run the steps with Docker
       # List of images at https://hub.docker.com/r/circleci/openjdk/tags
       #      - image: circleci/openjdk:8-jdk-stretch # ...with this image as the primary container; this is where all `steps` will run
-      - image: circleci/openjdk:14-jdk-buster-node-browsers-legacy # ...with this image as the primary container; this is where all `steps` will run
+#      - image: circleci/openjdk:14-jdk-buster-node-browsers-legacy # ...with this image as the primary container; this is where all `steps` will run
+      - image: circleci/openjdk:8-jdk-buster-node-browsers-legacy # ...with this image as the primary container; this is where all `steps` will run
 
     steps: # a collection of executable commands
 
@@ -26,22 +27,26 @@ jobs: # a collection of steps
 
 #      - run: mvn dependency:go-offline # gets the project dependencies
       - run: mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies #gets the project dependencies include submodules
+      - run: mvn package # also run the actual tests
+      - run: mvn surefire-report:report-only surefire-report:failsafe-report-only #  package a report without rerunning tests
 
-      - save_cache: # saves the project dependencies
+      - save_cache: # saves the project dependencies once surefire
           paths:
             - ~/.m2
           key: sec-group-broker-filter-{{ checksum "~/pom-checksum" }}
 
-      - run: mvn package # run the actual tests
+
 
       # uploads the test metadata from the `target/surefire-reports` directory so that it can show up in the CircleCI dashboard.
       # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
       # See https://circleci.com/docs/2.0/collect-test-data/#maven-surefire-plugin-for-java-junit-results
       - run:
           name: Save test results
+          # pending aggregation of multi modules report into a single html file
           command: |
             mkdir -p ~/test-results/junit/
             find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
+            for f in $(find . -type f -regex ".*/target/site/.*.html"); do module=$(echo "$f" | cut -d "/" -f2); shortname=$(basename $f); cp $f ~/test-results/junit/${module}_${shortname}; done
           when: always
       - store_test_results:
           path: ~/test-results
