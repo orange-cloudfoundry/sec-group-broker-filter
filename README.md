@@ -176,6 +176,21 @@ $ ./mvnw -Pintegration-test \
 clean test
 ```
 
+**IMPORTANT**
+Integration tests should be run against an empty Cloud Foundry instance. The integration tests are destructive, affecting nearly everything on an instance given the chance.
+
+The integration tests require a running instance of Cloud Foundry to test against.  To configure the integration tests with the appropriate connection information use the following environment variables:
+
+Name | Description
+---- | -----------
+`TEST_APIHOST` | The host of Cloud Foundry instance.  Typically something like `api.local.pcfdev.io`.
+`TEST_USERNAME` | The test user's name
+`TEST_PASSWORD` | The test user's password
+`TEST_SKIPSSLVALIDATION` | Whether to skip SSL validation when connecting to the Cloud Foundry instance.  Typically `true` when connecting to a PCF Dev instance.
+`TEST_ORG` | The Org used for test suite
+`TEST_DOMAIN` | The Domain used for test suite
+
+
 # Releasing
 
 Prereqs: checkout the branch to release (master), and make sure it is up-to-date w.r.t. the github remote.
@@ -211,19 +226,6 @@ In case of issues, try:
 * fix the root cause and retry.
 
 
-**IMPORTANT**
-Integration tests should be run against an empty Cloud Foundry instance. The integration tests are destructive, affecting nearly everything on an instance given the chance.
-
-The integration tests require a running instance of Cloud Foundry to test against.  To configure the integration tests with the appropriate connection information use the following environment variables:
-
-Name | Description
----- | -----------
-`TEST_APIHOST` | The host of Cloud Foundry instance.  Typically something like `api.local.pcfdev.io`.
-`TEST_USERNAME` | The test user's name
-`TEST_PASSWORD` | The test user's password
-`TEST_SKIPSSLVALIDATION` | Whether to skip SSL validation when connecting to the Cloud Foundry instance.  Typically `true` when connecting to a PCF Dev instance.
-`TEST_ORG` | The Org used for test suite
-`TEST_DOMAIN` | The Domain used for test suite
 
 # Credits
 
