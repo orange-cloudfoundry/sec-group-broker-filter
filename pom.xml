@@ -5,7 +5,7 @@
     <groupId>com.orange.cloud.servicebroker</groupId>
     <artifactId>service-broker-filter</artifactId>
     <packaging>pom</packaging>
-    <version>2.4.0.BUILD-SNAPSHOT</version>
+    <version>2.4.0.RELEASE</version>
 
     <modules>
         <module>service-broker-filter-core</module>
@@ -24,7 +24,7 @@
         <connection>scm:git:https://github.com/orange-cloudfoundry/sec-group-broker-filter.git</connection>
         <developerConnection>scm:git:https://github.com/orange-cloudfoundry/sec-group-broker-filter.git
         </developerConnection>
-        <tag>HEAD</tag>
+        <tag>v2.4.0.RELEASE</tag>
     </scm>
 
     <!-- generate an HTML report of unit tests that gets archived and served from circleci builds -->
