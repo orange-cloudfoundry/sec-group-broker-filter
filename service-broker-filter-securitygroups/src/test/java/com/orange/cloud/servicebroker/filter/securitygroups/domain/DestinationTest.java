@@ -45,7 +45,7 @@ public class DestinationTest {
     }
 
     @Test
-    public void get_ips_from_uri() throws Exception {
+    public void get_ips_from_uri_with_fqdn() throws Exception {
         Destination destination = new Destination("mysql://2106:Uq3YCioVsO3Dbcp4@localhost:3306/mydb?reconnect=true");
 
         Assertions.assertThat(destination.getIPs().collect(Collectors.toList())).containsOnly("127.0.0.1");
