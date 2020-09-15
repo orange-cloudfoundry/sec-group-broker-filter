@@ -22,20 +22,28 @@
 * [x] manually test behavior during binding/unbinding
 * [x] polish & merge
    * [x] rebase/squash
-   * [ ] review logs and adjust default log levels
-* [ ] release
+   * [x] review logs and adjust default log levels
+* [x] release
 ```
-Support cf create-service-key command #97
-openjdk 8 252 okHttp compatibility bug #197
-sec-group-broker-filter is embedding vulnerable tomcat version in its jars #52
-sec-group broker filter needs version bumps to be compatible with java buildpack 4.32.1 #198
+* Support cf create-service-key command #97
+* openjdk 8 252 okHttp compatibility bug #197
+* sec-group-broker-filter is embedding vulnerable tomcat version in its jars #52
+* sec-group broker filter needs version bumps to be compatible with java buildpack 4.32.1 #198
 ```
 * [ ] bump version in paas-templates
-   * [ ] redis
-   * [ ] other sec-groups
-      * [ ] check this is no dependent on newly introduced properties. Diff manifest file
-      * [ ] revert workaround (jdk8 pinning) in manifest
+   * [x] redis
+   * [x] other sec-groups
+      * [x ] check this is no dependent on newly introduced properties. Diff manifest file
+      * [x] revert workaround (jdk8 pinning) in manifest
       * [ ] manually check status
+         * [ ] delete space prometheus-probe
+         ```
+        An unbind operation for the service binding between app probe-internet-apps-domains and service instance ha-internet failed: The service broker rejected the request. Status Code: 404 Not Found, Body: 404 Not Found: Requested route ('internet-sec-group-broker-filter.redacted-domain.org') does not exist.
+        
+        o-intranet-proxy-access                                    https://intranet-proxy-sec-group-broker-filter.redacted-domain.org
+        o-internet-ha-access                                       https://internet-sec-group-broker-filter.redacted-domain.org
+                                                                           internet-sec-group-broker-filter.redacted-domain.org
+         ```
 * [ ] refine smoke test assertions
     * benefits: allow future maintenance by merging dependabot pr in a "bump" branch, and watch status in concourse pipeline, possibly automated at some time.
     * [ ] sec-group specific assertions

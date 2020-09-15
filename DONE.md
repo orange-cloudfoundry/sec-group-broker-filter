@@ -697,3 +697,27 @@ INFO] ------------------------------------------------------------------------
          * [x] fix the bug
          * Still not sufficient as current tags (from p-redis) and expected tags (from coa) don't match
             * [x] inject 'service_name' to the probe app systematically
+
+
+-----
+
+TrustedDestination support introduced in 2.2.0 prevents credentials with FQDNs #207
+
+* FQDN to IP address is performed in Destination.getIPs() invoked from CreateSecurityGroup.create()
+* TrustedDestination is checked earlier and fails because it is expecting an IP address and not a FDQN
+```
+s.c.ServiceBrokerWebMvcExceptionHandler : Unknown exception handled: 
+ java.lang.IllegalArgumentException: Invalid IP address : apps-internet-http-proxy.internal.paas
+ 	at com.orange.cloud.servicebroker.filter.securitygroups.domain.IPAddress.validate(IPAddress.java:32) ~[classes/:2.4.0.RELEASE]
+ 	at com.orange.cloud.servicebroker.filter.securitygroups.domain.ImmutableIPAddress.validate(ImmutableIPAddress.java:98) ~[classes/:2.4.0.RELEASE]
+ 	at com.orange.cloud.servicebroker.filter.securitygroups.domain.ImmutableIPAddress.of(ImmutableIPAddress.java:94) ~[classes/:2.4.0.RELEASE]
+ 	at com.orange.cloud.servicebroker.filter.securitygroups.domain.TrustedDestinationSpecification.isSatisfiedBy(TrustedDestinationSpecification.java:16) ~[classes/:2.4.0.RELEASE]
+ 	at com.orange.cloud.servicebroker.filter.securitygroups.filter.CreateSecurityGroup.run(CreateSecurityGroup.java:144) ~[classes/:2.4.0.RELEASE]
+ 	at com.orange.cloud.servicebroker.filter.securitygroups.filter.CreateSecurityGroup.run(CreateSecurityGroup.java:56) ~[classes/:2.4.0.RELEASE]
+ 
+```
+* options
+   * [x] Add support for checking FQDNs in TrustedDestinationSpecification.isSatisfiedBy(Destination candidate)
+      * [x] reproduce in TrustedDestinationSpecification unit test
+      * [x] reproduce in integration test CreateSecurityGroupTest
+      
