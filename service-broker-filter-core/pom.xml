@@ -29,7 +29,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <springCloudServiceBrokerVersion>3.1.2.RELEASE</springCloudServiceBrokerVersion>
+        <springCloudServiceBrokerVersion>3.3.0</springCloudServiceBrokerVersion>
     </properties>
 
     <dependencyManagement>
