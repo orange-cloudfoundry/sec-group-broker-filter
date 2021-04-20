@@ -39,7 +39,7 @@
     </reporting>
 
     <properties>
-        <lombok>1.18.12</lombok>
+        <lombok>1.18.20</lombok>
         <cf-java-client.version>4.9.0.RELEASE</cf-java-client.version>
         <immutables.version>2.8.8</immutables.version>
     </properties>
